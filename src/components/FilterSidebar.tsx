@@ -3,14 +3,15 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Filters } from '@/types/product';
-import { brands, genders, types, caseMaterials, dialColors } from '@/data/products';
+import { genders, types, caseMaterials, dialColors } from '@/data/products';
 
 interface FilterSidebarProps {
   filters: Filters;
   onFiltersChange: (filters: Filters) => void;
+  availableBrands: string[];
 }
 
-export const FilterSidebar = ({ filters, onFiltersChange }: FilterSidebarProps) => {
+export const FilterSidebar = ({ filters, onFiltersChange, availableBrands }: FilterSidebarProps) => {
   const handleCheckboxChange = (category: keyof Omit<Filters, 'priceRange'>, value: string) => {
     const currentValues = filters[category] as string[];
     const newValues = currentValues.includes(value)
@@ -49,23 +50,25 @@ export const FilterSidebar = ({ filters, onFiltersChange }: FilterSidebarProps) 
           </div>
 
           {/* Brand */}
-          <div>
-            <h3 className="font-body font-semibold mb-3">Brand</h3>
-            <div className="space-y-2">
-              {brands.map(brand => (
-                <div key={brand} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`brand-${brand}`}
-                    checked={filters.brands.includes(brand)}
-                    onCheckedChange={() => handleCheckboxChange('brands', brand)}
-                  />
-                  <Label htmlFor={`brand-${brand}`} className="font-body text-sm cursor-pointer">
-                    {brand}
-                  </Label>
-                </div>
-              ))}
+          {availableBrands.length > 0 && (
+            <div>
+              <h3 className="font-body font-semibold mb-3">Brand</h3>
+              <div className="space-y-2">
+                {availableBrands.sort().map(brand => (
+                  <div key={brand} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`brand-${brand}`}
+                      checked={filters.brands.includes(brand)}
+                      onCheckedChange={() => handleCheckboxChange('brands', brand)}
+                    />
+                    <Label htmlFor={`brand-${brand}`} className="font-body text-sm cursor-pointer">
+                      {brand}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Gender */}
           <div>

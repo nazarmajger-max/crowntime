@@ -3,7 +3,7 @@ import { ShoppingCart, Menu, User, Shield } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/watchzone-logo.jpg';
 
 export const Header = () => {
   const { cartCount } = useCart();
@@ -12,9 +12,8 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center gap-3 transition-opacity hover:opacity-80">
-          <img src={logo} alt="Chronos Elite" className="h-10 w-10" />
-          <span className="font-display text-xl font-semibold">Chronos Elite</span>
+        <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
+          <img src={logo} alt="WATCHZONE" className="h-8 w-auto object-contain" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">

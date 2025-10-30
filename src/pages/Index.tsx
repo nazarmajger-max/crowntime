@@ -25,6 +25,12 @@ const Index = () => {
     dialColor: [],
   });
 
+  // Get unique brands from products
+  const availableBrands = useMemo(() => {
+    const brands = products.map(p => p.brand).filter(Boolean);
+    return Array.from(new Set(brands));
+  }, [products]);
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -113,10 +119,10 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold mb-4 animate-fade-in">
-            Timeless Elegance
+            WATCHZONE
           </h1>
           <p className="font-body text-lg md:text-xl mb-8 max-w-2xl mx-auto animate-fade-in">
-            Discover exquisite timepieces that define sophistication and precision
+            Найкращий вибір наручних годинників преміум класу
           </p>
           <Button size="lg" className="font-body font-medium animate-scale-in">
             Explore Collection
@@ -126,7 +132,11 @@ const Index = () => {
 
       {/* Main Content */}
       <div className="flex">
-        <FilterSidebar filters={filters} onFiltersChange={setFilters} />
+        <FilterSidebar 
+          filters={filters} 
+          onFiltersChange={setFilters}
+          availableBrands={availableBrands}
+        />
         
         <main className="flex-1">
           <div className="container px-6 py-8">

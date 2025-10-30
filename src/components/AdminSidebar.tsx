@@ -14,6 +14,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
+import logo from '@/assets/watchzone-logo.jpg';
 
 const menuItems = [
   { title: 'Панель', url: '/admin', icon: LayoutDashboard },
@@ -40,6 +41,10 @@ export function AdminSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarTrigger className="m-2 self-end" />
+
+      <div className="p-4 border-b">
+        <img src={logo} alt="WATCHZONE" className="h-8 w-auto object-contain mx-auto" />
+      </div>
 
       <SidebarContent>
         <SidebarGroup>
