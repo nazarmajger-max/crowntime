@@ -1,30 +1,29 @@
-import { useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { Outlet } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/AdminSidebar';
 
 const AdminLayout = () => {
-  const { isAdmin, loading } = useAuth();
-  const navigate = useNavigate();
+  // Тимчасово вимкнено перевірку авторизації для тестування
+  // const { isAdmin, loading } = useAuth();
+  // const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!loading && !isAdmin) {
-      navigate('/');
-    }
-  }, [isAdmin, loading, navigate]);
+  // useEffect(() => {
+  //   if (!loading && !isAdmin) {
+  //     navigate('/');
+  //   }
+  // }, [isAdmin, loading, navigate]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-luxury-gold"></div>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-luxury-gold"></div>
+  //     </div>
+  //   );
+  // }
 
-  if (!isAdmin) {
-    return null;
-  }
+  // if (!isAdmin) {
+  //   return null;
+  // }
 
   return (
     <SidebarProvider>
