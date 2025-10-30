@@ -39,23 +39,29 @@ const Index = () => {
 
       if (error) throw error;
 
-      const formattedProducts: Product[] = (data || []).map(p => ({
-        id: p.id,
-        name: p.name,
-        brand: p.brand,
-        price: Number(p.price),
-        description: p.description || '',
-        image: p.image_url,
-        category: p.category,
-        gender: p.gender || 'Unisex',
-        type: p.category,
-        caseMaterial: p.case_material || 'Steel',
-        dialColor: p.dial_color || 'Black',
-        waterResistance: p.water_resistance || '50m',
-        movementType: p.movement_type || 'Automatic',
-        movement: p.movement_type || 'Automatic',
-        inStock: p.in_stock,
-      }));
+      const formattedProducts: Product[] = (data || []).map(p => {
+        const gender = (p.gender?.toLowerCase() || 'unisex') as 'men' | 'women' | 'unisex';
+        const type = (p.category?.toLowerCase() || 'analog') as Product['type'];
+        const validTypes = ['analog', 'digital', 'sport', 'luxury', 'dress', 'dive'];
+        
+        return {
+          id: p.id,
+          name: p.name,
+          brand: p.brand,
+          price: Number(p.price),
+          description: p.description || '',
+          image: p.image_url,
+          category: p.category,
+          gender: ['men', 'women', 'unisex'].includes(gender) ? gender : 'unisex',
+          type: validTypes.includes(type) ? type : 'analog',
+          caseMaterial: p.case_material || 'Steel',
+          dialColor: p.dial_color || 'Black',
+          waterResistance: p.water_resistance || '50m',
+          movementType: p.movement_type || 'Automatic',
+          movement: p.movement_type || 'Automatic',
+          inStock: p.in_stock,
+        };
+      });
 
       setProducts(formattedProducts);
     } catch (error: any) {
