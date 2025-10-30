@@ -1,7 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/components/AdminSidebar';
-
 const AdminLayout = () => {
   // Тимчасово вимкнено перевірку авторизації для тестування
   // const { isAdmin, loading } = useAuth();
@@ -25,15 +24,14 @@ const AdminLayout = () => {
   //   return null;
   // }
 
-  return (
-    <SidebarProvider>
+  return <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         <AdminSidebar />
         <div className="flex-1 flex flex-col">
           <header className="h-16 border-b flex items-center px-6 bg-white">
             <SidebarTrigger />
             <div className="ml-4">
-              <h2 className="text-xl font-display font-bold text-luxury-gold">Chronos Elite Admin</h2>
+              <h2 className="text-xl font-display font-bold text-luxury-gold">WatchZone Admin</h2>
             </div>
           </header>
           <main className="flex-1 p-6">
@@ -41,8 +39,6 @@ const AdminLayout = () => {
           </main>
         </div>
       </div>
-    </SidebarProvider>
-  );
+    </SidebarProvider>;
 };
-
 export default AdminLayout;
