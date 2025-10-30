@@ -3,15 +3,26 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Filters } from '@/types/product';
-import { genders, types, caseMaterials, dialColors } from '@/data/products';
 
 interface FilterSidebarProps {
   filters: Filters;
   onFiltersChange: (filters: Filters) => void;
   availableBrands: string[];
+  availableTypes: string[];
+  availableGenders: string[];
+  availableCaseMaterials: string[];
+  availableDialColors: string[];
 }
 
-export const FilterSidebar = ({ filters, onFiltersChange, availableBrands }: FilterSidebarProps) => {
+export const FilterSidebar = ({ 
+  filters, 
+  onFiltersChange, 
+  availableBrands,
+  availableTypes,
+  availableGenders,
+  availableCaseMaterials,
+  availableDialColors
+}: FilterSidebarProps) => {
   const handleCheckboxChange = (category: keyof Omit<Filters, 'priceRange'>, value: string) => {
     const currentValues = filters[category] as string[];
     const newValues = currentValues.includes(value)
@@ -71,80 +82,88 @@ export const FilterSidebar = ({ filters, onFiltersChange, availableBrands }: Fil
           )}
 
           {/* Gender */}
-          <div>
-            <h3 className="font-body font-semibold mb-3">Gender</h3>
-            <div className="space-y-2">
-              {genders.map(gender => (
-                <div key={gender} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`gender-${gender}`}
-                    checked={filters.gender.includes(gender)}
-                    onCheckedChange={() => handleCheckboxChange('gender', gender)}
-                  />
-                  <Label htmlFor={`gender-${gender}`} className="font-body text-sm cursor-pointer capitalize">
-                    {gender}
-                  </Label>
-                </div>
-              ))}
+          {availableGenders.length > 0 && (
+            <div>
+              <h3 className="font-body font-semibold mb-3">Gender</h3>
+              <div className="space-y-2">
+                {availableGenders.map(gender => (
+                  <div key={gender} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`gender-${gender}`}
+                      checked={filters.gender.includes(gender)}
+                      onCheckedChange={() => handleCheckboxChange('gender', gender)}
+                    />
+                    <Label htmlFor={`gender-${gender}`} className="font-body text-sm cursor-pointer capitalize">
+                      {gender}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Type */}
-          <div>
-            <h3 className="font-body font-semibold mb-3">Type</h3>
-            <div className="space-y-2">
-              {types.map(type => (
-                <div key={type} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`type-${type}`}
-                    checked={filters.type.includes(type)}
-                    onCheckedChange={() => handleCheckboxChange('type', type)}
-                  />
-                  <Label htmlFor={`type-${type}`} className="font-body text-sm cursor-pointer capitalize">
-                    {type}
-                  </Label>
-                </div>
-              ))}
+          {availableTypes.length > 0 && (
+            <div>
+              <h3 className="font-body font-semibold mb-3">Type</h3>
+              <div className="space-y-2">
+                {availableTypes.map(type => (
+                  <div key={type} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`type-${type}`}
+                      checked={filters.type.includes(type)}
+                      onCheckedChange={() => handleCheckboxChange('type', type)}
+                    />
+                    <Label htmlFor={`type-${type}`} className="font-body text-sm cursor-pointer capitalize">
+                      {type}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Case Material */}
-          <div>
-            <h3 className="font-body font-semibold mb-3">Case Material</h3>
-            <div className="space-y-2">
-              {caseMaterials.map(material => (
-                <div key={material} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`material-${material}`}
-                    checked={filters.caseMaterial.includes(material)}
-                    onCheckedChange={() => handleCheckboxChange('caseMaterial', material)}
-                  />
-                  <Label htmlFor={`material-${material}`} className="font-body text-sm cursor-pointer">
-                    {material}
-                  </Label>
-                </div>
-              ))}
+          {availableCaseMaterials.length > 0 && (
+            <div>
+              <h3 className="font-body font-semibold mb-3">Case Material</h3>
+              <div className="space-y-2">
+                {availableCaseMaterials.map(material => (
+                  <div key={material} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`material-${material}`}
+                      checked={filters.caseMaterial.includes(material)}
+                      onCheckedChange={() => handleCheckboxChange('caseMaterial', material)}
+                    />
+                    <Label htmlFor={`material-${material}`} className="font-body text-sm cursor-pointer">
+                      {material}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Dial Color */}
-          <div>
-            <h3 className="font-body font-semibold mb-3">Dial Color</h3>
-            <div className="space-y-2">
-              {dialColors.map(color => (
-                <div key={color} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`color-${color}`}
-                    checked={filters.dialColor.includes(color)}
-                    onCheckedChange={() => handleCheckboxChange('dialColor', color)}
-                  />
-                  <Label htmlFor={`color-${color}`} className="font-body text-sm cursor-pointer">
-                    {color}
-                  </Label>
-                </div>
-              ))}
+          {availableDialColors.length > 0 && (
+            <div>
+              <h3 className="font-body font-semibold mb-3">Dial Color</h3>
+              <div className="space-y-2">
+                {availableDialColors.map(color => (
+                  <div key={color} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`color-${color}`}
+                      checked={filters.dialColor.includes(color)}
+                      onCheckedChange={() => handleCheckboxChange('dialColor', color)}
+                    />
+                    <Label htmlFor={`color-${color}`} className="font-body text-sm cursor-pointer">
+                      {color}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </ScrollArea>
     </aside>

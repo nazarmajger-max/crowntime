@@ -25,10 +25,30 @@ const Index = () => {
     dialColor: [],
   });
 
-  // Get unique brands from products
+  // Extract unique values from products for filters
   const availableBrands = useMemo(() => {
     const brands = products.map(p => p.brand).filter(Boolean);
-    return Array.from(new Set(brands));
+    return Array.from(new Set(brands)).sort();
+  }, [products]);
+
+  const availableTypes = useMemo(() => {
+    const types = products.map(p => p.category).filter(Boolean);
+    return Array.from(new Set(types)).sort();
+  }, [products]);
+
+  const availableGenders = useMemo(() => {
+    const genders = products.map(p => p.gender).filter(Boolean);
+    return Array.from(new Set(genders)).sort();
+  }, [products]);
+
+  const availableCaseMaterials = useMemo(() => {
+    const materials = products.map(p => p.caseMaterial).filter(Boolean);
+    return Array.from(new Set(materials)).sort();
+  }, [products]);
+
+  const availableDialColors = useMemo(() => {
+    const colors = products.map(p => p.dialColor).filter(Boolean);
+    return Array.from(new Set(colors)).sort();
   }, [products]);
 
   useEffect(() => {
@@ -136,6 +156,10 @@ const Index = () => {
           filters={filters} 
           onFiltersChange={setFilters}
           availableBrands={availableBrands}
+          availableTypes={availableTypes}
+          availableGenders={availableGenders}
+          availableCaseMaterials={availableCaseMaterials}
+          availableDialColors={availableDialColors}
         />
         
         <main className="flex-1">
