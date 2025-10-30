@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, ShoppingCart, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, LogOut } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -19,7 +19,6 @@ const menuItems = [
   { title: 'Панель', url: '/admin', icon: LayoutDashboard },
   { title: 'Товари', url: '/admin/products', icon: Package },
   { title: 'Замовлення', url: '/admin/orders', icon: ShoppingCart },
-  { title: 'Користувачі', url: '/admin/users', icon: Users },
 ];
 
 export function AdminSidebar() {
