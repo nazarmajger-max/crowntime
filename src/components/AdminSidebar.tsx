@@ -1,0 +1,78 @@
+import { LayoutDashboard, Package, ShoppingCart, Users, LogOut } from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarTrigger,
+  useSidebar,
+} from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
+
+const menuItems = [
+  { title: 'Панель', url: '/admin', icon: LayoutDashboard },
+  { title: 'Товари', url: '/admin/products', icon: Package },
+  { title: 'Замовлення', url: '/admin/orders', icon: ShoppingCart },
+  { title: 'Користувачі', url: '/admin/users', icon: Users },
+];
+
+export function AdminSidebar() {
+  const { state } = useSidebar();
+  const location = useLocation();
+  const { signOut } = useAuth();
+  const currentPath = location.pathname;
+
+  const isActive = (path: string) => {
+    if (path === '/admin') {
+      return currentPath === path;
+    }
+    return currentPath.startsWith(path);
+  };
+
+  const getNavCls = ({ isActive }: { isActive: boolean }) =>
+    isActive ? 'bg-luxury-gold/10 text-luxury-gold font-medium' : 'hover:bg-muted/50';
+
+  return (
+    <Sidebar collapsible="icon">
+      <SidebarTrigger className="m-2 self-end" />
+
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Адмін Панель</SidebarGroupLabel>
+
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink to={item.url} end={item.url === '/admin'} className={getNavCls}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <div className="mt-auto p-4">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={signOut}
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Вийти</span>
+          </Button>
+        </div>
+      </SidebarContent>
+    </Sidebar>
+  );
+}

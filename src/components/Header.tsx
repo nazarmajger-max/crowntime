@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Menu } from 'lucide-react';
+import { ShoppingCart, Menu, User, Shield } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import logo from '@/assets/logo.png';
 
 export const Header = () => {
   const { cartCount } = useCart();
+  const { user, isAdmin } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -31,6 +33,26 @@ export const Header = () => {
         </nav>
 
         <div className="flex items-center gap-4">
+          {isAdmin && (
+            <Link to="/admin">
+              <Button variant="outline" size="sm" className="hidden md:flex">
+                <Shield className="mr-2 h-4 w-4" />
+                Адмін
+              </Button>
+            </Link>
+          )}
+          {user ? (
+            <div className="hidden md:flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">{user.email}</span>
+            </div>
+          ) : (
+            <Link to="/auth">
+              <Button variant="ghost" size="sm" className="hidden md:flex">
+                <User className="mr-2 h-4 w-4" />
+                Увійти
+              </Button>
+            </Link>
+          )}
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />

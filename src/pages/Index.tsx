@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ProductCard } from '@/components/ProductCard';
@@ -6,11 +7,13 @@ import { ProductDetailModal } from '@/components/ProductDetailModal';
 import { FilterSidebar } from '@/components/FilterSidebar';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { products } from '@/data/products';
 import { Product, Filters } from '@/types/product';
 import heroBg from '@/assets/hero-bg.jpg';
+import { toast } from 'sonner';
 
 const Index = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [sortBy, setSortBy] = useState<string>('featured');
   const [filters, setFilters] = useState<Filters>({
@@ -21,6 +24,47 @@ const Index = () => {
     caseMaterial: [],
     dialColor: [],
   });
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('in_stock', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedProducts: Product[] = (data || []).map(p => ({
+        id: p.id,
+        name: p.name,
+        brand: p.brand,
+        price: Number(p.price),
+        description: p.description || '',
+        image: p.image_url,
+        category: p.category,
+        gender: p.gender || 'Unisex',
+        type: p.category,
+        caseMaterial: p.case_material || 'Steel',
+        dialColor: p.dial_color || 'Black',
+        waterResistance: p.water_resistance || '50m',
+        movementType: p.movement_type || 'Automatic',
+        movement: p.movement_type || 'Automatic',
+        inStock: p.in_stock,
+      }));
+
+      setProducts(formattedProducts);
+    } catch (error: any) {
+      console.error('Error fetching products:', error);
+      toast.error('Помилка завантаження товарів');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredAndSortedProducts = useMemo(() => {
     let result = products.filter(product => {
@@ -80,45 +124,50 @@ const Index = () => {
         
         <main className="flex-1">
           <div className="container px-6 py-8">
-            {/* Sort & Results */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-              <p className="font-body text-muted-foreground">
-                Showing {filteredAndSortedProducts.length} of {products.length} products
-              </p>
-              
-              <div className="flex items-center gap-2">
-                <span className="font-body text-sm text-muted-foreground">Sort by:</span>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-[180px] font-body">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="featured" className="font-body">Featured</SelectItem>
-                    <SelectItem value="price-low" className="font-body">Price: Low to High</SelectItem>
-                    <SelectItem value="price-high" className="font-body">Price: High to Low</SelectItem>
-                    <SelectItem value="name" className="font-body">Name: A to Z</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Product Grid */}
-            {filteredAndSortedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredAndSortedProducts.map(product => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onProductClick={setSelectedProduct}
-                  />
-                ))}
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-luxury-gold"></div>
               </div>
             ) : (
-              <div className="text-center py-20">
-                <p className="font-body text-lg text-muted-foreground">
-                  No products match your filters. Try adjusting your selection.
-                </p>
-              </div>
+              <>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                  <p className="font-body text-muted-foreground">
+                    Showing {filteredAndSortedProducts.length} of {products.length} products
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className="font-body text-sm text-muted-foreground">Sort by:</span>
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger className="w-[180px] font-body">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="featured" className="font-body">Featured</SelectItem>
+                        <SelectItem value="price-low" className="font-body">Price: Low to High</SelectItem>
+                        <SelectItem value="price-high" className="font-body">Price: High to Low</SelectItem>
+                        <SelectItem value="name" className="font-body">Name: A to Z</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                  {filteredAndSortedProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onProductClick={setSelectedProduct}
+                    />
+                  ))}
+                </div>
+
+                {filteredAndSortedProducts.length === 0 && (
+                  <div className="text-center py-12">
+                    <p className="font-body text-muted-foreground">
+                      No products found matching your filters.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </main>
