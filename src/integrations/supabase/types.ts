@@ -110,59 +110,119 @@ export type Database = {
         }
         Relationships: []
       }
+      product_specifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          spec_type: string
+          value: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          spec_type: string
+          value: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          spec_type?: string
+          value?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           brand: string
+          case_color: string | null
           case_material: string | null
+          case_shape: string | null
           category: string
           created_at: string
+          date_indication: boolean | null
+          day_indication: boolean | null
           description: string | null
           dial_color: string | null
+          dial_type: string | null
+          diameter: string | null
           gender: string | null
+          glass_type: string | null
           id: string
+          illumination: string | null
           image_url: string
           in_stock: boolean | null
+          indication_type: string | null
+          model_code: string | null
           movement_type: string | null
           name: string
           price: number
           stock_quantity: number | null
+          strap_color: string | null
+          strap_material: string | null
           updated_at: string
+          watch_style: string | null
           water_resistance: string | null
         }
         Insert: {
           brand: string
+          case_color?: string | null
           case_material?: string | null
+          case_shape?: string | null
           category: string
           created_at?: string
+          date_indication?: boolean | null
+          day_indication?: boolean | null
           description?: string | null
           dial_color?: string | null
+          dial_type?: string | null
+          diameter?: string | null
           gender?: string | null
+          glass_type?: string | null
           id?: string
+          illumination?: string | null
           image_url: string
           in_stock?: boolean | null
+          indication_type?: string | null
+          model_code?: string | null
           movement_type?: string | null
           name: string
           price: number
           stock_quantity?: number | null
+          strap_color?: string | null
+          strap_material?: string | null
           updated_at?: string
+          watch_style?: string | null
           water_resistance?: string | null
         }
         Update: {
           brand?: string
+          case_color?: string | null
           case_material?: string | null
+          case_shape?: string | null
           category?: string
           created_at?: string
+          date_indication?: boolean | null
+          day_indication?: boolean | null
           description?: string | null
           dial_color?: string | null
+          dial_type?: string | null
+          diameter?: string | null
           gender?: string | null
+          glass_type?: string | null
           id?: string
+          illumination?: string | null
           image_url?: string
           in_stock?: boolean | null
+          indication_type?: string | null
+          model_code?: string | null
           movement_type?: string | null
           name?: string
           price?: number
           stock_quantity?: number | null
+          strap_color?: string | null
+          strap_material?: string | null
           updated_at?: string
+          watch_style?: string | null
           water_resistance?: string | null
         }
         Relationships: []

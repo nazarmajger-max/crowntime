@@ -13,6 +13,20 @@ export interface Product {
   waterResistance: string;
   movement: string;
   inStock: boolean;
+  // Extended specifications
+  glassType?: string;
+  diameter?: string;
+  illumination?: string;
+  dialType?: string;
+  caseColor?: string;
+  dateIndication?: boolean;
+  dayIndication?: boolean;
+  watchStyle?: string;
+  indicationType?: string;
+  caseShape?: string;
+  strapMaterial?: string;
+  strapColor?: string;
+  modelCode?: string;
 }
 
 export interface CartItem {

@@ -16,12 +16,12 @@ const Cart = () => {
         <Header />
         <main className="container px-4 py-20">
           <div className="text-center">
-            <h1 className="font-display text-4xl font-bold mb-4">Your Cart is Empty</h1>
+            <h1 className="font-display text-4xl font-bold mb-4">Ваш кошик порожній</h1>
             <p className="font-body text-muted-foreground mb-8">
-              Start shopping to add items to your cart
+              Почніть покупки, щоб додати товари до кошика
             </p>
             <Link to="/">
-              <Button size="lg" className="font-body">Continue Shopping</Button>
+              <Button size="lg" className="font-body">Продовжити покупки</Button>
             </Link>
           </div>
         </main>
@@ -34,7 +34,7 @@ const Cart = () => {
     <>
       <Header />
       <main className="container px-4 py-12 min-h-[calc(100vh-200px)]">
-        <h1 className="font-display text-4xl font-bold mb-8">Shopping Cart</h1>
+        <h1 className="font-display text-4xl font-bold mb-8">Кошик покупок</h1>
         
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
@@ -54,7 +54,7 @@ const Cart = () => {
                       <h3 className="font-display text-lg font-semibold mb-1">{product.name}</h3>
                       <p className="font-body text-sm text-muted-foreground mb-2">{product.brand}</p>
                       <p className="font-body text-lg font-bold text-accent">
-                        ${product.price.toLocaleString()}
+                        {product.price.toLocaleString()} ₴
                       </p>
                     </div>
 
@@ -96,20 +96,20 @@ const Cart = () => {
           <div className="lg:col-span-1">
             <Card className="sticky top-20">
               <CardContent className="p-6 space-y-4">
-                <h2 className="font-display text-2xl font-semibold">Order Summary</h2>
+                <h2 className="font-display text-2xl font-semibold">Підсумок замовлення</h2>
                 
                 <div className="space-y-2 font-body">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span className="font-medium">${cartTotal.toLocaleString()}</span>
+                    <span className="text-muted-foreground">Сума</span>
+                    <span className="font-medium">{cartTotal.toLocaleString()} ₴</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Shipping</span>
-                    <span className="font-medium">Free</span>
+                    <span className="text-muted-foreground">Доставка</span>
+                    <span className="font-medium">Безкоштовно</span>
                   </div>
                   <div className="border-t pt-2 flex justify-between text-lg font-semibold">
-                    <span>Total</span>
-                    <span className="text-accent">${cartTotal.toLocaleString()}</span>
+                    <span>Загалом</span>
+                    <span className="text-accent">{cartTotal.toLocaleString()} ₴</span>
                   </div>
                 </div>
 
@@ -118,12 +118,12 @@ const Cart = () => {
                   className="w-full font-body font-medium"
                   size="lg"
                 >
-                  Proceed to Checkout
+                  Оформити замовлення
                 </Button>
                 
                 <Link to="/">
                   <Button variant="outline" className="w-full font-body">
-                    Continue Shopping
+                    Продовжити покупки
                   </Button>
                 </Link>
               </CardContent>

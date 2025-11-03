@@ -18,16 +18,16 @@ export const Header = () => {
 
         <nav className="hidden md:flex items-center gap-8">
           <Link to="/" className="font-body text-sm font-medium transition-colors hover:text-accent">
-            Home
+            Головна
           </Link>
           <Link to="/" className="font-body text-sm font-medium transition-colors hover:text-accent">
-            Shop
+            Магазин
           </Link>
           <Link to="/" className="font-body text-sm font-medium transition-colors hover:text-accent">
-            About
+            Про нас
           </Link>
           <Link to="/" className="font-body text-sm font-medium transition-colors hover:text-accent">
-            Contact
+            Контакти
           </Link>
         </nav>
 

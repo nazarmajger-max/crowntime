@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { ProductCard } from '@/components/ProductCard';
-import { ProductDetailModal } from '@/components/ProductDetailModal';
 import { FilterSidebar } from '@/components/FilterSidebar';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,7 +13,6 @@ import { toast } from 'sonner';
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [sortBy, setSortBy] = useState<string>('featured');
   const [filters, setFilters] = useState<Filters>({
     brands: [],
@@ -145,7 +143,7 @@ const Index = () => {
             Найкращий вибір наручних годинників преміум класу
           </p>
           <Button size="lg" className="font-body font-medium animate-scale-in">
-            Explore Collection
+            Переглянути колекцію
           </Button>
         </div>
       </section>
@@ -172,19 +170,19 @@ const Index = () => {
               <>
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                   <p className="font-body text-muted-foreground">
-                    Showing {filteredAndSortedProducts.length} of {products.length} products
+                    Показано {filteredAndSortedProducts.length} з {products.length} товарів
                   </p>
                   <div className="flex items-center gap-2">
-                    <span className="font-body text-sm text-muted-foreground">Sort by:</span>
+                    <span className="font-body text-sm text-muted-foreground">Сортувати за:</span>
                     <Select value={sortBy} onValueChange={setSortBy}>
                       <SelectTrigger className="w-[180px] font-body">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="featured" className="font-body">Featured</SelectItem>
-                        <SelectItem value="price-low" className="font-body">Price: Low to High</SelectItem>
-                        <SelectItem value="price-high" className="font-body">Price: High to Low</SelectItem>
-                        <SelectItem value="name" className="font-body">Name: A to Z</SelectItem>
+                        <SelectItem value="featured" className="font-body">Рекомендовані</SelectItem>
+                        <SelectItem value="price-low" className="font-body">Ціна: від низької</SelectItem>
+                        <SelectItem value="price-high" className="font-body">Ціна: від високої</SelectItem>
+                        <SelectItem value="name" className="font-body">Назва: А до Я</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -195,7 +193,6 @@ const Index = () => {
                     <ProductCard
                       key={product.id}
                       product={product}
-                      onProductClick={setSelectedProduct}
                     />
                   ))}
                 </div>
@@ -203,7 +200,7 @@ const Index = () => {
                 {filteredAndSortedProducts.length === 0 && (
                   <div className="text-center py-12">
                     <p className="font-body text-muted-foreground">
-                      No products found matching your filters.
+                      Товарів не знайдено за вашими фільтрами.
                     </p>
                   </div>
                 )}
@@ -214,12 +211,6 @@ const Index = () => {
       </div>
 
       <Footer />
-      
-      <ProductDetailModal
-        product={selectedProduct}
-        open={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-      />
     </>
   );
 };

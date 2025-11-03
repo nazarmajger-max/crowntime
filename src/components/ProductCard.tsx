@@ -3,25 +3,30 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
   product: Product;
-  onProductClick: (product: Product) => void;
 }
 
-export const ProductCard = ({ product, onProductClick }: ProductCardProps) => {
+export const ProductCard = ({ product }: ProductCardProps) => {
   const { addToCart } = useCart();
+  const navigate = useNavigate();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     addToCart(product);
-    toast.success(`${product.name} added to cart`);
+    toast.success(`${product.name} додано до кошика`);
+  };
+
+  const handleProductClick = () => {
+    navigate(`/product/${product.id}`);
   };
 
   return (
     <Card 
       className="group overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[var(--shadow-hover)] animate-fade-in"
-      onClick={() => onProductClick(product)}
+      onClick={handleProductClick}
     >
       <div className="aspect-[3/4] overflow-hidden bg-muted">
         <img
@@ -38,7 +43,7 @@ export const ProductCard = ({ product, onProductClick }: ProductCardProps) => {
           {product.name}
         </h3>
         <p className="font-body text-2xl font-bold text-accent">
-          ${product.price.toLocaleString()}
+          {product.price.toLocaleString()} ₴
         </p>
       </CardContent>
       <CardFooter className="p-4 pt-0">
@@ -47,7 +52,7 @@ export const ProductCard = ({ product, onProductClick }: ProductCardProps) => {
           className="w-full font-body font-medium"
           variant="default"
         >
-          Add to Cart
+          Додати до кошика
         </Button>
       </CardFooter>
     </Card>

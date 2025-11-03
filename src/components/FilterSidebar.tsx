@@ -37,13 +37,13 @@ export const FilterSidebar = ({
 
   return (
     <aside className="w-64 border-r bg-muted/30 p-6">
-      <h2 className="font-display text-2xl font-semibold mb-6">Filters</h2>
+      <h2 className="font-display text-2xl font-semibold mb-6">Фільтри</h2>
       
       <ScrollArea className="h-[calc(100vh-200px)]">
         <div className="space-y-6">
           {/* Price Range */}
           <div>
-            <h3 className="font-body font-semibold mb-4">Price Range</h3>
+            <h3 className="font-body font-semibold mb-4">Діапазон цін</h3>
             <div className="px-2">
               <Slider
                 min={0}
@@ -54,8 +54,8 @@ export const FilterSidebar = ({
                 className="mb-4"
               />
               <div className="flex justify-between font-body text-sm text-muted-foreground">
-                <span>${filters.priceRange[0]}</span>
-                <span>${filters.priceRange[1]}</span>
+                <span>{filters.priceRange[0]} ₴</span>
+                <span>{filters.priceRange[1]} ₴</span>
               </div>
             </div>
           </div>
@@ -63,7 +63,7 @@ export const FilterSidebar = ({
           {/* Brand */}
           {availableBrands.length > 0 && (
             <div>
-              <h3 className="font-body font-semibold mb-3">Brand</h3>
+              <h3 className="font-body font-semibold mb-3">Бренд</h3>
               <div className="space-y-2">
                 {availableBrands.sort().map(brand => (
                   <div key={brand} className="flex items-center gap-2">
@@ -84,7 +84,7 @@ export const FilterSidebar = ({
           {/* Gender */}
           {availableGenders.length > 0 && (
             <div>
-              <h3 className="font-body font-semibold mb-3">Gender</h3>
+              <h3 className="font-body font-semibold mb-3">Стать</h3>
               <div className="space-y-2">
                 {availableGenders.map(gender => (
                   <div key={gender} className="flex items-center gap-2">
@@ -94,7 +94,7 @@ export const FilterSidebar = ({
                       onCheckedChange={() => handleCheckboxChange('gender', gender)}
                     />
                     <Label htmlFor={`gender-${gender}`} className="font-body text-sm cursor-pointer capitalize">
-                      {gender}
+                      {gender === 'men' ? 'Чоловіча' : gender === 'women' ? 'Жіноча' : 'Унісекс'}
                     </Label>
                   </div>
                 ))}
@@ -105,7 +105,7 @@ export const FilterSidebar = ({
           {/* Type */}
           {availableTypes.length > 0 && (
             <div>
-              <h3 className="font-body font-semibold mb-3">Type</h3>
+              <h3 className="font-body font-semibold mb-3">Тип</h3>
               <div className="space-y-2">
                 {availableTypes.map(type => (
                   <div key={type} className="flex items-center gap-2">
@@ -126,7 +126,7 @@ export const FilterSidebar = ({
           {/* Case Material */}
           {availableCaseMaterials.length > 0 && (
             <div>
-              <h3 className="font-body font-semibold mb-3">Case Material</h3>
+              <h3 className="font-body font-semibold mb-3">Матеріал корпусу</h3>
               <div className="space-y-2">
                 {availableCaseMaterials.map(material => (
                   <div key={material} className="flex items-center gap-2">
@@ -147,7 +147,7 @@ export const FilterSidebar = ({
           {/* Dial Color */}
           {availableDialColors.length > 0 && (
             <div>
-              <h3 className="font-body font-semibold mb-3">Dial Color</h3>
+              <h3 className="font-body font-semibold mb-3">Колір циферблату</h3>
               <div className="space-y-2">
                 {availableDialColors.map(color => (
                   <div key={color} className="flex items-center gap-2">

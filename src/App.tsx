@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "./contexts/CartContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
+import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
@@ -28,6 +29,7 @@ const App = () => (
             <Sonner />
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/order-success" element={<OrderSuccess />} />
