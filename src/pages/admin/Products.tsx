@@ -51,6 +51,7 @@ interface Specification {
 }
 
 const specTypeLabels: Record<string, string> = {
+  brand: 'Бренд',
   glass: 'Скло',
   diameter: 'Діаметр',
   movement_type: 'Тип механізму',
@@ -170,6 +171,7 @@ const Products = () => {
       price: parseFloat(formData.price),
       stock_quantity: parseInt(formData.stock_quantity),
       in_stock: parseInt(formData.stock_quantity) > 0,
+      category: formData.category || 'Годинники',
     };
 
     if (editingProduct) {
@@ -308,10 +310,10 @@ const Products = () => {
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-full p-0" align="start">
+          <PopoverContent className="w-[400px] p-0" align="start">
             <Command>
               <CommandInput placeholder={`Шукати ${label.toLowerCase()}...`} />
-              <CommandList>
+              <CommandList className="max-h-[300px]">
                 <CommandEmpty>Не знайдено.</CommandEmpty>
                 <CommandGroup>
                   {options.map((option) => (
@@ -333,45 +335,61 @@ const Products = () => {
                     </CommandItem>
                   ))}
                 </CommandGroup>
-                <div className="border-t p-2">
-                  {addingSpecType === specType ? (
-                    <div className="flex gap-2">
-                      <Input
-                        value={newSpecValue}
-                        onChange={(e) => setNewSpecValue(e.target.value)}
-                        placeholder="Нова характеристика"
-                        className="flex-1"
-                      />
-                      <Button
-                        size="sm"
-                        onClick={() => handleAddNewSpecification(specType)}
-                      >
-                        Додати
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setAddingSpecType(null);
-                          setNewSpecValue('');
-                        }}
-                      >
-                        Скасувати
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => setAddingSpecType(specType)}
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Додати нову характеристику
-                    </Button>
-                  )}
-                </div>
               </CommandList>
+              <div className="border-t p-2">
+                {addingSpecType === specType ? (
+                  <div className="flex gap-2">
+                    <Input
+                      value={newSpecValue}
+                      onChange={(e) => setNewSpecValue(e.target.value)}
+                      placeholder="Нова характеристика"
+                      className="flex-1"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddNewSpecification(specType);
+                        }
+                      }}
+                    />
+                    <Button
+                      size="sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleAddNewSpecification(specType);
+                      }}
+                      type="button"
+                    >
+                      Додати
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setAddingSpecType(null);
+                        setNewSpecValue('');
+                      }}
+                      type="button"
+                    >
+                      Скасувати
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setAddingSpecType(specType);
+                    }}
+                    type="button"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Додати нову характеристику
+                  </Button>
+                )}
+              </div>
             </Command>
           </PopoverContent>
         </Popover>
@@ -413,15 +431,12 @@ const Products = () => {
                     required
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="brand">Бренд*</Label>
-                  <Input
-                    id="brand"
-                    value={formData.brand}
-                    onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                    required
-                  />
-                </div>
+                <ComboboxField
+                  specType="brand"
+                  label={specTypeLabels.brand}
+                  value={formData.brand}
+                  onChange={(value) => setFormData({ ...formData, brand: value })}
+                />
                 <div className="space-y-2">
                   <Label htmlFor="model_code">Модель</Label>
                   <Input
@@ -448,15 +463,6 @@ const Products = () => {
                     type="number"
                     value={formData.stock_quantity}
                     onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">Категорія*</Label>
-                  <Input
-                    id="category"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     required
                   />
                 </div>

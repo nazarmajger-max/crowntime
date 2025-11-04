@@ -97,17 +97,36 @@ const Index = () => {
   };
 
   const filteredAndSortedProducts = useMemo(() => {
-    let result = products.filter(product => {
-      const priceMatch = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
-      const brandMatch = filters.brands.length === 0 || filters.brands.includes(product.brand);
-      const genderMatch = filters.gender.length === 0 || filters.gender.includes(product.gender);
-      const typeMatch = filters.type.length === 0 || filters.type.includes(product.type);
-      const materialMatch = filters.caseMaterial.length === 0 || filters.caseMaterial.includes(product.caseMaterial);
-      const colorMatch = filters.dialColor.length === 0 || filters.dialColor.includes(product.dialColor);
+    let result = [...products];
 
-      return priceMatch && brandMatch && genderMatch && typeMatch && materialMatch && colorMatch;
-    });
+    // Apply filters only if they are set
+    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000) {
+      result = result.filter(product => 
+        product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]
+      );
+    }
 
+    if (filters.brands.length > 0) {
+      result = result.filter(product => filters.brands.includes(product.brand));
+    }
+
+    if (filters.gender.length > 0) {
+      result = result.filter(product => filters.gender.includes(product.gender));
+    }
+
+    if (filters.type.length > 0) {
+      result = result.filter(product => filters.type.includes(product.type));
+    }
+
+    if (filters.caseMaterial.length > 0) {
+      result = result.filter(product => filters.caseMaterial.includes(product.caseMaterial));
+    }
+
+    if (filters.dialColor.length > 0) {
+      result = result.filter(product => filters.dialColor.includes(product.dialColor));
+    }
+
+    // Apply sorting
     switch (sortBy) {
       case 'price-low':
         result.sort((a, b) => a.price - b.price);
@@ -123,7 +142,7 @@ const Index = () => {
     }
 
     return result;
-  }, [filters, sortBy]);
+  }, [products, filters, sortBy]);
 
   return (
     <>

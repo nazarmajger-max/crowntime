@@ -1,6 +1,6 @@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Filters } from '@/types/product';
 
@@ -31,10 +31,6 @@ export const FilterSidebar = ({
     onFiltersChange({ ...filters, [category]: newValues });
   };
 
-  const handlePriceChange = (value: number[]) => {
-    onFiltersChange({ ...filters, priceRange: [value[0], value[1]] });
-  };
-
   return (
     <aside className="w-64 border-r bg-muted/30 p-6">
       <h2 className="font-display text-2xl font-semibold mb-6">Фільтри</h2>
@@ -44,18 +40,34 @@ export const FilterSidebar = ({
           {/* Price Range */}
           <div>
             <h3 className="font-body font-semibold mb-4">Діапазон цін</h3>
-            <div className="px-2">
-              <Slider
-                min={0}
-                max={10000}
-                step={100}
-                value={[filters.priceRange[0], filters.priceRange[1]]}
-                onValueChange={handlePriceChange}
-                className="mb-4"
-              />
-              <div className="flex justify-between font-body text-sm text-muted-foreground">
-                <span>{filters.priceRange[0]} ₴</span>
-                <span>{filters.priceRange[1]} ₴</span>
+            <div className="space-y-2">
+              <div>
+                <Label className="text-xs text-muted-foreground">Від (₴)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={10000}
+                  value={filters.priceRange[0]}
+                  onChange={(e) => {
+                    const value = Math.max(0, Math.min(10000, Number(e.target.value) || 0));
+                    onFiltersChange({ ...filters, priceRange: [value, filters.priceRange[1]] });
+                  }}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">До (₴)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  max={10000}
+                  value={filters.priceRange[1]}
+                  onChange={(e) => {
+                    const value = Math.max(0, Math.min(10000, Number(e.target.value) || 10000));
+                    onFiltersChange({ ...filters, priceRange: [filters.priceRange[0], value] });
+                  }}
+                  className="mt-1"
+                />
               </div>
             </div>
           </div>
