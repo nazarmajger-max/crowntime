@@ -152,7 +152,8 @@ const Products = () => {
       if (error.code === '23505') {
         toast.error('Така характеристика вже існує');
       } else {
-        toast.error('Помилка додавання характеристики');
+        console.error('Error adding specification:', error);
+        toast.error('Помилка додавання характеристики: ' + error.message);
       }
       return;
     }
@@ -160,7 +161,7 @@ const Products = () => {
     toast.success('Характеристика додана');
     setNewSpecValue('');
     setAddingSpecType(null);
-    fetchSpecifications();
+    await fetchSpecifications();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -294,6 +295,26 @@ const Products = () => {
   }) => {
     const [open, setOpen] = useState(false);
     const options = getSpecificationsByType(specType);
+    const isAddingThis = addingSpecType === specType;
+
+    const handleAddClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setAddingSpecType(specType);
+    };
+
+    const handleCancelClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setAddingSpecType(null);
+      setNewSpecValue('');
+    };
+
+    const handleSubmitNew = async (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      await handleAddNewSpecification(specType);
+    };
 
     return (
       <div className="space-y-2">
@@ -305,92 +326,95 @@ const Products = () => {
               role="combobox"
               aria-expanded={open}
               className="w-full justify-between"
+              type="button"
             >
               {value || `Оберіть ${label.toLowerCase()}...`}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[400px] p-0" align="start">
-            <Command>
-              <CommandInput placeholder={`Шукати ${label.toLowerCase()}...`} />
+            <Command shouldFilter={!isAddingThis}>
+              <CommandInput 
+                placeholder={`Шукати ${label.toLowerCase()}...`}
+                disabled={isAddingThis}
+              />
               <CommandList className="max-h-[300px]">
-                <CommandEmpty>Не знайдено.</CommandEmpty>
-                <CommandGroup>
-                  {options.map((option) => (
-                    <CommandItem
-                      key={option}
-                      value={option}
-                      onSelect={() => {
-                        onChange(option);
-                        setOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          value === option ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {option}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
+                {!isAddingThis && (
+                  <>
+                    <CommandEmpty>Не знайдено.</CommandEmpty>
+                    <CommandGroup>
+                      {options.map((option) => (
+                        <CommandItem
+                          key={option}
+                          value={option}
+                          onSelect={() => {
+                            onChange(option);
+                            setOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              value === option ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {option}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </>
+                )}
               </CommandList>
-              <div className="border-t p-2">
-                {addingSpecType === specType ? (
-                  <div className="flex gap-2">
-                    <Input
-                      value={newSpecValue}
-                      onChange={(e) => setNewSpecValue(e.target.value)}
-                      placeholder="Нова характеристика"
-                      className="flex-1"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleAddNewSpecification(specType);
-                        }
-                      }}
-                    />
-                    <Button
-                      size="sm"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleAddNewSpecification(specType);
-                      }}
-                      type="button"
-                    >
-                      Додати
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setAddingSpecType(null);
-                        setNewSpecValue('');
-                      }}
-                      type="button"
-                    >
-                      Скасувати
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setAddingSpecType(specType);
+            </Command>
+            <div className="border-t p-2 bg-background">
+              {isAddingThis ? (
+                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                  <Input
+                    value={newSpecValue}
+                    onChange={(e) => {
+                      e.stopPropagation();
+                      setNewSpecValue(e.target.value);
                     }}
+                    placeholder="Нова характеристика"
+                    className="flex-1"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSubmitNew(e as any);
+                      }
+                    }}
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleSubmitNew}
                     type="button"
                   >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Додати нову характеристику
+                    Додати
                   </Button>
-                )}
-              </div>
-            </Command>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelClick}
+                    type="button"
+                  >
+                    Скасувати
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full"
+                  onClick={handleAddClick}
+                  type="button"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Додати нову характеристику
+                </Button>
+              )}
+            </div>
           </PopoverContent>
         </Popover>
       </div>
