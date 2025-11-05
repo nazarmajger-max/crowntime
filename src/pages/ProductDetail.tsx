@@ -5,25 +5,72 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
-import { Check, X, ShoppingCart, Heart } from 'lucide-react';
+import { Check, X, ShoppingCart, Heart, Star } from 'lucide-react';
 import { Product } from '@/types/product';
+
+interface Review {
+  id: string;
+  user_id: string;
+  rating: number;
+  comment: string;
+  created_at: string;
+  profiles: {
+    full_name: string;
+    email: string;
+  };
+}
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
 
   useEffect(() => {
     if (id) {
       fetchProduct(id);
+      fetchReviews(id);
     }
   }, [id]);
+
+  const fetchReviews = async (productId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select(`
+          id,
+          user_id,
+          rating,
+          comment,
+          created_at,
+          profiles (
+            full_name,
+            email
+          )
+        `)
+        .eq('product_id', productId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      
+      setReviews(data || []);
+      
+      if (data && data.length > 0) {
+        const avg = data.reduce((sum, review) => sum + review.rating, 0) / data.length;
+        setAverageRating(Math.round(avg * 10) / 10);
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    }
+  };
 
   const fetchProduct = async (productId: string) => {
     try {
@@ -289,12 +336,64 @@ const ProductDetail = () => {
           </TabsContent>
 
           <TabsContent value="reviews" className="space-y-6">
-            <div className="text-center py-12">
-              <p className="text-muted-foreground font-body">Відгуків ще немає 😔</p>
-              <p className="text-sm text-muted-foreground mt-2 font-body">
-                Будьте першим, хто залишить відгук про цей товар!
-              </p>
+            <div className="mb-6">
+              <h3 className="font-display text-2xl font-semibold mb-4">
+                Відгуки ({reviews.length})
+                {reviews.length > 0 && (
+                  <span className="ml-3 text-lg text-muted-foreground">
+                    <Star className="inline h-5 w-5 fill-yellow-400 text-yellow-400 mb-1" />
+                    {averageRating.toFixed(1)}
+                  </span>
+                )}
+              </h3>
             </div>
+            
+            {reviews.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground font-body">Відгуків ще немає 😔</p>
+                <p className="text-sm text-muted-foreground mt-2 font-body">
+                  Будьте першим, хто залишить відгук про цей товар!
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <Card key={review.id}>
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <p className="font-medium font-body">
+                            {review.profiles?.full_name || review.profiles?.email || 'Анонімний користувач'}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(review.created_at).toLocaleDateString('uk-UA', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })}
+                          </p>
+                        </div>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`h-4 w-4 ${
+                                star <= review.rating
+                                  ? 'fill-yellow-400 text-yellow-400'
+                                  : 'text-muted-foreground'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      {review.comment && (
+                        <p className="text-foreground/80 font-body">{review.comment}</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

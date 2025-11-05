@@ -41,9 +41,12 @@ export const Header = () => {
             </Link>
           )}
           {user ? (
-            <div className="hidden md:flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">{user.email}</span>
-            </div>
+            <Link to="/profile">
+              <Button variant="ghost" size="sm" className="hidden md:flex">
+                <User className="mr-2 h-4 w-4" />
+                Профіль
+              </Button>
+            </Link>
           ) : (
             <Link to="/auth">
               <Button variant="ghost" size="sm" className="hidden md:flex">
