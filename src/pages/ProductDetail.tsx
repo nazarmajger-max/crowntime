@@ -51,7 +51,7 @@ const ProductDetail = () => {
           rating,
           comment,
           created_at,
-          profiles (
+          profiles!reviews_user_id_fkey (
             full_name,
             email
           )
@@ -61,7 +61,7 @@ const ProductDetail = () => {
 
       if (error) throw error;
       
-      setReviews(data || []);
+      setReviews(data as any || []);
       
       if (data && data.length > 0) {
         const avg = data.reduce((sum, review) => sum + review.rating, 0) / data.length;
