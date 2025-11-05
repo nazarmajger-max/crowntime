@@ -73,8 +73,6 @@ const Products = () => {
   const [specifications, setSpecifications] = useState<Specification[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [newSpecValue, setNewSpecValue] = useState('');
-  const [addingSpecType, setAddingSpecType] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     brand: '',
@@ -138,15 +136,15 @@ const Products = () => {
     return specifications.filter(s => s.spec_type === type).map(s => s.value);
   };
 
-  const handleAddNewSpecification = async (specType: string) => {
-    if (!newSpecValue.trim()) {
+  const handleAddNewSpecification = async (specType: string, value: string) => {
+    if (!value.trim()) {
       toast.error('Введіть значення характеристики');
-      return;
+      return false;
     }
 
     const { error } = await supabase
       .from('product_specifications')
-      .insert([{ spec_type: specType, value: newSpecValue.trim() }]);
+      .insert([{ spec_type: specType, value: value.trim() }]);
 
     if (error) {
       if (error.code === '23505') {
@@ -155,13 +153,12 @@ const Products = () => {
         console.error('Error adding specification:', error);
         toast.error('Помилка додавання характеристики: ' + error.message);
       }
-      return;
+      return false;
     }
 
     toast.success('Характеристика додана');
-    setNewSpecValue('');
-    setAddingSpecType(null);
     await fetchSpecifications();
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -294,26 +291,32 @@ const Products = () => {
     onChange: (value: string) => void;
   }) => {
     const [open, setOpen] = useState(false);
+    const [isAdding, setIsAdding] = useState(false);
+    const [newValue, setNewValue] = useState('');
     const options = getSpecificationsByType(specType);
-    const isAddingThis = addingSpecType === specType;
 
     const handleAddClick = (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      setAddingSpecType(specType);
+      setIsAdding(true);
+      setNewValue('');
     };
 
     const handleCancelClick = (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      setAddingSpecType(null);
-      setNewSpecValue('');
+      setIsAdding(false);
+      setNewValue('');
     };
 
     const handleSubmitNew = async (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      await handleAddNewSpecification(specType);
+      const success = await handleAddNewSpecification(specType, newValue);
+      if (success) {
+        setIsAdding(false);
+        setNewValue('');
+      }
     };
 
     return (
@@ -333,13 +336,13 @@ const Products = () => {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[400px] p-0" align="start">
-            <Command shouldFilter={!isAddingThis}>
+            <Command shouldFilter={!isAdding}>
               <CommandInput 
                 placeholder={`Шукати ${label.toLowerCase()}...`}
-                disabled={isAddingThis}
+                disabled={isAdding}
               />
               <CommandList className="max-h-[300px]">
-                {!isAddingThis && (
+                {!isAdding && (
                   <>
                     <CommandEmpty>Не знайдено.</CommandEmpty>
                     <CommandGroup>
@@ -367,13 +370,13 @@ const Products = () => {
               </CommandList>
             </Command>
             <div className="border-t p-2 bg-background">
-              {isAddingThis ? (
+              {isAdding ? (
                 <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                   <Input
-                    value={newSpecValue}
+                    value={newValue}
                     onChange={(e) => {
                       e.stopPropagation();
-                      setNewSpecValue(e.target.value);
+                      setNewValue(e.target.value);
                     }}
                     placeholder="Нова характеристика"
                     className="flex-1"
