@@ -53,13 +53,13 @@ interface Specification {
 
 const specTypeLabels: Record<string, string> = {
   brand: 'Бренд',
-  glass: 'Скло',
+  glass_type: 'Скло',
   diameter: 'Діаметр',
   movement_type: 'Тип механізму',
   illumination: 'Підсвічування',
   dial_type: 'Тип циферблату',
   case_color: 'Колір корпусу',
-  style: 'Стиль',
+  watch_style: 'Стиль',
   indication_type: 'Тип індикації',
   case_material: 'Матеріал корпусу',
   strap_material: 'Матеріал браслета/ремінця',
@@ -673,8 +673,8 @@ const Products = () => {
                 </div>
 
                 <ComboboxField
-                  specType="glass"
-                  label={specTypeLabels.glass}
+                  specType="glass_type"
+                  label={specTypeLabels.glass_type}
                   value={formData.glass_type}
                   onChange={(value) => setFormData({ ...formData, glass_type: value })}
                 />
@@ -715,8 +715,8 @@ const Products = () => {
                 />
 
                 <ComboboxField
-                  specType="style"
-                  label={specTypeLabels.style}
+                  specType="watch_style"
+                  label={specTypeLabels.watch_style}
                   value={formData.watch_style}
                   onChange={(value) => setFormData({ ...formData, watch_style: value })}
                 />
