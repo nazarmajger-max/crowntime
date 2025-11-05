@@ -11,7 +11,6 @@ import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { Check, X, ShoppingCart, Heart, Star } from 'lucide-react';
 import { Product } from '@/types/product';
-
 interface Review {
   id: string;
   user_id: string;
@@ -23,11 +22,14 @@ interface Review {
     email: string;
   };
 }
-
 const ProductDetail = () => {
-  const { id } = useParams();
+  const {
+    id
+  } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const {
+    addToCart
+  } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [productImages, setProductImages] = useState<string[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -35,7 +37,6 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
-
   useEffect(() => {
     if (id) {
       fetchProduct(id);
@@ -43,17 +44,13 @@ const ProductDetail = () => {
       fetchReviews(id);
     }
   }, [id]);
-
   const fetchProductImages = async (productId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('product_images' as any)
-        .select('*')
-        .eq('product_id', productId)
-        .order('position');
-
+      const {
+        data,
+        error
+      } = await supabase.from('product_images' as any).select('*').eq('product_id', productId).order('position');
       if (error) throw error;
-
       if (data && data.length > 0) {
         setProductImages(data.map((img: any) => img.image_url));
       }
@@ -61,12 +58,12 @@ const ProductDetail = () => {
       console.error('Error fetching product images:', error);
     }
   };
-
   const fetchReviews = async (productId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('reviews')
-        .select(`
+      const {
+        data,
+        error
+      } = await supabase.from('reviews').select(`
           id,
           user_id,
           rating,
@@ -76,14 +73,11 @@ const ProductDetail = () => {
             full_name,
             email
           )
-        `)
-        .eq('product_id', productId)
-        .order('created_at', { ascending: false });
-
+        `).eq('product_id', productId).order('created_at', {
+        ascending: false
+      });
       if (error) throw error;
-      
       setReviews(data as any || []);
-      
       if (data && data.length > 0) {
         const avg = data.reduce((sum, review) => sum + review.rating, 0) / data.length;
         setAverageRating(Math.round(avg * 10) / 10);
@@ -92,22 +86,17 @@ const ProductDetail = () => {
       console.error('Error fetching reviews:', error);
     }
   };
-
   const fetchProduct = async (productId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', productId)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('products').select('*').eq('id', productId).single();
       if (error) throw error;
-
       if (data) {
         const gender = (data.gender?.toLowerCase() || 'unisex') as 'men' | 'women' | 'unisex';
         const type = (data.category?.toLowerCase() || 'analog') as Product['type'];
         const validTypes = ['analog', 'digital', 'sport', 'luxury', 'dress', 'dive'];
-
         const formattedProduct: Product = {
           id: data.id,
           name: data.name,
@@ -135,9 +124,8 @@ const ProductDetail = () => {
           caseShape: data.case_shape,
           strapMaterial: data.strap_material,
           strapColor: data.strap_color,
-          modelCode: data.model_code,
+          modelCode: data.model_code
         };
-
         setProduct(formattedProduct);
       }
     } catch (error) {
@@ -147,7 +135,6 @@ const ProductDetail = () => {
       setLoading(false);
     }
   };
-
   const handleAddToCart = () => {
     if (product) {
       for (let i = 0; i < quantity; i++) {
@@ -156,63 +143,90 @@ const ProductDetail = () => {
       toast.success(`${product.name} додано до кошика`);
     }
   };
-
   const handleQuantityChange = (delta: number) => {
     const newQuantity = quantity + delta;
     if (newQuantity >= 1 && newQuantity <= 10) {
       setQuantity(newQuantity);
     }
   };
-
   if (loading) {
-    return (
-      <>
+    return <>
         <Header />
         <div className="container mx-auto px-6 py-12 flex justify-center items-center min-h-[60vh]">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
         <Footer />
-      </>
-    );
+      </>;
   }
-
   if (!product) {
-    return (
-      <>
+    return <>
         <Header />
         <div className="container mx-auto px-6 py-12 text-center">
           <h1 className="text-2xl font-display mb-4">Товар не знайдено</h1>
           <Button onClick={() => navigate('/')}>Повернутися до каталогу</Button>
         </div>
         <Footer />
-      </>
-    );
+      </>;
   }
-
-  const specifications = [
-    { label: 'Стать', value: product.gender === 'men' ? 'Чоловіча' : product.gender === 'women' ? 'Жіноча' : 'Унісекс' },
-    { label: 'Скло', value: product.glassType },
-    { label: 'Діаметр', value: product.diameter },
-    { label: 'Тип механізму', value: product.movement },
-    { label: 'Підсвічування', value: product.illumination },
-    { label: 'Тип циферблату', value: product.dialType },
-    { label: 'Колір корпусу', value: product.caseColor },
-    { label: 'Бренд', value: product.brand },
-    { label: 'Індикація дати', value: product.dateIndication ? 'Є' : 'Немає' },
-    { label: 'Тип', value: product.category },
-    { label: 'Індикація дня тижня', value: product.dayIndication ? 'Є' : 'Немає' },
-    { label: 'Стиль', value: product.watchStyle },
-    { label: 'Тип індикації', value: product.indicationType },
-    { label: 'Матеріал корпусу', value: product.caseMaterial },
-    { label: 'Матеріал браслета/ремінця', value: product.strapMaterial },
-    { label: 'Колір циферблату', value: product.dialColor },
-    { label: 'Форма корпусу', value: product.caseShape },
-    { label: 'Водозахист', value: product.waterResistance },
-    { label: 'Колір браслета/ремінця', value: product.strapColor },
-  ].filter(spec => spec.value);
-
-  return (
-    <>
+  const specifications = [{
+    label: 'Стать',
+    value: product.gender === 'men' ? 'Чоловіча' : product.gender === 'women' ? 'Жіноча' : 'Унісекс'
+  }, {
+    label: 'Скло',
+    value: product.glassType
+  }, {
+    label: 'Діаметр',
+    value: product.diameter
+  }, {
+    label: 'Тип механізму',
+    value: product.movement
+  }, {
+    label: 'Підсвічування',
+    value: product.illumination
+  }, {
+    label: 'Тип циферблату',
+    value: product.dialType
+  }, {
+    label: 'Колір корпусу',
+    value: product.caseColor
+  }, {
+    label: 'Бренд',
+    value: product.brand
+  }, {
+    label: 'Індикація дати',
+    value: product.dateIndication ? 'Є' : 'Немає'
+  }, {
+    label: 'Тип',
+    value: product.category
+  }, {
+    label: 'Індикація дня тижня',
+    value: product.dayIndication ? 'Є' : 'Немає'
+  }, {
+    label: 'Стиль',
+    value: product.watchStyle
+  }, {
+    label: 'Тип індикації',
+    value: product.indicationType
+  }, {
+    label: 'Матеріал корпусу',
+    value: product.caseMaterial
+  }, {
+    label: 'Матеріал браслета/ремінця',
+    value: product.strapMaterial
+  }, {
+    label: 'Колір циферблату',
+    value: product.dialColor
+  }, {
+    label: 'Форма корпусу',
+    value: product.caseShape
+  }, {
+    label: 'Водозахист',
+    value: product.waterResistance
+  }, {
+    label: 'Колір браслета/ремінця',
+    value: product.strapColor
+  }].filter(spec => spec.value);
+  return <>
       <Header />
       
       <div className="container mx-auto px-6 py-8">
@@ -228,21 +242,14 @@ const ProductDetail = () => {
         <div className="grid md:grid-cols-2 gap-12 mb-12">
           {/* Product Images */}
           <div className="space-y-4">
-            {productImages.length > 0 ? (
-              <>
+            {productImages.length > 0 ? <>
                 <Carousel className="w-full">
                   <CarouselContent>
-                    {productImages.map((image, index) => (
-                      <CarouselItem key={index}>
+                    {productImages.map((image, index) => <CarouselItem key={index}>
                         <div className="aspect-square overflow-hidden rounded-lg bg-muted border">
-                          <img
-                            src={image}
-                            alt={`${product.name} - ${index + 1}`}
-                            className="h-full w-full object-cover"
-                          />
+                          <img src={image} alt={`${product.name} - ${index + 1}`} className="h-full w-full object-cover" />
                         </div>
-                      </CarouselItem>
-                    ))}
+                      </CarouselItem>)}
                   </CarouselContent>
                   <CarouselPrevious className="left-4" />
                   <CarouselNext className="right-4" />
@@ -250,32 +257,13 @@ const ProductDetail = () => {
                 
                 {/* Thumbnails */}
                 <div className="grid grid-cols-5 gap-2">
-                  {productImages.map((image, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedImage(index)}
-                      className={`aspect-square overflow-hidden rounded-lg border-2 transition-all ${
-                        selectedImage === index ? 'border-primary' : 'border-transparent hover:border-primary/50'
-                      }`}
-                    >
-                      <img
-                        src={image}
-                        alt={`${product.name} - thumbnail ${index + 1}`}
-                        className="h-full w-full object-cover"
-                      />
-                    </button>
-                  ))}
+                  {productImages.map((image, index) => <button key={index} onClick={() => setSelectedImage(index)} className={`aspect-square overflow-hidden rounded-lg border-2 transition-all ${selectedImage === index ? 'border-primary' : 'border-transparent hover:border-primary/50'}`}>
+                      <img src={image} alt={`${product.name} - thumbnail ${index + 1}`} className="h-full w-full object-cover" />
+                    </button>)}
                 </div>
-              </>
-            ) : (
-              <div className="aspect-square overflow-hidden rounded-lg bg-muted border">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            )}
+              </> : <div className="aspect-square overflow-hidden rounded-lg bg-muted border">
+                <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+              </div>}
           </div>
 
           {/* Product Info */}
@@ -284,11 +272,9 @@ const ProductDetail = () => {
               <p className="text-sm text-muted-foreground font-body mb-2">
                 Бренд: <span className="text-primary font-medium">{product.brand}</span>
               </p>
-              {product.modelCode && (
-                <p className="text-sm text-muted-foreground font-body mb-2">
+              {product.modelCode && <p className="text-sm text-muted-foreground font-body mb-2">
                   Модель: {product.modelCode}
-                </p>
-              )}
+                </p>}
               <h1 className="font-display text-3xl lg:text-4xl font-bold mb-4">
                 {product.name}
               </h1>
@@ -299,37 +285,23 @@ const ProductDetail = () => {
             </div>
 
             <div className="flex items-center gap-2 text-sm font-body">
-              {product.inStock ? (
-                <>
+              {product.inStock ? <>
                   <Check className="h-5 w-5 text-green-600" />
                   <span className="text-green-600 font-medium">Розміри в наявності. Доставка 1-2 дні по Україні</span>
-                </>
-              ) : (
-                <>
+                </> : <>
                   <X className="h-5 w-5 text-destructive" />
                   <span className="text-destructive">Немає в наявності</span>
-                </>
-              )}
+                </>}
             </div>
 
             {/* Quantity Selector */}
             <div className="flex items-center gap-4">
               <div className="flex items-center border rounded-lg">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleQuantityChange(-1)}
-                  disabled={quantity <= 1}
-                >
+                <Button variant="ghost" size="sm" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
                   -
                 </Button>
                 <span className="px-6 py-2 font-body">{quantity}</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleQuantityChange(1)}
-                  disabled={quantity >= 10}
-                >
+                <Button variant="ghost" size="sm" onClick={() => handleQuantityChange(1)} disabled={quantity >= 10}>
                   +
                 </Button>
               </div>
@@ -337,12 +309,7 @@ const ProductDetail = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-3">
-              <Button 
-                onClick={handleAddToCart}
-                disabled={!product.inStock}
-                className="flex-1 font-body font-medium text-lg py-6"
-                size="lg"
-              >
+              <Button onClick={handleAddToCart} disabled={!product.inStock} className="flex-1 font-body font-medium text-lg py-6" size="lg">
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 Купити
               </Button>
@@ -351,9 +318,7 @@ const ProductDetail = () => {
               </Button>
             </div>
 
-            <div className="text-sm text-muted-foreground font-body">
-              При покупці даруємо {Math.floor(product.price * 0.05)} ₴
-            </div>
+            
           </div>
         </div>
 
@@ -375,7 +340,7 @@ const ProductDetail = () => {
                 <h3 className="font-display text-xl font-semibold">Купуючи в WATCHZONE Ви отримуєте:</h3>
                 <ul className="space-y-2">
                   <li>✓ <strong>Професійне обслуговування</strong> (Наші менеджери завжди готові допомогти у виборі)</li>
-                  <li>✓ Виключно <strong>оригінальну продукцію</strong> з Європи і США</li>
+                  
                   <li>✓ <strong>Доступну ціну</strong></li>
                   <li>✓ <strong>Величезний асортимент</strong> товарів</li>
                   <li>✓ <strong>Можливість повернення або обміну</strong>, якщо замовлення не підійшло</li>
@@ -387,12 +352,10 @@ const ProductDetail = () => {
           <TabsContent value="specifications" className="space-y-4">
             <h3 className="font-display text-2xl font-semibold mb-6">Характеристики</h3>
             <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
-              {specifications.map((spec, index) => (
-                <div key={index} className="flex justify-between py-3 border-b font-body">
+              {specifications.map((spec, index) => <div key={index} className="flex justify-between py-3 border-b font-body">
                   <span className="text-muted-foreground">{spec.label}:</span>
                   <span className="font-medium">{spec.value}</span>
-                </div>
-              ))}
+                </div>)}
             </div>
           </TabsContent>
 
@@ -400,26 +363,20 @@ const ProductDetail = () => {
             <div className="mb-6">
               <h3 className="font-display text-2xl font-semibold mb-4">
                 Відгуки ({reviews.length})
-                {reviews.length > 0 && (
-                  <span className="ml-3 text-lg text-muted-foreground">
+                {reviews.length > 0 && <span className="ml-3 text-lg text-muted-foreground">
                     <Star className="inline h-5 w-5 fill-yellow-400 text-yellow-400 mb-1" />
                     {averageRating.toFixed(1)}
-                  </span>
-                )}
+                  </span>}
               </h3>
             </div>
             
-            {reviews.length === 0 ? (
-              <div className="text-center py-12">
+            {reviews.length === 0 ? <div className="text-center py-12">
                 <p className="text-muted-foreground font-body">Відгуків ще немає 😔</p>
                 <p className="text-sm text-muted-foreground mt-2 font-body">
                   Будьте першим, хто залишить відгук про цей товар!
                 </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {reviews.map((review) => (
-                  <Card key={review.id}>
+              </div> : <div className="space-y-4">
+                {reviews.map(review => <Card key={review.id}>
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start mb-3">
                         <div>
@@ -428,40 +385,25 @@ const ProductDetail = () => {
                           </p>
                           <p className="text-sm text-muted-foreground">
                             {new Date(review.created_at).toLocaleDateString('uk-UA', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                            })}
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
                           </p>
                         </div>
                         <div className="flex gap-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-4 w-4 ${
-                                star <= review.rating
-                                  ? 'fill-yellow-400 text-yellow-400'
-                                  : 'text-muted-foreground'
-                              }`}
-                            />
-                          ))}
+                          {[1, 2, 3, 4, 5].map(star => <Star key={star} className={`h-4 w-4 ${star <= review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />)}
                         </div>
                       </div>
-                      {review.comment && (
-                        <p className="text-foreground/80 font-body">{review.comment}</p>
-                      )}
+                      {review.comment && <p className="text-foreground/80 font-body">{review.comment}</p>}
                     </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
+                  </Card>)}
+              </div>}
           </TabsContent>
         </Tabs>
       </div>
 
       <Footer />
-    </>
-  );
+    </>;
 };
-
 export default ProductDetail;
