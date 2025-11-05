@@ -1,12 +1,10 @@
 import { Facebook, Instagram, Twitter } from 'lucide-react';
-
 export const Footer = () => {
-  return (
-    <footer className="border-t bg-muted/50 mt-20">
+  return <footer className="border-t bg-muted/50 mt-20">
       <div className="container px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="font-display text-lg font-semibold mb-4">Chronos Elite</h3>
+            <h3 className="font-display text-lg font-semibold mb-4">WatchZone</h3>
             <p className="font-body text-sm text-muted-foreground">
               Your premier destination for luxury timepieces from the world's finest watchmakers.
             </p>
@@ -52,6 +50,5 @@ export const Footer = () => {
           © 2024 Chronos Elite. All rights reserved.
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
