@@ -6,6 +6,7 @@ import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { Check, X, ShoppingCart, Heart, Star } from 'lucide-react';
@@ -28,6 +29,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
+  const [productImages, setProductImages] = useState<string[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
@@ -37,9 +39,28 @@ const ProductDetail = () => {
   useEffect(() => {
     if (id) {
       fetchProduct(id);
+      fetchProductImages(id);
       fetchReviews(id);
     }
   }, [id]);
+
+  const fetchProductImages = async (productId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('product_images' as any)
+        .select('*')
+        .eq('product_id', productId)
+        .order('position');
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        setProductImages(data.map((img: any) => img.image_url));
+      }
+    } catch (error) {
+      console.error('Error fetching product images:', error);
+    }
+  };
 
   const fetchReviews = async (productId: string) => {
     try {
@@ -207,14 +228,54 @@ const ProductDetail = () => {
         <div className="grid md:grid-cols-2 gap-12 mb-12">
           {/* Product Images */}
           <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-lg bg-muted border">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="h-full w-full object-cover"
-              />
-            </div>
-            {/* Thumbnail would go here if we had multiple images */}
+            {productImages.length > 0 ? (
+              <>
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {productImages.map((image, index) => (
+                      <CarouselItem key={index}>
+                        <div className="aspect-square overflow-hidden rounded-lg bg-muted border">
+                          <img
+                            src={image}
+                            alt={`${product.name} - ${index + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious className="left-4" />
+                  <CarouselNext className="right-4" />
+                </Carousel>
+                
+                {/* Thumbnails */}
+                <div className="grid grid-cols-5 gap-2">
+                  {productImages.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedImage(index)}
+                      className={`aspect-square overflow-hidden rounded-lg border-2 transition-all ${
+                        selectedImage === index ? 'border-primary' : 'border-transparent hover:border-primary/50'
+                      }`}
+                    >
+                      <img
+                        src={image}
+                        alt={`${product.name} - thumbnail ${index + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="aspect-square overflow-hidden rounded-lg bg-muted border">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
           </div>
 
           {/* Product Info */}
