@@ -9,10 +9,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Plus, Pencil, Trash2, Check, ChevronsUpDown } from 'lucide-react';
+import { Plus, Pencil, Trash2, Check, ChevronsUpDown, X, Upload, Link as LinkIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Product {
   id: string;
@@ -68,11 +69,21 @@ const specTypeLabels: Record<string, string> = {
   strap_color: 'Колір браслета/ремінця',
 };
 
+interface ProductImage {
+  id?: string;
+  image_url: string;
+  position: number;
+  file?: File;
+}
+
 const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [specifications, setSpecifications] = useState<Specification[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [productImages, setProductImages] = useState<ProductImage[]>([]);
+  const [newImageUrl, setNewImageUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     brand: '',
@@ -161,46 +172,181 @@ const Products = () => {
     return true;
   };
 
+  const uploadImageToStorage = async (file: File): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('product-images')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      toast.error('Помилка завантаження зображення');
+      return null;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    if (productImages.length + files.length > 5) {
+      toast.error('Максимум 5 зображень');
+      return;
+    }
+
+    setIsUploading(true);
+    const newImages: ProductImage[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const url = URL.createObjectURL(file);
+      newImages.push({
+        image_url: url,
+        position: productImages.length + i,
+        file: file,
+      });
+    }
+
+    setProductImages([...productImages, ...newImages]);
+    setIsUploading(false);
+    e.target.value = '';
+  };
+
+  const handleAddImageUrl = () => {
+    if (!newImageUrl.trim()) {
+      toast.error('Введіть URL зображення');
+      return;
+    }
+
+    if (productImages.length >= 5) {
+      toast.error('Максимум 5 зображень');
+      return;
+    }
+
+    setProductImages([...productImages, {
+      image_url: newImageUrl,
+      position: productImages.length,
+    }]);
+    setNewImageUrl('');
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const newImages = productImages.filter((_, i) => i !== index);
+    setProductImages(newImages.map((img, i) => ({ ...img, position: i })));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const productData = {
-      ...formData,
-      price: parseFloat(formData.price),
-      stock_quantity: parseInt(formData.stock_quantity),
-      in_stock: parseInt(formData.stock_quantity) > 0,
-      category: formData.category || 'Годинники',
-    };
-
-    if (editingProduct) {
-      const { error } = await supabase
-        .from('products')
-        .update(productData)
-        .eq('id', editingProduct.id);
-
-      if (error) {
-        toast.error('Помилка оновлення товару');
-        return;
-      }
-      toast.success('Товар оновлено');
-    } else {
-      const { error } = await supabase
-        .from('products')
-        .insert([productData]);
-
-      if (error) {
-        toast.error('Помилка додавання товару');
-        return;
-      }
-      toast.success('Товар додано');
+    if (productImages.length === 0) {
+      toast.error('Додайте хоча б одне зображення');
+      return;
     }
 
-    setIsDialogOpen(false);
-    resetForm();
-    fetchProducts();
+    setIsUploading(true);
+
+    try {
+      // Upload files to storage
+      const uploadedImages: ProductImage[] = [];
+      for (const img of productImages) {
+        if (img.file) {
+          const url = await uploadImageToStorage(img.file);
+          if (url) {
+            uploadedImages.push({ ...img, image_url: url });
+          }
+        } else {
+          uploadedImages.push(img);
+        }
+      }
+
+      const productData = {
+        ...formData,
+        price: parseFloat(formData.price),
+        stock_quantity: parseInt(formData.stock_quantity),
+        in_stock: parseInt(formData.stock_quantity) > 0,
+        category: formData.category || 'Годинники',
+        image_url: uploadedImages[0]?.image_url || '',
+      };
+
+      let productId: string;
+
+      if (editingProduct) {
+        const { error } = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', editingProduct.id);
+
+        if (error) {
+          toast.error('Помилка оновлення товару');
+          setIsUploading(false);
+          return;
+        }
+        productId = editingProduct.id;
+
+      // Delete old images
+      const { error: deleteError } = await supabase
+        .from('product_images' as any)
+        .delete()
+        .eq('product_id', productId);
+
+      if (deleteError) {
+        console.error('Error deleting old images:', deleteError);
+      }
+      } else {
+        const { data, error } = await supabase
+          .from('products')
+          .insert([productData])
+          .select()
+          .single();
+
+        if (error || !data) {
+          toast.error('Помилка додавання товару');
+          setIsUploading(false);
+          return;
+        }
+        productId = data.id;
+      }
+
+      // Save images to product_images table
+      const imageRecords = uploadedImages.map((img) => ({
+        product_id: productId,
+        image_url: img.image_url,
+        position: img.position,
+      }));
+
+      const { error: imagesError } = await supabase
+        .from('product_images' as any)
+        .insert(imageRecords);
+
+      if (imagesError) {
+        console.error('Error saving images:', imagesError);
+        toast.error('Помилка збереження зображень');
+        setIsUploading(false);
+        return;
+      }
+
+      toast.success(editingProduct ? 'Товар оновлено' : 'Товар додано');
+      setIsDialogOpen(false);
+      resetForm();
+      fetchProducts();
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Виникла помилка');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const handleEdit = (product: Product) => {
+  const handleEdit = async (product: Product) => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
@@ -229,6 +375,22 @@ const Products = () => {
       strap_color: product.strap_color || '',
       model_code: product.model_code || '',
     });
+
+    // Fetch product images
+    const { data: images, error } = await supabase
+      .from('product_images' as any)
+      .select('*')
+      .eq('product_id', product.id)
+      .order('position');
+
+    if (!error && images) {
+      setProductImages(images.map((img: any) => ({
+        id: img.id,
+        image_url: img.image_url,
+        position: img.position,
+      })));
+    }
+
     setIsDialogOpen(true);
   };
 
@@ -250,6 +412,8 @@ const Products = () => {
 
   const resetForm = () => {
     setEditingProduct(null);
+    setProductImages([]);
+    setNewImageUrl('');
     setFormData({
       name: '',
       brand: '',
@@ -625,14 +789,88 @@ const Products = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="image_url">URL зображення*</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  required
-                />
+              <div className="space-y-4">
+                <Label>Зображення товару* (до 5 фото)</Label>
+                <Tabs defaultValue="upload" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="upload">
+                      <Upload className="mr-2 h-4 w-4" />
+                      Завантажити файл
+                    </TabsTrigger>
+                    <TabsTrigger value="url">
+                      <LinkIcon className="mr-2 h-4 w-4" />
+                      Додати URL
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="upload" className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleFileSelect}
+                        disabled={productImages.length >= 5 || isUploading}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.querySelector<HTMLInputElement>('input[type="file"]')?.click()}
+                        disabled={productImages.length >= 5 || isUploading}
+                      >
+                        Обрати файли
+                      </Button>
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="url" className="space-y-4">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://example.com/image.jpg"
+                        value={newImageUrl}
+                        onChange={(e) => setNewImageUrl(e.target.value)}
+                        disabled={productImages.length >= 5}
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleAddImageUrl}
+                        disabled={productImages.length >= 5}
+                      >
+                        Додати
+                      </Button>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+                
+                {productImages.length > 0 && (
+                  <div className="grid grid-cols-5 gap-4 mt-4">
+                    {productImages.map((img, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={img.image_url}
+                          alt={`Product ${index + 1}`}
+                          className="w-full h-24 object-cover rounded border"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleRemoveImage(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                        {index === 0 && (
+                          <span className="absolute bottom-1 left-1 bg-primary text-primary-foreground text-xs px-1 rounded">
+                            Головне
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  {productImages.length}/5 зображень додано. Перше зображення буде головним.
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="description">Опис</Label>
@@ -644,11 +882,11 @@ const Products = () => {
                 />
               </div>
               <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isUploading}>
                   Скасувати
                 </Button>
-                <Button type="submit">
-                  {editingProduct ? 'Оновити' : 'Додати'}
+                <Button type="submit" disabled={isUploading}>
+                  {isUploading ? 'Завантаження...' : (editingProduct ? 'Оновити' : 'Додати')}
                 </Button>
               </div>
             </form>
