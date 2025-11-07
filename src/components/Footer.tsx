@@ -46,9 +46,7 @@ export const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t mt-8 pt-8 text-center font-body text-sm text-muted-foreground">
-          © 2024 Chronos Elite. All rights reserved.
-        </div>
+        <div className="border-t mt-8 pt-8 text-center font-body text-sm text-muted-foreground">© 2025 WatchZone. All rights reserved.</div>
       </div>
     </footer>;
 };
