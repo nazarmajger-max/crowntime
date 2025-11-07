@@ -287,7 +287,7 @@ const ProductDetail = () => {
             <div className="flex items-center gap-2 text-sm font-body">
               {product.inStock ? <>
                   <Check className="h-5 w-5 text-green-600" />
-                  <span className="text-green-600 font-medium">Розміри в наявності. Доставка 1-2 дні по Україні</span>
+                  <span className="text-green-600 font-medium">Доставка 1-2 дні по Україні</span>
                 </> : <>
                   <X className="h-5 w-5 text-destructive" />
                   <span className="text-destructive">Немає в наявності</span>
