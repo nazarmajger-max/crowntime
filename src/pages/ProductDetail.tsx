@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
-import { Check, X, ShoppingCart, Heart, Star, Send } from 'lucide-react';
+import { Check, X, ShoppingCart, Heart, Star, Send, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Textarea } from '@/components/ui/textarea';
 import { Product } from '@/types/product';
@@ -246,6 +246,28 @@ const ProductDetail = () => {
       setSubmittingReview(false);
     }
   };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('reviews')
+        .delete()
+        .eq('id', reviewId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast.success('Відгук видалено');
+      if (product) {
+        fetchReviews(product.id);
+      }
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      toast.error('Помилка при видаленні відгуку');
+    }
+  };
   if (loading) {
     return <>
         <Header />
@@ -426,10 +448,10 @@ const ProductDetail = () => {
 
         {/* Tabs Section */}
         <Tabs defaultValue="specifications" className="w-full">
-          <TabsList className="w-full grid grid-cols-3 mb-8">
-            <TabsTrigger value="specifications" className="font-body">Характеристики</TabsTrigger>
-            <TabsTrigger value="description" className="font-body">Про товар</TabsTrigger>
-            <TabsTrigger value="reviews" className="font-body">Відгуки</TabsTrigger>
+          <TabsList className="w-full grid grid-cols-3 mb-8 h-auto">
+            <TabsTrigger value="specifications" className="font-body text-xs sm:text-sm py-2 sm:py-2.5">Характеристики</TabsTrigger>
+            <TabsTrigger value="description" className="font-body text-xs sm:text-sm py-2 sm:py-2.5">Про товар</TabsTrigger>
+            <TabsTrigger value="reviews" className="font-body text-xs sm:text-sm py-2 sm:py-2.5">Відгуки</TabsTrigger>
           </TabsList>
 
           <TabsContent value="specifications" className="space-y-4">
@@ -529,7 +551,7 @@ const ProductDetail = () => {
                 {reviews.map(review => <Card key={review.id}>
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start mb-3">
-                        <div>
+                        <div className="flex-1">
                           <p className="font-medium font-body">
                             {review.profiles?.full_name || review.profiles?.email || 'Анонімний користувач'}
                           </p>
@@ -541,8 +563,20 @@ const ProductDetail = () => {
                       })}
                           </p>
                         </div>
-                        <div className="flex gap-1">
-                          {[1, 2, 3, 4, 5].map(star => <Star key={star} className={`h-4 w-4 ${star <= review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />)}
+                        <div className="flex items-center gap-2">
+                          <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map(star => <Star key={star} className={`h-4 w-4 ${star <= review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />)}
+                          </div>
+                          {user && review.user_id === user.id && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleDeleteReview(review.id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
                         </div>
                       </div>
                       {review.comment && <p className="text-foreground/80 font-body">{review.comment}</p>}

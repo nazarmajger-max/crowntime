@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Star, Package, MessageSquare } from 'lucide-react';
+import { Star, Package, MessageSquare, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
@@ -157,6 +157,23 @@ const Profile = () => {
     setReviewDialogOpen(true);
   };
 
+  const handleDeleteReview = async (reviewId: string) => {
+    try {
+      const { error } = await supabase
+        .from('reviews')
+        .delete()
+        .eq('id', reviewId);
+
+      if (error) throw error;
+
+      toast.success('Відгук видалено');
+      fetchReviews();
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      toast.error('Помилка при видаленні відгуку');
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <>
@@ -177,14 +194,16 @@ const Profile = () => {
           <h1 className="font-display text-4xl font-bold mb-8">Особистий кабінет</h1>
           
           <Tabs defaultValue="orders" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="orders" className="flex items-center gap-2">
-                <Package className="h-4 w-4" />
-                Мої замовлення
+            <TabsList className="grid w-full grid-cols-2 h-auto">
+              <TabsTrigger value="orders" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 sm:py-2.5">
+                <Package className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Мої замовлення</span>
+                <span className="xs:hidden">Замовлення</span>
               </TabsTrigger>
-              <TabsTrigger value="reviews" className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4" />
-                Мої відгуки
+              <TabsTrigger value="reviews" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm py-2 sm:py-2.5">
+                <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden xs:inline">Мої відгуки</span>
+                <span className="xs:hidden">Відгуки</span>
               </TabsTrigger>
             </TabsList>
 
@@ -273,7 +292,17 @@ const Profile = () => {
                             className="w-20 h-20 object-cover rounded"
                           />
                           <div className="flex-1">
-                            <CardTitle className="text-lg">{review.products.name}</CardTitle>
+                            <div className="flex justify-between items-start gap-2">
+                              <CardTitle className="text-base sm:text-lg">{review.products.name}</CardTitle>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 shrink-0"
+                                onClick={() => handleDeleteReview(review.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
                             <CardDescription>
                               {new Date(review.created_at).toLocaleDateString('uk-UA')}
                             </CardDescription>
