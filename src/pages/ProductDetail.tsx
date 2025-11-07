@@ -9,7 +9,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
-import { Check, X, ShoppingCart, Heart, Star } from 'lucide-react';
+import { Check, X, ShoppingCart, Heart, Star, Send } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { Textarea } from '@/components/ui/textarea';
 import { Product } from '@/types/product';
 interface Review {
   id: string;
@@ -37,13 +39,21 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const { user } = useAuth();
   useEffect(() => {
     if (id) {
       fetchProduct(id);
       fetchProductImages(id);
       fetchReviews(id);
+      if (user) {
+        checkIfFavorite(id);
+      }
     }
-  }, [id]);
+  }, [id, user]);
   const fetchProductImages = async (productId: string) => {
     try {
       const {
@@ -147,6 +157,93 @@ const ProductDetail = () => {
     const newQuantity = quantity + delta;
     if (newQuantity >= 1 && newQuantity <= 10) {
       setQuantity(newQuantity);
+    }
+  };
+
+  const checkIfFavorite = async (productId: string) => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('favorites')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('product_id', productId)
+        .maybeSingle();
+
+      if (error) throw error;
+      setIsFavorite(!!data);
+    } catch (error) {
+      console.error('Error checking favorite:', error);
+    }
+  };
+
+  const toggleFavorite = async () => {
+    if (!user) {
+      toast.error('Увійдіть, щоб додати товар до обраного');
+      navigate('/auth');
+      return;
+    }
+
+    if (!product) return;
+
+    try {
+      if (isFavorite) {
+        const { error } = await supabase
+          .from('favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('product_id', product.id);
+
+        if (error) throw error;
+        setIsFavorite(false);
+        toast.success('Видалено з обраного');
+      } else {
+        const { error } = await supabase
+          .from('favorites')
+          .insert({ user_id: user.id, product_id: product.id });
+
+        if (error) throw error;
+        setIsFavorite(true);
+        toast.success('Додано до обраного');
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      toast.error('Помилка при додаванні до обраного');
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!user) {
+      toast.error('Увійдіть, щоб залишити відгук');
+      navigate('/auth');
+      return;
+    }
+
+    if (!product) return;
+
+    setSubmittingReview(true);
+    try {
+      const { error } = await supabase
+        .from('reviews')
+        .insert({
+          user_id: user.id,
+          product_id: product.id,
+          rating: reviewRating,
+          comment: reviewComment.trim() || null,
+        });
+
+      if (error) throw error;
+
+      toast.success('Відгук успішно додано');
+      setReviewComment('');
+      setReviewRating(5);
+      fetchReviews(product.id);
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      toast.error('Помилка при додаванні відгуку');
+    } finally {
+      setSubmittingReview(false);
     }
   };
   if (loading) {
@@ -313,8 +410,13 @@ const ProductDetail = () => {
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 Купити
               </Button>
-              <Button variant="outline" size="lg" className="py-6">
-                <Heart className="h-5 w-5" />
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="py-6"
+                onClick={toggleFavorite}
+              >
+                <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
               </Button>
             </div>
 
@@ -323,12 +425,22 @@ const ProductDetail = () => {
         </div>
 
         {/* Tabs Section */}
-        <Tabs defaultValue="description" className="w-full">
+        <Tabs defaultValue="specifications" className="w-full">
           <TabsList className="w-full grid grid-cols-3 mb-8">
-            <TabsTrigger value="description" className="font-body">Про товар</TabsTrigger>
             <TabsTrigger value="specifications" className="font-body">Характеристики</TabsTrigger>
+            <TabsTrigger value="description" className="font-body">Про товар</TabsTrigger>
             <TabsTrigger value="reviews" className="font-body">Відгуки</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="specifications" className="space-y-4">
+            <h3 className="font-display text-2xl font-semibold mb-6">Характеристики</h3>
+            <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
+              {specifications.map((spec, index) => <div key={index} className="flex justify-between py-3 border-b font-body">
+                  <span className="text-muted-foreground">{spec.label}:</span>
+                  <span className="font-medium">{spec.value}</span>
+                </div>)}
+            </div>
+          </TabsContent>
 
           <TabsContent value="description" className="space-y-4">
             <div className="prose max-w-none font-body">
@@ -349,16 +461,6 @@ const ProductDetail = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="specifications" className="space-y-4">
-            <h3 className="font-display text-2xl font-semibold mb-6">Характеристики</h3>
-            <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
-              {specifications.map((spec, index) => <div key={index} className="flex justify-between py-3 border-b font-body">
-                  <span className="text-muted-foreground">{spec.label}:</span>
-                  <span className="font-medium">{spec.value}</span>
-                </div>)}
-            </div>
-          </TabsContent>
-
           <TabsContent value="reviews" className="space-y-6">
             <div className="mb-6">
               <h3 className="font-display text-2xl font-semibold mb-4">
@@ -369,6 +471,54 @@ const ProductDetail = () => {
                   </span>}
               </h3>
             </div>
+
+            {/* Add Review Form */}
+            {user && (
+              <Card className="mb-6">
+                <CardContent className="pt-6">
+                  <h4 className="font-display text-lg font-semibold mb-4">Залишити відгук</h4>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Оцінка</label>
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            onClick={() => setReviewRating(star)}
+                            className="transition-transform hover:scale-110"
+                          >
+                            <Star
+                              className={`h-6 w-6 ${
+                                star <= reviewRating
+                                  ? 'fill-yellow-400 text-yellow-400'
+                                  : 'text-muted-foreground'
+                              }`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Коментар (необов'язково)</label>
+                      <Textarea
+                        value={reviewComment}
+                        onChange={(e) => setReviewComment(e.target.value)}
+                        placeholder="Поділіться своїми враженнями..."
+                        rows={4}
+                      />
+                    </div>
+                    <Button
+                      onClick={handleSubmitReview}
+                      disabled={submittingReview}
+                      className="w-full"
+                    >
+                      <Send className="mr-2 h-4 w-4" />
+                      {submittingReview ? 'Додавання...' : 'Додати відгук'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
             
             {reviews.length === 0 ? <div className="text-center py-12">
                 <p className="text-muted-foreground font-body">Відгуків ще немає 😔</p>

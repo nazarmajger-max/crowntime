@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Menu, User, Shield } from 'lucide-react';
+import { ShoppingCart, Menu, User, Shield, Heart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -52,6 +52,13 @@ export const Header = () => {
               <Button variant="ghost" size="sm" className="hidden md:flex">
                 <User className="mr-2 h-4 w-4" />
                 Увійти
+              </Button>
+            </Link>
+          )}
+          {user && (
+            <Link to="/favorites">
+              <Button variant="ghost" size="icon">
+                <Heart className="h-5 w-5" />
               </Button>
             </Link>
           )}

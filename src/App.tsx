@@ -17,6 +17,7 @@ import Products from "./pages/admin/Products";
 import Orders from "./pages/admin/Orders";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
+import Favorites from "./pages/Favorites";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/order-success" element={<OrderSuccess />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/favorites" element={<Favorites />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Dashboard />} />
                 <Route path="products" element={<Products />} />
