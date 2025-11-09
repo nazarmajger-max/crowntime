@@ -27,9 +27,7 @@ export const ProductCard = ({
   return <Card className="group overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[var(--shadow-hover)] animate-fade-in md:rounded-lg rounded-none border-r border-b md:border" onClick={handleProductClick}>
       <div className="relative aspect-[3/4] overflow-hidden bg-muted">
         {/* Hit Badge */}
-        <Badge className="absolute top-2 left-2 z-10 bg-black text-white text-xs px-2 py-0.5 font-body uppercase">
-          Хіт
-        </Badge>
+        
         
         {/* Action Icons */}
         <div className="absolute top-2 left-2 flex flex-col gap-2 z-10">
