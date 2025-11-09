@@ -187,7 +187,7 @@ const Index = () => {
 
       {/* Mobile Filters Sheet */}
       <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-        <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
+        <SheetContent side="bottom" className="h-[85vh] overflow-y-auto">
           <SheetHeader>
             <SheetTitle className="font-display text-xl">Фільтри</SheetTitle>
           </SheetHeader>
@@ -201,6 +201,30 @@ const Index = () => {
               availableCaseMaterials={availableCaseMaterials}
               availableDialColors={availableDialColors}
             />
+          </div>
+          <div className="sticky bottom-0 left-0 right-0 bg-background border-t p-4 mt-6 flex gap-3">
+            <Button 
+              variant="outline" 
+              className="flex-1"
+              onClick={() => {
+                setFilters({
+                  brands: [],
+                  priceRange: [0, 10000],
+                  gender: [],
+                  type: [],
+                  caseMaterial: [],
+                  dialColor: []
+                });
+              }}
+            >
+              Скинути фільтри
+            </Button>
+            <Button 
+              className="flex-1"
+              onClick={() => setFiltersOpen(false)}
+            >
+              Застосувати ({filteredAndSortedProducts.length})
+            </Button>
           </div>
         </SheetContent>
       </Sheet>
