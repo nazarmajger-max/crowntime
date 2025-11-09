@@ -6,9 +6,14 @@ import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Video, Scale, CheckCircle, Star } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect } from 'react';
+
 interface ProductCardProps {
   product: Product;
 }
+
 export const ProductCard = ({
   product
 }: ProductCardProps) => {
@@ -16,11 +21,81 @@ export const ProductCard = ({
     addToCart
   } = useCart();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isLoadingFavorite, setIsLoadingFavorite] = useState(false);
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (!user) {
+        setIsFavorite(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('favorites')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('product_id', product.id)
+        .maybeSingle();
+
+      if (!error && data) {
+        setIsFavorite(true);
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [user, product.id]);
+
+  const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!user) {
+      toast.error('Увійдіть, щоб додати товар до обраних');
+      navigate('/auth');
+      return;
+    }
+
+    setIsLoadingFavorite(true);
+
+    try {
+      if (isFavorite) {
+        const { error } = await supabase
+          .from('favorites')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('product_id', product.id);
+
+        if (error) throw error;
+        
+        setIsFavorite(false);
+        toast.success('Видалено з обраних');
+      } else {
+        const { error } = await supabase
+          .from('favorites')
+          .insert({
+            user_id: user.id,
+            product_id: product.id
+          });
+
+        if (error) throw error;
+        
+        setIsFavorite(true);
+        toast.success('Додано до обраних');
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      toast.error('Помилка при оновленні обраних');
+    } finally {
+      setIsLoadingFavorite(false);
+    }
+  };
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     addToCart(product);
     toast.success(`${product.name} додано до кошика`);
   };
+  
   const handleProductClick = () => {
     navigate(`/product/${product.id}`);
   };
@@ -37,13 +112,19 @@ export const ProductCard = ({
         </div>
         
         <div className="absolute top-2 right-2 z-10 flex flex-col gap-2">
-          <Button variant="ghost" size="icon" className="h-8 w-8 bg-white/90 hover:bg-white rounded-full" onClick={e => {
-          e.stopPropagation();
-          toast.info('Додано до обраного');
-        }}>
-            <Heart className="h-4 w-4" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className={`h-8 w-8 rounded-full transition-colors ${
+              isFavorite 
+                ? 'bg-red-500 hover:bg-red-600' 
+                : 'bg-white/90 hover:bg-white'
+            }`}
+            onClick={handleToggleFavorite}
+            disabled={isLoadingFavorite}
+          >
+            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-white text-white' : ''}`} />
           </Button>
-          
         </div>
 
         <img src={product.image} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
