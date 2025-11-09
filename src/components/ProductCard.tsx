@@ -1,9 +1,11 @@
 import { Product } from '@/types/product';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { Heart, Video, Scale, CheckCircle, Star } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -25,36 +27,98 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <Card 
-      className="group overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[var(--shadow-hover)] animate-fade-in"
+      className="group overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[var(--shadow-hover)] animate-fade-in md:rounded-lg rounded-none border-r border-b md:border"
       onClick={handleProductClick}
     >
-      <div className="aspect-[3/4] overflow-hidden bg-muted">
+      <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+        {/* Hit Badge */}
+        <Badge className="absolute top-2 left-2 z-10 bg-black text-white text-xs px-2 py-0.5 font-body uppercase">
+          Хіт
+        </Badge>
+        
+        {/* Action Icons */}
+        <div className="absolute top-2 left-2 flex flex-col gap-2 z-10">
+          <div className="flex items-center gap-1">
+            <div className="bg-white/90 rounded px-1.5 py-0.5 flex items-center gap-1">
+              <Video className="h-3 w-3" />
+              <span className="text-[10px] font-medium">360°</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="absolute top-2 right-2 z-10 flex flex-col gap-2">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8 bg-white/90 hover:bg-white rounded-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              toast.info('Додано до обраного');
+            }}
+          >
+            <Heart className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8 bg-white/90 hover:bg-white rounded-full"
+            onClick={(e) => {
+              e.stopPropagation();
+              toast.info('Додано до порівняння');
+            }}
+          >
+            <Scale className="h-4 w-4" />
+          </Button>
+        </div>
+
         <img
           src={product.image}
           alt={product.name}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
       </div>
-      <CardContent className="p-4">
-        <p className="font-body text-xs text-muted-foreground uppercase tracking-wide mb-1">
-          {product.brand}
-        </p>
-        <h3 className="font-display text-lg font-semibold mb-2 line-clamp-1">
+      
+      <CardContent className="p-3 md:p-4 space-y-2">
+        {/* Availability */}
+        <div className="flex items-center gap-1.5 text-xs">
+          <CheckCircle className="h-3.5 w-3.5 text-green-600" />
+          <span className="text-muted-foreground">В наявності</span>
+        </div>
+        
+        {/* Rating */}
+        <div className="flex items-center gap-1">
+          <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+          <span className="text-sm font-medium">4.5</span>
+          <span className="text-xs text-muted-foreground">(15)</span>
+        </div>
+        
+        {/* Product Name */}
+        <h3 className="font-body text-sm md:text-base font-semibold line-clamp-2 leading-tight">
           {product.name}
         </h3>
-        <p className="font-body text-2xl font-bold text-accent">
-          {product.price.toLocaleString()} ₴
+        
+        {/* Product Code */}
+        <p className="text-xs text-muted-foreground uppercase">
+          {product.brand}-{product.id.substring(0, 8)}
         </p>
+        
+        {/* Price */}
+        <p className="font-body text-xl md:text-2xl font-bold">
+          {product.price.toLocaleString()} грн
+        </p>
+        
+        {/* Credit Info */}
+        <div className="flex items-center gap-2 text-xs">
+          <span className="text-muted-foreground uppercase">Кредит</span>
+          <div className="flex items-center gap-1">
+            <span className="font-bold text-red-600">12</span>
+            <div className="flex gap-0.5">
+              <div className="w-3 h-3 rounded-full bg-yellow-400" />
+              <div className="w-3 h-3 rounded-full bg-green-500" />
+            </div>
+          </div>
+        </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0">
-        <Button 
-          onClick={handleAddToCart}
-          className="w-full font-body font-medium"
-          variant="default"
-        >
-          Додати до кошика
-        </Button>
-      </CardFooter>
     </Card>
   );
 };

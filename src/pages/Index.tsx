@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Product, Filters } from '@/types/product';
 import heroBg from '@/assets/hero-bg.jpg';
 import { toast } from 'sonner';
+import { ChevronLeft, SlidersHorizontal, ChevronDown } from 'lucide-react';
 
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -144,13 +145,15 @@ const Index = () => {
     return result;
   }, [products, filters, sortBy]);
 
+  const activeFilterCount = filters.brands.length + filters.gender.length + filters.type.length + filters.caseMaterial.length + filters.dialColor.length;
+
   return (
     <>
       <Header />
       
-      {/* Hero Section */}
+      {/* Hero Section - Hidden on Mobile */}
       <section 
-        className="relative h-[60vh] bg-cover bg-center flex items-center justify-center"
+        className="hidden md:flex relative h-[60vh] bg-cover bg-center items-center justify-center"
         style={{ backgroundImage: `url(${heroBg})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
@@ -167,27 +170,75 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Mobile: Breadcrumb & Title */}
+      <div className="md:hidden bg-background">
+        <div className="px-4 py-3 border-b">
+          <button className="flex items-center gap-2 text-sm text-muted-foreground">
+            <ChevronLeft className="h-4 w-4" />
+            <span>Головна сторінка</span>
+          </button>
+        </div>
+        
+        <div className="px-4 py-6">
+          <h1 className="font-display text-2xl font-bold mb-1 uppercase leading-tight">
+            НАРУЧНИЙ ГОДИННИК<br />ЧОЛОВІЧІ, УНІСЕКС
+          </h1>
+          <p className="text-sm text-muted-foreground uppercase tracking-wide">
+            {products.length.toLocaleString()} МОДЕЛЕЙ
+          </p>
+        </div>
+      </div>
+
+      {/* Mobile: Sort & Filter Bar */}
+      <div className="md:hidden sticky top-14 z-40 bg-background border-b px-4 py-3">
+        <div className="flex items-center gap-3">
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="flex-1 h-11 font-body text-sm uppercase">
+              <div className="flex items-center gap-2">
+                <span>СОРТУВАННЯ</span>
+                <ChevronDown className="h-4 w-4" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="featured" className="font-body">Рекомендовані</SelectItem>
+              <SelectItem value="price-low" className="font-body">Ціна: від низької</SelectItem>
+              <SelectItem value="price-high" className="font-body">Ціна: від високої</SelectItem>
+              <SelectItem value="name" className="font-body">Назва: А до Я</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Button variant="outline" className="h-11 gap-2 font-body text-sm uppercase whitespace-nowrap">
+            <SlidersHorizontal className="h-4 w-4" />
+            ФІЛЬТРИ {activeFilterCount > 0 && `(${activeFilterCount})`}
+          </Button>
+        </div>
+      </div>
+
       {/* Main Content */}
       <div className="flex">
-        <FilterSidebar 
-          filters={filters} 
-          onFiltersChange={setFilters}
-          availableBrands={availableBrands}
-          availableTypes={availableTypes}
-          availableGenders={availableGenders}
-          availableCaseMaterials={availableCaseMaterials}
-          availableDialColors={availableDialColors}
-        />
+        {/* Desktop Sidebar */}
+        <div className="hidden md:block">
+          <FilterSidebar 
+            filters={filters} 
+            onFiltersChange={setFilters}
+            availableBrands={availableBrands}
+            availableTypes={availableTypes}
+            availableGenders={availableGenders}
+            availableCaseMaterials={availableCaseMaterials}
+            availableDialColors={availableDialColors}
+          />
+        </div>
         
         <main className="flex-1">
-          <div className="container px-6 py-8">
+          <div className="container md:px-6 px-0 py-0 md:py-8">
             {loading ? (
               <div className="flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-luxury-gold"></div>
               </div>
             ) : (
               <>
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                {/* Desktop Header */}
+                <div className="hidden md:flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                   <p className="font-body text-muted-foreground">
                     Показано {filteredAndSortedProducts.length} з {products.length} товарів
                   </p>
@@ -207,7 +258,7 @@ const Index = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-0 md:gap-6 mb-12">
                   {filteredAndSortedProducts.map((product) => (
                     <ProductCard
                       key={product.id}
