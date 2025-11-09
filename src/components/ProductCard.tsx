@@ -6,30 +6,25 @@ import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Video, Scale, CheckCircle, Star } from 'lucide-react';
-
 interface ProductCardProps {
   product: Product;
 }
-
-export const ProductCard = ({ product }: ProductCardProps) => {
-  const { addToCart } = useCart();
+export const ProductCard = ({
+  product
+}: ProductCardProps) => {
+  const {
+    addToCart
+  } = useCart();
   const navigate = useNavigate();
-
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     addToCart(product);
     toast.success(`${product.name} додано до кошика`);
   };
-
   const handleProductClick = () => {
     navigate(`/product/${product.id}`);
   };
-
-  return (
-    <Card 
-      className="group overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[var(--shadow-hover)] animate-fade-in md:rounded-lg rounded-none border-r border-b md:border"
-      onClick={handleProductClick}
-    >
+  return <Card className="group overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[var(--shadow-hover)] animate-fade-in md:rounded-lg rounded-none border-r border-b md:border" onClick={handleProductClick}>
       <div className="relative aspect-[3/4] overflow-hidden bg-muted">
         {/* Hit Badge */}
         <Badge className="absolute top-2 left-2 z-10 bg-black text-white text-xs px-2 py-0.5 font-body uppercase">
@@ -47,35 +42,21 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         </div>
         
         <div className="absolute top-2 right-2 z-10 flex flex-col gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-8 w-8 bg-white/90 hover:bg-white rounded-full"
-            onClick={(e) => {
-              e.stopPropagation();
-              toast.info('Додано до обраного');
-            }}
-          >
+          <Button variant="ghost" size="icon" className="h-8 w-8 bg-white/90 hover:bg-white rounded-full" onClick={e => {
+          e.stopPropagation();
+          toast.info('Додано до обраного');
+        }}>
             <Heart className="h-4 w-4" />
           </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-8 w-8 bg-white/90 hover:bg-white rounded-full"
-            onClick={(e) => {
-              e.stopPropagation();
-              toast.info('Додано до порівняння');
-            }}
-          >
+          <Button variant="ghost" size="icon" className="h-8 w-8 bg-white/90 hover:bg-white rounded-full" onClick={e => {
+          e.stopPropagation();
+          toast.info('Додано до порівняння');
+        }}>
             <Scale className="h-4 w-4" />
           </Button>
         </div>
 
-        <img
-          src={product.image}
-          alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
+        <img src={product.image} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
       </div>
       
       <CardContent className="p-3 md:p-4 space-y-2">
@@ -88,8 +69,8 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         {/* Rating */}
         <div className="flex items-center gap-1">
           <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-          <span className="text-sm font-medium">4.5</span>
-          <span className="text-xs text-muted-foreground">(15)</span>
+          <span className="text-sm font-medium">0</span>
+          <span className="text-xs text-muted-foreground">(0)</span>
         </div>
         
         {/* Product Name */}
@@ -108,17 +89,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         </p>
         
         {/* Credit Info */}
-        <div className="flex items-center gap-2 text-xs">
-          <span className="text-muted-foreground uppercase">Кредит</span>
-          <div className="flex items-center gap-1">
-            <span className="font-bold text-red-600">12</span>
-            <div className="flex gap-0.5">
-              <div className="w-3 h-3 rounded-full bg-yellow-400" />
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-            </div>
-          </div>
-        </div>
+        
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
