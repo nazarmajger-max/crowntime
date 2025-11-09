@@ -32,10 +32,10 @@ export const FilterSidebar = ({
   };
 
   return (
-    <aside className="w-64 border-r bg-muted/30 p-6">
-      <h2 className="font-display text-2xl font-semibold mb-6">Фільтри</h2>
+    <aside className="w-full md:w-64 md:border-r md:bg-muted/30 md:p-6">
+      <h2 className="font-display text-2xl font-semibold mb-6 hidden md:block">Фільтри</h2>
       
-      <ScrollArea className="h-[calc(100vh-200px)]">
+      <ScrollArea className="h-full md:h-[calc(100vh-200px)]">
         <div className="space-y-6">
           {/* Price Range */}
           <div>

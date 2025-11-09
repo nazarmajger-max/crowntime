@@ -6,6 +6,7 @@ import { ProductCard } from '@/components/ProductCard';
 import { FilterSidebar } from '@/components/FilterSidebar';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Product, Filters } from '@/types/product';
 import heroBg from '@/assets/hero-bg.jpg';
 import { toast } from 'sonner';
@@ -14,6 +15,7 @@ const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<string>('featured');
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>({
     brands: [],
     priceRange: [0, 10000],
@@ -172,12 +174,36 @@ const Index = () => {
             </SelectContent>
           </Select>
           
-          <Button variant="outline" className="h-11 gap-2 font-body text-sm uppercase whitespace-nowrap">
+          <Button 
+            variant="outline" 
+            className="h-11 gap-2 font-body text-sm uppercase whitespace-nowrap"
+            onClick={() => setFiltersOpen(true)}
+          >
             <SlidersHorizontal className="h-4 w-4" />
             ФІЛЬТРИ {activeFilterCount > 0 && `(${activeFilterCount})`}
           </Button>
         </div>
       </div>
+
+      {/* Mobile Filters Sheet */}
+      <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="font-display text-xl">Фільтри</SheetTitle>
+          </SheetHeader>
+          <div className="mt-6">
+            <FilterSidebar 
+              filters={filters} 
+              onFiltersChange={setFilters}
+              availableBrands={availableBrands}
+              availableTypes={availableTypes}
+              availableGenders={availableGenders}
+              availableCaseMaterials={availableCaseMaterials}
+              availableDialColors={availableDialColors}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Main Content */}
       <div className="flex">
