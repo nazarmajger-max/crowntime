@@ -129,16 +129,16 @@ const Index = () => {
   return <>
       <Header />
       
-      {/* Hero Section - Hidden on Mobile */}
-      <section className="hidden md:flex relative h-[60vh] bg-cover bg-center items-center justify-center" style={{
+      {/* Hero Section */}
+      <section className="relative h-[50vh] md:h-[60vh] bg-cover bg-center flex items-center justify-center" style={{
       backgroundImage: `url(${heroBg})`
     }}>
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         <div className="relative z-10 text-center text-white px-4">
-          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold mb-4 animate-fade-in">
+          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-3 md:mb-4 animate-fade-in">
             WATCHZONE
           </h1>
-          <p className="font-body text-lg md:text-xl mb-8 max-w-2xl mx-auto animate-fade-in">
+          <p className="font-body text-base md:text-xl mb-6 md:mb-8 max-w-2xl mx-auto animate-fade-in">
             Найкращий вибір наручних годинників преміум класу
           </p>
           <Button size="lg" className="font-body font-medium animate-scale-in">
@@ -147,21 +147,11 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Mobile: Breadcrumb & Title */}
-      <div className="md:hidden bg-background">
-        <div className="px-4 py-3 border-b">
-          <button className="flex items-center gap-2 text-sm text-muted-foreground">
-            <ChevronLeft className="h-4 w-4" />
-            <span>Головна сторінка</span>
-          </button>
-        </div>
-        
-        <div className="px-4 py-6">
-          
-          <p className="text-sm text-muted-foreground uppercase tracking-wide">
-            {products.length.toLocaleString()} МОДЕЛЕЙ
-          </p>
-        </div>
+      {/* Mobile: Title Section */}
+      <div className="md:hidden bg-background px-4 py-6 border-b">
+        <p className="text-sm text-muted-foreground uppercase tracking-wide">
+          {products.length.toLocaleString()} МОДЕЛЕЙ
+        </p>
       </div>
 
       {/* Mobile: Sort & Filter Bar */}
