@@ -43,12 +43,7 @@ export const ProductCard = ({
         }}>
             <Heart className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 bg-white/90 hover:bg-white rounded-full" onClick={e => {
-          e.stopPropagation();
-          toast.info('Додано до порівняння');
-        }}>
-            <Scale className="h-4 w-4" />
-          </Button>
+          
         </div>
 
         <img src={product.image} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
