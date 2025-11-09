@@ -34,10 +34,7 @@ export const ProductCard = ({
         {/* Action Icons */}
         <div className="absolute top-2 left-2 flex flex-col gap-2 z-10">
           <div className="flex items-center gap-1">
-            <div className="bg-white/90 rounded px-1.5 py-0.5 flex items-center gap-1">
-              <Video className="h-3 w-3" />
-              <span className="text-[10px] font-medium">360°</span>
-            </div>
+            
           </div>
         </div>
         
