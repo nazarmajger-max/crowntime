@@ -1,13 +1,78 @@
-import { Link } from 'react-router-dom';
-import { ShoppingCart, Menu, User, Shield, Heart, Search } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingCart, Menu, User, Shield, Heart, Search, X } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Input } from '@/components/ui/input';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Product } from '@/types/product';
 import logo from '@/assets/watchzone-logo.jpg';
 
 export const Header = () => {
   const { cartCount } = useCart();
   const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
+  const [searching, setSearching] = useState(false);
+
+  useEffect(() => {
+    const searchProducts = async () => {
+      if (searchQuery.trim().length < 2) {
+        setSearchResults([]);
+        return;
+      }
+
+      setSearching(true);
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('in_stock', true)
+          .or(`name.ilike.%${searchQuery}%,brand.ilike.%${searchQuery}%,category.ilike.%${searchQuery}%`)
+          .limit(10);
+
+        if (error) throw error;
+
+        const formattedProducts: Product[] = (data || []).map(p => ({
+          id: p.id,
+          name: p.name,
+          brand: p.brand,
+          price: Number(p.price),
+          description: p.description || '',
+          image: p.image_url,
+          category: p.category,
+          gender: (p.gender?.toLowerCase() || 'unisex') as 'men' | 'women' | 'unisex',
+          type: (p.category?.toLowerCase() || 'analog') as Product['type'],
+          caseMaterial: p.case_material || 'Steel',
+          dialColor: p.dial_color || 'Black',
+          waterResistance: p.water_resistance || '50m',
+          movementType: p.movement_type || 'Automatic',
+          movement: p.movement_type || 'Automatic',
+          inStock: p.in_stock
+        }));
+
+        setSearchResults(formattedProducts);
+      } catch (error) {
+        console.error('Error searching products:', error);
+      } finally {
+        setSearching(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(searchProducts, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
+
+  const handleProductClick = (productId: string) => {
+    setSearchOpen(false);
+    setSearchQuery('');
+    setSearchResults([]);
+    navigate(`/product/${productId}`);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -17,7 +82,7 @@ export const Header = () => {
           <Button variant="ghost" size="icon" className="h-9 w-9">
             <Menu className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-9 w-9">
+          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setSearchOpen(true)}>
             <Search className="h-5 w-5" />
           </Button>
         </div>
@@ -111,6 +176,65 @@ export const Header = () => {
           </Link>
         </div>
       </div>
+
+      {/* Mobile Search Sheet */}
+      <Sheet open={searchOpen} onOpenChange={setSearchOpen}>
+        <SheetContent side="top" className="h-[100vh] p-0">
+          <SheetHeader className="border-b p-4">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setSearchOpen(false)}>
+                <X className="h-5 w-5" />
+              </Button>
+              <div className="flex-1">
+                <Input
+                  placeholder="Пошук товарів..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-10"
+                  autoFocus
+                />
+              </div>
+            </div>
+          </SheetHeader>
+          
+          <div className="overflow-y-auto h-[calc(100vh-80px)] p-4">
+            {searching && (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent mx-auto"></div>
+              </div>
+            )}
+            
+            {!searching && searchQuery.trim().length > 0 && searchResults.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                Товарів не знайдено
+              </div>
+            )}
+            
+            {searchResults.length > 0 && (
+              <div className="space-y-3">
+                {searchResults.map((product) => (
+                  <div
+                    key={product.id}
+                    onClick={() => handleProductClick(product.id)}
+                    className="flex gap-3 p-3 border rounded-lg cursor-pointer hover:bg-accent/5 transition-colors"
+                  >
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm line-clamp-1">{product.brand}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{product.name}</p>
+                      <p className="font-bold text-sm mt-1">{product.price.toLocaleString('uk-UA')} ₴</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </header>
   );
 };
