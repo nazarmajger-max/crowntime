@@ -13,17 +13,18 @@ interface Order {
   status: string;
   total_amount: number;
   shipping_name: string;
-  shipping_email: string;
   shipping_phone: string;
   shipping_address: string;
+  shipping_city: string;
   created_at: string;
 }
 
 interface OrderItem {
+  id: string;
+  product_id: string;
   product_name: string;
-  product_price: number;
+  price: number;
   quantity: number;
-  subtotal: number;
 }
 
 const Orders = () => {
@@ -54,14 +55,32 @@ const Orders = () => {
     
     const { data, error } = await supabase
       .from('order_items')
-      .select('*')
+      .select('id, product_id, price, quantity')
       .eq('order_id', order.id);
 
     if (error) {
       toast.error('Помилка завантаження деталей замовлення');
       return;
     }
-    setOrderItems(data || []);
+    
+    // Fetch product names
+    if (data && data.length > 0) {
+      const productIds = data.map(item => item.product_id);
+      const { data: products } = await supabase
+        .from('products')
+        .select('id, name')
+        .in('id', productIds);
+      
+      const productMap = new Map(products?.map(p => [p.id, p.name]) || []);
+      
+      const itemsWithNames: OrderItem[] = data.map(item => ({
+        ...item,
+        product_name: productMap.get(item.product_id) || 'Невідомий товар',
+      }));
+      setOrderItems(itemsWithNames);
+    } else {
+      setOrderItems([]);
+    }
     setIsDialogOpen(true);
   };
 
@@ -158,12 +177,12 @@ const Orders = () => {
                   <p>{selectedOrder.shipping_name}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Email</p>
-                  <p>{selectedOrder.shipping_email}</p>
-                </div>
-                <div>
                   <p className="text-sm font-medium">Телефон</p>
                   <p>{selectedOrder.shipping_phone}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Місто</p>
+                  <p>{selectedOrder.shipping_city}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Адреса</p>
@@ -183,12 +202,12 @@ const Orders = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {orderItems.map((item, idx) => (
-                      <TableRow key={idx}>
+                    {orderItems.map((item) => (
+                      <TableRow key={item.id}>
                         <TableCell>{item.product_name}</TableCell>
-                        <TableCell>₴{item.product_price}</TableCell>
+                        <TableCell>₴{item.price}</TableCell>
                         <TableCell>{item.quantity}</TableCell>
-                        <TableCell>₴{item.subtotal}</TableCell>
+                        <TableCell>₴{item.price * item.quantity}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
