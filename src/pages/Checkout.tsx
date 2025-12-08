@@ -50,12 +50,9 @@ const Checkout = () => {
           user_id: user.id,
           total_amount: cartTotal,
           shipping_name: `${formData.firstName} ${formData.lastName}`,
-          shipping_email: formData.email,
           shipping_phone: formData.phone,
           shipping_address: formData.address,
           shipping_city: formData.city,
-          shipping_postal_code: formData.postalCode,
-          payment_method: formData.paymentMethod,
           status: 'pending',
         }])
         .select()
@@ -67,10 +64,8 @@ const Checkout = () => {
       const orderItems = cart.map(({ product, quantity }) => ({
         order_id: order.id,
         product_id: product.id,
-        product_name: product.name,
-        product_price: product.price,
         quantity,
-        subtotal: product.price * quantity,
+        price: product.price,
       }));
 
       const { error: itemsError } = await supabase

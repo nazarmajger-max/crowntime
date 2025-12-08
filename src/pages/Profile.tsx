@@ -7,39 +7,41 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Star, Package, MessageSquare, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+
+interface OrderItem {
+  product_id: string;
+  quantity: number;
+  price: number;
+  products: {
+    name: string;
+  } | null;
+}
 
 interface Order {
   id: string;
   created_at: string;
   status: string;
   total_amount: number;
-  order_items: {
-    product_name: string;
-    product_id: string;
-    quantity: number;
-    product_price: number;
-    subtotal: number;
-  }[];
+  order_items: OrderItem[];
 }
 
 interface Review {
   id: string;
   product_id: string;
   rating: number;
-  comment: string;
+  comment: string | null;
   created_at: string;
   products: {
     name: string;
-    image_url: string;
-  };
+  } | null;
 }
 
 const Profile = () => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -73,18 +75,19 @@ const Profile = () => {
           status,
           total_amount,
           order_items (
-            product_name,
             product_id,
             quantity,
-            product_price,
-            subtotal
+            price,
+            products (
+              name
+            )
           )
         `)
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setOrders(data || []);
+      setOrders((data as Order[]) || []);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast.error('Помилка завантаження замовлень');
@@ -104,15 +107,14 @@ const Profile = () => {
           comment,
           created_at,
           products (
-            name,
-            image_url
+            name
           )
         `)
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setReviews(data || []);
+      setReviews((data as Review[]) || []);
     } catch (error) {
       console.error('Error fetching reviews:', error);
     }
@@ -129,7 +131,7 @@ const Profile = () => {
           user_id: user.id,
           product_id: selectedProduct.id,
           rating,
-          comment: comment.trim(),
+          comment: comment.trim() || null,
         });
 
       if (error) throw error;
@@ -191,7 +193,12 @@ const Profile = () => {
       <Header />
       <main className="container px-4 py-20 min-h-[calc(100vh-200px)]">
         <div className="max-w-4xl mx-auto">
-          <h1 className="font-display text-4xl font-bold mb-8">Особистий кабінет</h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="font-display text-4xl font-bold">Особистий кабінет</h1>
+            <Button variant="outline" onClick={signOut}>
+              Вийти
+            </Button>
+          </div>
           
           <Tabs defaultValue="orders" className="w-full">
             <TabsList className="grid w-full grid-cols-2 h-auto">
@@ -242,20 +249,20 @@ const Profile = () => {
                           {order.order_items.map((item, idx) => (
                             <div key={idx} className="flex justify-between items-center border-t pt-3">
                               <div>
-                                <div className="font-medium">{item.product_name}</div>
+                                <div className="font-medium">{item.products?.name || 'Товар'}</div>
                                 <div className="text-sm text-muted-foreground">
                                   Кількість: {item.quantity}
                                 </div>
                               </div>
                               <div className="flex items-center gap-3">
                                 <div className="text-right">
-                                  <div className="font-bold">{item.subtotal} грн</div>
+                                  <div className="font-bold">{item.price * item.quantity} грн</div>
                                 </div>
                                 {order.status === 'completed' && (
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    onClick={() => openReviewDialog(item.product_id, item.product_name)}
+                                    onClick={() => openReviewDialog(item.product_id, item.products?.name || 'Товар')}
                                   >
                                     <Star className="h-4 w-4 mr-1" />
                                     Відгук
@@ -286,14 +293,9 @@ const Profile = () => {
                     <Card key={review.id}>
                       <CardHeader>
                         <div className="flex gap-4">
-                          <img
-                            src={review.products.image_url}
-                            alt={review.products.name}
-                            className="w-20 h-20 object-cover rounded"
-                          />
                           <div className="flex-1">
                             <div className="flex justify-between items-start gap-2">
-                              <CardTitle className="text-base sm:text-lg">{review.products.name}</CardTitle>
+                              <CardTitle className="text-base sm:text-lg">{review.products?.name || 'Товар'}</CardTitle>
                               <Button
                                 variant="ghost"
                                 size="icon"

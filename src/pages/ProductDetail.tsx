@@ -13,25 +13,22 @@ import { Check, X, ShoppingCart, Heart, Star, Send, Trash2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext';
 import { Textarea } from '@/components/ui/textarea';
 import { Product } from '@/types/product';
+
 interface Review {
   id: string;
   user_id: string;
   rating: number;
-  comment: string;
+  comment: string | null;
   created_at: string;
   profiles: {
-    full_name: string;
-    email: string;
-  };
+    full_name: string | null;
+  } | null;
 }
+
 const ProductDetail = () => {
-  const {
-    id
-  } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const {
-    addToCart
-  } = useCart();
+  const { addToCart } = useCart();
   const [product, setProduct] = useState<Product | null>(null);
   const [productImages, setProductImages] = useState<string[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -44,6 +41,7 @@ const ProductDetail = () => {
   const [reviewComment, setReviewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
   const { user } = useAuth();
+
   useEffect(() => {
     if (id) {
       fetchProduct(id);
@@ -54,40 +52,43 @@ const ProductDetail = () => {
       }
     }
   }, [id, user]);
+
   const fetchProductImages = async (productId: string) => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('product_images' as any).select('*').eq('product_id', productId).order('position');
+      const { data, error } = await supabase
+        .from('product_images')
+        .select('*')
+        .eq('product_id', productId)
+        .order('sort_order');
+
       if (error) throw error;
       if (data && data.length > 0) {
-        setProductImages(data.map((img: any) => img.image_url));
+        setProductImages(data.map((img) => img.image_url));
       }
     } catch (error) {
       console.error('Error fetching product images:', error);
     }
   };
+
   const fetchReviews = async (productId: string) => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('reviews').select(`
+      const { data, error } = await supabase
+        .from('reviews')
+        .select(`
           id,
           user_id,
           rating,
           comment,
           created_at,
-          profiles!reviews_user_id_fkey (
-            full_name,
-            email
+          profiles (
+            full_name
           )
-        `).eq('product_id', productId).order('created_at', {
-        ascending: false
-      });
+        `)
+        .eq('product_id', productId)
+        .order('created_at', { ascending: false });
+
       if (error) throw error;
-      setReviews(data as any || []);
+      setReviews((data as Review[]) || []);
       if (data && data.length > 0) {
         const avg = data.reduce((sum, review) => sum + review.rating, 0) / data.length;
         setAverageRating(Math.round(avg * 10) / 10);
@@ -96,45 +97,47 @@ const ProductDetail = () => {
       console.error('Error fetching reviews:', error);
     }
   };
+
   const fetchProduct = async (productId: string) => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('products').select('*').eq('id', productId).single();
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', productId)
+        .single();
+
       if (error) throw error;
       if (data) {
         const gender = (data.gender?.toLowerCase() || 'unisex') as 'men' | 'women' | 'unisex';
-        const type = (data.category?.toLowerCase() || 'analog') as Product['type'];
         const validTypes = ['analog', 'digital', 'sport', 'luxury', 'dress', 'dive'];
+        const type = validTypes.includes(data.movement_type?.toLowerCase() || '')
+          ? data.movement_type?.toLowerCase() as Product['type']
+          : 'analog';
+
+        // Fetch primary image
+        const { data: imageData } = await supabase
+          .from('product_images')
+          .select('image_url')
+          .eq('product_id', productId)
+          .eq('is_primary', true)
+          .maybeSingle();
+
         const formattedProduct: Product = {
           id: data.id,
           name: data.name,
-          brand: data.brand,
+          brand: data.brand || '',
           price: Number(data.price),
           description: data.description || '',
-          image: data.image_url,
-          category: data.category,
+          image: imageData?.image_url || '/placeholder.svg',
+          category: data.movement_type || 'Analog',
           gender: ['men', 'women', 'unisex'].includes(gender) ? gender : 'unisex',
-          type: validTypes.includes(type) ? type : 'analog',
+          type: type,
           caseMaterial: data.case_material || 'Сталь',
           dialColor: data.dial_color || 'Чорний',
           waterResistance: data.water_resistance || '50m',
           movement: data.movement_type || 'Автоматичний',
-          inStock: data.in_stock,
-          glassType: data.glass_type,
-          diameter: data.diameter,
-          illumination: data.illumination,
-          dialType: data.dial_type,
-          caseColor: data.case_color,
-          dateIndication: data.date_indication,
-          dayIndication: data.day_indication,
-          watchStyle: data.watch_style,
-          indicationType: data.indication_type,
-          caseShape: data.case_shape,
-          strapMaterial: data.strap_material,
-          strapColor: data.strap_color,
-          modelCode: data.model_code
+          inStock: data.stock_quantity > 0,
+          diameter: data.case_diameter || undefined,
         };
         setProduct(formattedProduct);
       }
@@ -145,6 +148,7 @@ const ProductDetail = () => {
       setLoading(false);
     }
   };
+
   const handleAddToCart = () => {
     if (product) {
       for (let i = 0; i < quantity; i++) {
@@ -153,6 +157,7 @@ const ProductDetail = () => {
       toast.success(`${product.name} додано до кошика`);
     }
   };
+
   const handleQuantityChange = (delta: number) => {
     const newQuantity = quantity + delta;
     if (newQuantity >= 1 && newQuantity <= 10) {
@@ -268,84 +273,45 @@ const ProductDetail = () => {
       toast.error('Помилка при видаленні відгуку');
     }
   };
+
   if (loading) {
-    return <>
+    return (
+      <>
         <Header />
         <div className="container mx-auto px-6 py-12 flex justify-center items-center min-h-[60vh]">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
         <Footer />
-      </>;
+      </>
+    );
   }
+
   if (!product) {
-    return <>
+    return (
+      <>
         <Header />
         <div className="container mx-auto px-6 py-12 text-center">
           <h1 className="text-2xl font-display mb-4">Товар не знайдено</h1>
           <Button onClick={() => navigate('/')}>Повернутися до каталогу</Button>
         </div>
         <Footer />
-      </>;
+      </>
+    );
   }
-  const specifications = [{
-    label: 'Стать',
-    value: product.gender === 'men' ? 'Чоловіча' : product.gender === 'women' ? 'Жіноча' : 'Унісекс'
-  }, {
-    label: 'Скло',
-    value: product.glassType
-  }, {
-    label: 'Діаметр',
-    value: product.diameter
-  }, {
-    label: 'Тип механізму',
-    value: product.movement
-  }, {
-    label: 'Підсвічування',
-    value: product.illumination
-  }, {
-    label: 'Тип циферблату',
-    value: product.dialType
-  }, {
-    label: 'Колір корпусу',
-    value: product.caseColor
-  }, {
-    label: 'Бренд',
-    value: product.brand
-  }, {
-    label: 'Індикація дати',
-    value: product.dateIndication ? 'Є' : 'Немає'
-  }, {
-    label: 'Тип',
-    value: product.category
-  }, {
-    label: 'Індикація дня тижня',
-    value: product.dayIndication ? 'Є' : 'Немає'
-  }, {
-    label: 'Стиль',
-    value: product.watchStyle
-  }, {
-    label: 'Тип індикації',
-    value: product.indicationType
-  }, {
-    label: 'Матеріал корпусу',
-    value: product.caseMaterial
-  }, {
-    label: 'Матеріал браслета/ремінця',
-    value: product.strapMaterial
-  }, {
-    label: 'Колір циферблату',
-    value: product.dialColor
-  }, {
-    label: 'Форма корпусу',
-    value: product.caseShape
-  }, {
-    label: 'Водозахист',
-    value: product.waterResistance
-  }, {
-    label: 'Колір браслета/ремінця',
-    value: product.strapColor
-  }].filter(spec => spec.value);
-  return <>
+
+  const specifications = [
+    { label: 'Стать', value: product.gender === 'men' ? 'Чоловіча' : product.gender === 'women' ? 'Жіноча' : 'Унісекс' },
+    { label: 'Діаметр', value: product.diameter },
+    { label: 'Тип механізму', value: product.movement },
+    { label: 'Бренд', value: product.brand },
+    { label: 'Тип', value: product.category },
+    { label: 'Матеріал корпусу', value: product.caseMaterial },
+    { label: 'Колір циферблату', value: product.dialColor },
+    { label: 'Водозахист', value: product.waterResistance },
+  ].filter(spec => spec.value);
+
+  return (
+    <>
       <Header />
       
       <div className="container mx-auto px-6 py-8">
@@ -361,14 +327,17 @@ const ProductDetail = () => {
         <div className="grid md:grid-cols-2 gap-12 mb-12">
           {/* Product Images */}
           <div className="space-y-4">
-            {productImages.length > 0 ? <>
+            {productImages.length > 0 ? (
+              <>
                 <Carousel className="w-full">
                   <CarouselContent>
-                    {productImages.map((image, index) => <CarouselItem key={index}>
+                    {productImages.map((image, index) => (
+                      <CarouselItem key={index}>
                         <div className="aspect-square overflow-hidden rounded-lg bg-muted border">
                           <img src={image} alt={`${product.name} - ${index + 1}`} className="h-full w-full object-cover" />
                         </div>
-                      </CarouselItem>)}
+                      </CarouselItem>
+                    ))}
                   </CarouselContent>
                   <CarouselPrevious className="left-4" />
                   <CarouselNext className="right-4" />
@@ -376,13 +345,22 @@ const ProductDetail = () => {
                 
                 {/* Thumbnails */}
                 <div className="grid grid-cols-5 gap-2">
-                  {productImages.map((image, index) => <button key={index} onClick={() => setSelectedImage(index)} className={`aspect-square overflow-hidden rounded-lg border-2 transition-all ${selectedImage === index ? 'border-primary' : 'border-transparent hover:border-primary/50'}`}>
+                  {productImages.map((image, index) => (
+                    <button 
+                      key={index} 
+                      onClick={() => setSelectedImage(index)} 
+                      className={`aspect-square overflow-hidden rounded-lg border-2 transition-all ${selectedImage === index ? 'border-primary' : 'border-transparent hover:border-primary/50'}`}
+                    >
                       <img src={image} alt={`${product.name} - thumbnail ${index + 1}`} className="h-full w-full object-cover" />
-                    </button>)}
+                    </button>
+                  ))}
                 </div>
-              </> : <div className="aspect-square overflow-hidden rounded-lg bg-muted border">
+              </>
+            ) : (
+              <div className="aspect-square overflow-hidden rounded-lg bg-muted border">
                 <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
-              </div>}
+              </div>
+            )}
           </div>
 
           {/* Product Info */}
@@ -391,9 +369,6 @@ const ProductDetail = () => {
               <p className="text-sm text-muted-foreground font-body mb-2">
                 Бренд: <span className="text-primary font-medium">{product.brand}</span>
               </p>
-              {product.modelCode && <p className="text-sm text-muted-foreground font-body mb-2">
-                  Модель: {product.modelCode}
-                </p>}
               <h1 className="font-display text-3xl lg:text-4xl font-bold mb-4">
                 {product.name}
               </h1>
@@ -404,13 +379,17 @@ const ProductDetail = () => {
             </div>
 
             <div className="flex items-center gap-2 text-sm font-body">
-              {product.inStock ? <>
+              {product.inStock ? (
+                <>
                   <Check className="h-5 w-5 text-green-600" />
                   <span className="text-green-600 font-medium">Доставка 1-2 дні по Україні</span>
-                </> : <>
+                </>
+              ) : (
+                <>
                   <X className="h-5 w-5 text-destructive" />
                   <span className="text-destructive">Немає в наявності</span>
-                </>}
+                </>
+              )}
             </div>
 
             {/* Quantity Selector */}
@@ -441,8 +420,6 @@ const ProductDetail = () => {
                 <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
               </Button>
             </div>
-
-            
           </div>
         </div>
 
@@ -457,10 +434,12 @@ const ProductDetail = () => {
           <TabsContent value="specifications" className="space-y-4">
             <h3 className="font-display text-2xl font-semibold mb-6">Характеристики</h3>
             <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
-              {specifications.map((spec, index) => <div key={index} className="flex justify-between py-3 border-b font-body">
+              {specifications.map((spec, index) => (
+                <div key={index} className="flex justify-between py-3 border-b font-body">
                   <span className="text-muted-foreground">{spec.label}:</span>
                   <span className="font-medium">{spec.value}</span>
-                </div>)}
+                </div>
+              ))}
             </div>
           </TabsContent>
 
@@ -473,121 +452,102 @@ const ProductDetail = () => {
               <div className="mt-6 space-y-3">
                 <h3 className="font-display text-xl font-semibold">Купуючи в WATCHZONE Ви отримуєте:</h3>
                 <ul className="space-y-2">
-                  <li>✓ <strong>Професійне обслуговування</strong> (Наші менеджери завжди готові допомогти у виборі)</li>
-                  
+                  <li>✓ <strong>Професійне обслуговування</strong></li>
                   <li>✓ <strong>Доступну ціну</strong></li>
-                  <li>✓ <strong>Величезний асортимент</strong> товарів</li>
-                  <li>✓ <strong>Можливість повернення або обміну</strong>, якщо замовлення не підійшло</li>
+                  <li>✓ <strong>Гарантію якості</strong></li>
+                  <li>✓ <strong>Швидку доставку по Україні</strong></li>
                 </ul>
               </div>
             </div>
           </TabsContent>
 
           <TabsContent value="reviews" className="space-y-6">
-            <div className="mb-6">
-              <h3 className="font-display text-2xl font-semibold mb-4">
-                Відгуки ({reviews.length})
-                {reviews.length > 0 && <span className="ml-3 text-lg text-muted-foreground">
-                    <Star className="inline h-5 w-5 fill-yellow-400 text-yellow-400 mb-1" />
-                    {averageRating.toFixed(1)}
-                  </span>}
-              </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="font-display text-2xl font-semibold">Відгуки</h3>
+              {reviews.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                  <span className="font-bold">{averageRating}</span>
+                  <span className="text-muted-foreground">({reviews.length} відгуків)</span>
+                </div>
+              )}
             </div>
 
             {/* Add Review Form */}
             {user && (
-              <Card className="mb-6">
+              <Card>
                 <CardContent className="pt-6">
-                  <h4 className="font-display text-lg font-semibold mb-4">Залишити відгук</h4>
+                  <h4 className="font-semibold mb-4">Залишити відгук</h4>
                   <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Оцінка</label>
-                      <div className="flex gap-2">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            onClick={() => setReviewRating(star)}
-                            className="transition-transform hover:scale-110"
-                          >
-                            <Star
-                              className={`h-6 w-6 ${
-                                star <= reviewRating
-                                  ? 'fill-yellow-400 text-yellow-400'
-                                  : 'text-muted-foreground'
-                              }`}
-                            />
-                          </button>
-                        ))}
-                      </div>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button key={star} onClick={() => setReviewRating(star)}>
+                          <Star 
+                            className={`h-6 w-6 cursor-pointer ${star <= reviewRating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} 
+                          />
+                        </button>
+                      ))}
                     </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Коментар (необов'язково)</label>
-                      <Textarea
-                        value={reviewComment}
-                        onChange={(e) => setReviewComment(e.target.value)}
-                        placeholder="Поділіться своїми враженнями..."
-                        rows={4}
-                      />
-                    </div>
-                    <Button
-                      onClick={handleSubmitReview}
-                      disabled={submittingReview}
-                      className="w-full"
-                    >
+                    <Textarea
+                      placeholder="Ваш коментар (необов'язково)..."
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                    />
+                    <Button onClick={handleSubmitReview} disabled={submittingReview}>
                       <Send className="mr-2 h-4 w-4" />
-                      {submittingReview ? 'Додавання...' : 'Додати відгук'}
+                      {submittingReview ? 'Відправка...' : 'Опублікувати'}
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             )}
-            
-            {reviews.length === 0 ? <div className="text-center py-12">
-                <p className="text-muted-foreground font-body">Відгуків ще немає 😔</p>
-                <p className="text-sm text-muted-foreground mt-2 font-body">
-                  Будьте першим, хто залишить відгук про цей товар!
-                </p>
-              </div> : <div className="space-y-4">
-                {reviews.map(review => <Card key={review.id}>
+
+            {/* Reviews List */}
+            {reviews.length === 0 ? (
+              <p className="text-muted-foreground">Поки немає відгуків. Будьте першим!</p>
+            ) : (
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <Card key={review.id}>
                     <CardContent className="pt-6">
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex-1">
-                          <p className="font-medium font-body">
-                            {review.profiles?.full_name || review.profiles?.email || 'Анонімний користувач'}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(review.created_at).toLocaleDateString('uk-UA', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                      })}
-                          </p>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-semibold">{review.profiles?.full_name || 'Анонім'}</p>
+                          <div className="flex gap-1 mt-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star 
+                                key={star} 
+                                className={`h-4 w-4 ${star <= review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} 
+                              />
+                            ))}
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="flex gap-1">
-                            {[1, 2, 3, 4, 5].map(star => <Star key={star} className={`h-4 w-4 ${star <= review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />)}
-                          </div>
-                          {user && review.user_id === user.id && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => handleDeleteReview(review.id)}
-                            >
+                          <span className="text-sm text-muted-foreground">
+                            {new Date(review.created_at).toLocaleDateString('uk-UA')}
+                          </span>
+                          {user?.id === review.user_id && (
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteReview(review.id)}>
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           )}
                         </div>
                       </div>
-                      {review.comment && <p className="text-foreground/80 font-body">{review.comment}</p>}
+                      {review.comment && (
+                        <p className="mt-3 text-muted-foreground">{review.comment}</p>
+                      )}
                     </CardContent>
-                  </Card>)}
-              </div>}
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
 
       <Footer />
-    </>;
+    </>
+  );
 };
+
 export default ProductDetail;

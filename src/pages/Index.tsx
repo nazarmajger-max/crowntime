@@ -11,6 +11,7 @@ import { Product, Filters } from '@/types/product';
 import heroBg from '@/assets/hero-bg.jpg';
 import { toast } from 'sonner';
 import { ChevronLeft, SlidersHorizontal, ChevronDown } from 'lucide-react';
+
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,38 +47,55 @@ const Index = () => {
     const colors = products.map(p => p.dialColor).filter(Boolean);
     return Array.from(new Set(colors)).sort();
   }, [products]);
+
   useEffect(() => {
     fetchProducts();
   }, []);
+
   const fetchProducts = async () => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('products').select('*').eq('in_stock', true).order('created_at', {
-        ascending: false
-      });
-      if (error) throw error;
-      const formattedProducts: Product[] = (data || []).map(p => {
+      // Fetch products with their primary images
+      const { data: productsData, error: productsError } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (productsError) throw productsError;
+
+      // Fetch primary images for products
+      const { data: imagesData, error: imagesError } = await supabase
+        .from('product_images')
+        .select('product_id, image_url')
+        .eq('is_primary', true);
+
+      if (imagesError) throw imagesError;
+
+      // Create a map of product_id to image_url
+      const imageMap = new Map(imagesData?.map(img => [img.product_id, img.image_url]) || []);
+
+      const formattedProducts: Product[] = (productsData || []).map(p => {
         const gender = (p.gender?.toLowerCase() || 'unisex') as 'men' | 'women' | 'unisex';
-        const type = (p.category?.toLowerCase() || 'analog') as Product['type'];
         const validTypes = ['analog', 'digital', 'sport', 'luxury', 'dress', 'dive'];
+        const type = validTypes.includes(p.movement_type?.toLowerCase() || '') 
+          ? p.movement_type?.toLowerCase() as Product['type'] 
+          : 'analog';
+        
         return {
           id: p.id,
           name: p.name,
-          brand: p.brand,
+          brand: p.brand || '',
           price: Number(p.price),
           description: p.description || '',
-          image: p.image_url,
-          category: p.category,
+          image: imageMap.get(p.id) || '/placeholder.svg',
+          category: p.movement_type || 'Analog',
           gender: ['men', 'women', 'unisex'].includes(gender) ? gender : 'unisex',
-          type: validTypes.includes(type) ? type : 'analog',
+          type: type,
           caseMaterial: p.case_material || 'Steel',
           dialColor: p.dial_color || 'Black',
           waterResistance: p.water_resistance || '50m',
-          movementType: p.movement_type || 'Automatic',
           movement: p.movement_type || 'Automatic',
-          inStock: p.in_stock
+          inStock: p.stock_quantity > 0
         };
       });
       setProducts(formattedProducts);
@@ -88,6 +106,7 @@ const Index = () => {
       setLoading(false);
     }
   };
+
   const filteredAndSortedProducts = useMemo(() => {
     let result = [...products];
 
@@ -127,14 +146,18 @@ const Index = () => {
     }
     return result;
   }, [products, filters, sortBy]);
+
   const activeFilterCount = filters.brands.length + filters.gender.length + filters.type.length + filters.caseMaterial.length + filters.dialColor.length;
-  return <>
+
+  return (
+    <>
       <Header />
       
       {/* Hero Section */}
-      <section className="relative h-[50vh] md:h-[60vh] bg-cover bg-center flex items-center justify-center" style={{
-      backgroundImage: `url(${heroBg})`
-    }}>
+      <section 
+        className="relative h-[50vh] md:h-[60vh] bg-cover bg-center flex items-center justify-center" 
+        style={{ backgroundImage: `url(${heroBg})` }}
+      >
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-3 md:mb-4 animate-fade-in">
@@ -233,14 +256,25 @@ const Index = () => {
       <div className="flex">
         {/* Desktop Sidebar */}
         <div className="hidden md:block">
-          <FilterSidebar filters={filters} onFiltersChange={setFilters} availableBrands={availableBrands} availableTypes={availableTypes} availableGenders={availableGenders} availableCaseMaterials={availableCaseMaterials} availableDialColors={availableDialColors} />
+          <FilterSidebar 
+            filters={filters} 
+            onFiltersChange={setFilters} 
+            availableBrands={availableBrands} 
+            availableTypes={availableTypes} 
+            availableGenders={availableGenders} 
+            availableCaseMaterials={availableCaseMaterials} 
+            availableDialColors={availableDialColors} 
+          />
         </div>
         
         <main className="flex-1">
           <div className="container md:px-6 px-0 py-0 md:py-8">
-            {loading ? <div className="flex justify-center items-center py-12">
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-luxury-gold"></div>
-              </div> : <>
+              </div>
+            ) : (
+              <>
                 {/* Desktop Header */}
                 <div className="hidden md:flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                   <p className="font-body text-muted-foreground">
@@ -263,20 +297,27 @@ const Index = () => {
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-0 md:gap-6 mb-12">
-                  {filteredAndSortedProducts.map(product => <ProductCard key={product.id} product={product} />)}
+                  {filteredAndSortedProducts.map(product => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
                 </div>
 
-                {filteredAndSortedProducts.length === 0 && <div className="text-center py-12">
+                {filteredAndSortedProducts.length === 0 && (
+                  <div className="text-center py-12">
                     <p className="font-body text-muted-foreground">
                       Товарів не знайдено за вашими фільтрами.
                     </p>
-                  </div>}
-              </>}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </main>
       </div>
 
       <Footer />
-    </>;
+    </>
+  );
 };
+
 export default Index;
