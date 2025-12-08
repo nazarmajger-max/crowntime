@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (error) throw error;
-      toast.success('Акаунт створено! Перевірте email для підтвердження.');
+      toast.success('Акаунт створено! Ви можете увійти.');
     } catch (error: any) {
       toast.error(error.message || 'Помилка реєстрації');
       throw error;

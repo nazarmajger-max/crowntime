@@ -28,31 +28,41 @@ export const Header = () => {
 
       setSearching(true);
       try {
-        const { data, error } = await supabase
+        // Search products
+        const { data: productsData, error: productsError } = await supabase
           .from('products')
           .select('*')
-          .eq('in_stock', true)
-          .or(`name.ilike.%${searchQuery}%,brand.ilike.%${searchQuery}%,category.ilike.%${searchQuery}%`)
+          .eq('is_active', true)
+          .or(`name.ilike.%${searchQuery}%,brand.ilike.%${searchQuery}%`)
           .limit(10);
 
-        if (error) throw error;
+        if (productsError) throw productsError;
 
-        const formattedProducts: Product[] = (data || []).map(p => ({
+        // Fetch primary images for found products
+        const productIds = productsData?.map(p => p.id) || [];
+        const { data: imagesData } = await supabase
+          .from('product_images')
+          .select('product_id, image_url')
+          .eq('is_primary', true)
+          .in('product_id', productIds);
+
+        const imageMap = new Map(imagesData?.map(img => [img.product_id, img.image_url]) || []);
+
+        const formattedProducts: Product[] = (productsData || []).map(p => ({
           id: p.id,
           name: p.name,
-          brand: p.brand,
+          brand: p.brand || '',
           price: Number(p.price),
           description: p.description || '',
-          image: p.image_url,
-          category: p.category,
+          image: imageMap.get(p.id) || '/placeholder.svg',
+          category: p.movement_type || 'Analog',
           gender: (p.gender?.toLowerCase() || 'unisex') as 'men' | 'women' | 'unisex',
-          type: (p.category?.toLowerCase() || 'analog') as Product['type'],
+          type: 'analog' as Product['type'],
           caseMaterial: p.case_material || 'Steel',
           dialColor: p.dial_color || 'Black',
           waterResistance: p.water_resistance || '50m',
-          movementType: p.movement_type || 'Automatic',
           movement: p.movement_type || 'Automatic',
-          inStock: p.in_stock
+          inStock: p.stock_quantity > 0
         }));
 
         setSearchResults(formattedProducts);
