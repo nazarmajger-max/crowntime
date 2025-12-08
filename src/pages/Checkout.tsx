@@ -34,27 +34,43 @@ const Checkout = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
-      toast.error('Будь ласка, увійдіть для оформлення замовлення');
-      navigate('/auth');
+    // Validate email for guest checkout
+    if (!user && !formData.email) {
+      toast.error('Будь ласка, введіть email для оформлення замовлення');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Create order
+      // Create order - for guests, user_id is null and guest_email is set
+      const orderData: {
+        user_id?: string;
+        guest_email?: string;
+        total_amount: number;
+        shipping_name: string;
+        shipping_phone: string;
+        shipping_address: string;
+        shipping_city: string;
+        status: string;
+      } = {
+        total_amount: cartTotal,
+        shipping_name: `${formData.firstName} ${formData.lastName}`,
+        shipping_phone: formData.phone,
+        shipping_address: formData.address,
+        shipping_city: formData.city,
+        status: 'pending',
+      };
+
+      if (user) {
+        orderData.user_id = user.id;
+      } else {
+        orderData.guest_email = formData.email;
+      }
+
       const { data: order, error: orderError } = await supabase
         .from('orders')
-        .insert([{
-          user_id: user.id,
-          total_amount: cartTotal,
-          shipping_name: `${formData.firstName} ${formData.lastName}`,
-          shipping_phone: formData.phone,
-          shipping_address: formData.address,
-          shipping_city: formData.city,
-          status: 'pending',
-        }])
+        .insert([orderData])
         .select()
         .single();
 
