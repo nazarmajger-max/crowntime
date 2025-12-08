@@ -8,8 +8,8 @@ import { toast } from 'sonner';
 
 interface User {
   id: string;
-  email: string;
-  full_name: string;
+  full_name: string | null;
+  phone: string | null;
   created_at: string;
   is_admin: boolean;
 }
@@ -91,8 +91,8 @@ const Users = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Email</TableHead>
               <TableHead>Ім'я</TableHead>
+              <TableHead>Телефон</TableHead>
               <TableHead>Роль</TableHead>
               <TableHead>Дата реєстрації</TableHead>
               <TableHead>Дії</TableHead>
@@ -101,8 +101,8 @@ const Users = () => {
           <TableBody>
             {users.map((user) => (
               <TableRow key={user.id}>
-                <TableCell>{user.email}</TableCell>
                 <TableCell>{user.full_name || '—'}</TableCell>
+                <TableCell>{user.phone || '—'}</TableCell>
                 <TableCell>
                   {user.is_admin ? (
                     <Badge variant="default">Адміністратор</Badge>

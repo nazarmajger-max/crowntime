@@ -20,9 +20,7 @@ interface Review {
   rating: number;
   comment: string | null;
   created_at: string;
-  profiles: {
-    full_name: string | null;
-  } | null;
+  user_name?: string | null;
 }
 
 const ProductDetail = () => {
@@ -74,24 +72,32 @@ const ProductDetail = () => {
     try {
       const { data, error } = await supabase
         .from('reviews')
-        .select(`
-          id,
-          user_id,
-          rating,
-          comment,
-          created_at,
-          profiles (
-            full_name
-          )
-        `)
+        .select('id, user_id, rating, comment, created_at')
         .eq('product_id', productId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setReviews((data as Review[]) || []);
+      
       if (data && data.length > 0) {
+        // Fetch profile names for all reviewers
+        const userIds = [...new Set(data.map(r => r.user_id))];
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', userIds);
+        
+        const profileMap = new Map(profiles?.map(p => [p.id, p.full_name]) || []);
+        
+        const reviewsWithNames: Review[] = data.map(review => ({
+          ...review,
+          user_name: profileMap.get(review.user_id) || null,
+        }));
+        
+        setReviews(reviewsWithNames);
         const avg = data.reduce((sum, review) => sum + review.rating, 0) / data.length;
         setAverageRating(Math.round(avg * 10) / 10);
+      } else {
+        setReviews([]);
       }
     } catch (error) {
       console.error('Error fetching reviews:', error);
@@ -512,7 +518,7 @@ const ProductDetail = () => {
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-semibold">{review.profiles?.full_name || 'Анонім'}</p>
+                          <p className="font-semibold">{review.user_name || 'Анонім'}</p>
                           <div className="flex gap-1 mt-1">
                             {[1, 2, 3, 4, 5].map((star) => (
                               <Star 
