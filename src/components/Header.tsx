@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, User, Shield, Heart, Search, X } from 'lucide-react';
+import { ShoppingCart, Menu, User, Shield, Heart, Search, X, LogOut, Home } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -12,9 +12,10 @@ import logo from '@/assets/watchzone-logo.jpg';
 
 export const Header = () => {
   const { cartCount } = useCart();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [searching, setSearching] = useState(false);
@@ -84,12 +85,23 @@ export const Header = () => {
     navigate(`/product/${productId}`);
   };
 
+  const handleMenuNavigate = (path: string) => {
+    setMenuOpen(false);
+    navigate(path);
+  };
+
+  const handleSignOut = async () => {
+    setMenuOpen(false);
+    await signOut();
+    navigate('/');
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       {/* Mobile Header */}
       <div className="md:hidden flex h-14 items-center justify-between px-3 gap-2">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-9 w-9">
+          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setMenuOpen(true)}>
             <Menu className="h-5 w-5" />
           </Button>
           <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setSearchOpen(true)}>
@@ -121,6 +133,72 @@ export const Header = () => {
           </Link>
         </div>
       </div>
+
+      {/* Mobile Menu Sheet */}
+      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+        <SheetContent side="left" className="w-[280px] p-0">
+          <SheetHeader className="border-b p-4">
+            <SheetTitle className="flex items-center gap-2">
+              <img src={logo} alt="WATCHZONE" className="h-6 w-auto object-contain" />
+            </SheetTitle>
+          </SheetHeader>
+          
+          <div className="flex flex-col py-4">
+            <button
+              onClick={() => handleMenuNavigate('/')}
+              className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition-colors"
+            >
+              <Home className="h-5 w-5" />
+              <span className="font-medium">Головна</span>
+            </button>
+
+            {user ? (
+              <>
+                <button
+                  onClick={() => handleMenuNavigate('/profile')}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition-colors"
+                >
+                  <User className="h-5 w-5" />
+                  <span className="font-medium">Профіль</span>
+                </button>
+                <button
+                  onClick={() => handleMenuNavigate('/favorites')}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition-colors"
+                >
+                  <Heart className="h-5 w-5" />
+                  <span className="font-medium">Обране</span>
+                </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => handleMenuNavigate('/admin')}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition-colors text-accent"
+                  >
+                    <Shield className="h-5 w-5" />
+                    <span className="font-medium">Адмін панель</span>
+                  </button>
+                )}
+                <div className="border-t mt-4 pt-4">
+                  <button
+                    onClick={handleSignOut}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition-colors text-destructive"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    <span className="font-medium">Вийти</span>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <button
+                onClick={() => handleMenuNavigate('/auth')}
+                className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition-colors"
+              >
+                <User className="h-5 w-5" />
+                <span className="font-medium">Увійти / Реєстрація</span>
+              </button>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Desktop Header */}
       <div className="hidden md:flex container h-16 items-center justify-between px-4">
