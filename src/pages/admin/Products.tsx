@@ -325,17 +325,17 @@ const Products = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-display font-bold">Товари</h1>
-          <p className="text-muted-foreground">Управління каталогом товарів</p>
+          <h1 className="text-2xl md:text-3xl font-display font-bold">Товари</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Управління каталогом товарів</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
           setIsDialogOpen(open);
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Додати товар
             </Button>
@@ -345,7 +345,7 @@ const Products = () => {
               <DialogTitle>{editingProduct ? 'Редагувати товар' : 'Додати новий товар'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Назва *</Label>
                   <Input
@@ -525,7 +525,7 @@ const Products = () => {
                 </Tabs>
 
                 {productImages.length > 0 && (
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                     {productImages.map((img, idx) => (
                       <div key={idx} className="relative aspect-square">
                         <img
@@ -564,7 +564,8 @@ const Products = () => {
         </Dialog>
       </div>
 
-      <div className="border rounded-lg">
+      {/* Desktop Table */}
+      <div className="hidden md:block border rounded-lg">
         <Table>
           <TableHeader>
             <TableRow>
@@ -604,6 +605,45 @@ const Products = () => {
             ))}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="md:hidden space-y-4">
+        {products.map((product) => (
+          <div key={product.id} className="border rounded-lg p-4 space-y-3">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-medium">{product.name}</p>
+                <p className="text-sm text-muted-foreground">{product.brand || '—'}</p>
+              </div>
+              {product.is_active ? (
+                <span className="text-xs text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded">Активний</span>
+              ) : (
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">Неактивний</span>
+              )}
+            </div>
+            
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Ціна:</span>
+              <span className="font-semibold">₴{product.price}</span>
+            </div>
+            
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">На складі:</span>
+              <span>{product.stock_quantity} шт.</span>
+            </div>
+
+            <div className="flex gap-2 pt-2 border-t">
+              <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEdit(product)}>
+                <Pencil className="h-4 w-4 mr-2" />
+                Редагувати
+              </Button>
+              <Button variant="destructive" size="sm" onClick={() => handleDelete(product.id)}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

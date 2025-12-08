@@ -112,11 +112,12 @@ const Orders = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold">Замовлення</h1>
-        <p className="text-muted-foreground">Управління замовленнями клієнтів</p>
+        <h1 className="text-2xl md:text-3xl font-display font-bold">Замовлення</h1>
+        <p className="text-sm md:text-base text-muted-foreground">Управління замовленнями клієнтів</p>
       </div>
 
-      <div className="border rounded-lg">
+      {/* Desktop Table */}
+      <div className="hidden md:block border rounded-lg">
         <Table>
           <TableHeader>
             <TableRow>
@@ -164,14 +165,61 @@ const Orders = () => {
         </Table>
       </div>
 
+      {/* Mobile Cards */}
+      <div className="md:hidden space-y-4">
+        {orders.map((order) => (
+          <div key={order.id} className="border rounded-lg p-4 space-y-3">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-medium">{order.shipping_name}</p>
+                <p className="text-xs font-mono text-muted-foreground">{order.id.slice(0, 8)}</p>
+              </div>
+              {getStatusBadge(order.status)}
+            </div>
+            
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Сума:</span>
+              <span className="font-semibold">₴{order.total_amount}</span>
+            </div>
+            
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Дата:</span>
+              <span>{new Date(order.created_at).toLocaleDateString()}</span>
+            </div>
+
+            <div className="flex gap-2 pt-2 border-t">
+              <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewOrder(order)}>
+                <Eye className="h-4 w-4 mr-2" />
+                Деталі
+              </Button>
+              <Select
+                defaultValue={order.status}
+                onValueChange={(value) => handleStatusChange(order.id, value)}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">В очікуванні</SelectItem>
+                  <SelectItem value="processing">В обробці</SelectItem>
+                  <SelectItem value="shipped">Відправлено</SelectItem>
+                  <SelectItem value="delivered">Доставлено</SelectItem>
+                  <SelectItem value="cancelled">Скасовано</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Деталі замовлення</DialogTitle>
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm font-medium">Клієнт</p>
                   <p>{selectedOrder.shipping_name}</p>
@@ -192,31 +240,46 @@ const Orders = () => {
 
               <div>
                 <p className="text-sm font-medium mb-2">Товари</p>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Товар</TableHead>
-                      <TableHead>Ціна</TableHead>
-                      <TableHead>Кількість</TableHead>
-                      <TableHead>Сума</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {orderItems.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.product_name}</TableCell>
-                        <TableCell>₴{item.price}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>₴{item.price * item.quantity}</TableCell>
+                {/* Desktop order items table */}
+                <div className="hidden sm:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Товар</TableHead>
+                        <TableHead>Ціна</TableHead>
+                        <TableHead>Кількість</TableHead>
+                        <TableHead>Сума</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {orderItems.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell>{item.product_name}</TableCell>
+                          <TableCell>₴{item.price}</TableCell>
+                          <TableCell>{item.quantity}</TableCell>
+                          <TableCell>₴{item.price * item.quantity}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                {/* Mobile order items */}
+                <div className="sm:hidden space-y-2">
+                  {orderItems.map((item) => (
+                    <div key={item.id} className="border rounded p-3 space-y-1">
+                      <p className="font-medium">{item.product_name}</p>
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>₴{item.price} × {item.quantity}</span>
+                        <span className="font-semibold text-foreground">₴{item.price * item.quantity}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="flex justify-between items-center pt-4 border-t">
-                <p className="text-lg font-bold">Загальна сума:</p>
-                <p className="text-2xl font-bold text-luxury-gold">₴{selectedOrder.total_amount}</p>
+                <p className="text-base md:text-lg font-bold">Загальна сума:</p>
+                <p className="text-xl md:text-2xl font-bold text-luxury-gold">₴{selectedOrder.total_amount}</p>
               </div>
             </div>
           )}
