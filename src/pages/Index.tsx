@@ -155,55 +155,54 @@ const Index = () => {
       
       {/* Hero Section */}
       <section 
-        className="relative h-[50vh] md:h-[60vh] bg-cover bg-center flex items-center justify-center" 
+        className="relative h-[45vh] md:h-[60vh] bg-cover bg-center flex items-center justify-center" 
         style={{ backgroundImage: `url(${heroBg})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-3 md:mb-4 animate-fade-in">
+        <div className="relative z-10 text-center text-white px-6">
+          <h1 className="font-display text-3xl md:text-6xl lg:text-7xl font-bold mb-2 md:mb-4 animate-fade-in tracking-wide">
             WATCHZONE
           </h1>
-          <p className="font-body text-base md:text-xl mb-6 md:mb-8 max-w-2xl mx-auto animate-fade-in">
+          <p className="font-body text-sm md:text-xl mb-5 md:mb-8 max-w-2xl mx-auto animate-fade-in opacity-90">
             Найкращий вибір наручних годинників преміум класу
           </p>
-          <Button size="lg" className="font-body font-medium animate-scale-in">
+          <Button size="lg" className="font-body font-medium animate-scale-in h-12 px-8 text-base">
             Переглянути колекцію
           </Button>
         </div>
       </section>
 
       {/* Mobile: Title Section */}
-      <div className="md:hidden bg-background px-4 py-6 border-b">
-        <p className="text-sm text-muted-foreground uppercase tracking-wide">
-          {products.length.toLocaleString()} МОДЕЛЕЙ
+      <div className="md:hidden bg-background px-4 py-4 border-b">
+        <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium">
+          {products.length.toLocaleString()} моделей
         </p>
       </div>
 
       {/* Mobile: Sort & Filter Bar */}
-      <div className="md:hidden sticky top-14 z-40 bg-background border-b px-4 py-3">
-        <div className="flex items-center gap-3">
+      <div className="md:hidden sticky top-14 z-40 bg-background/95 backdrop-blur-sm border-b px-4 py-2.5">
+        <div className="flex items-center gap-2">
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="flex-1 h-11 font-body text-sm uppercase">
-              <div className="flex items-center gap-2">
-                <span>СОРТУВАННЯ</span>
-                <ChevronDown className="h-4 w-4" />
+            <SelectTrigger className="flex-1 h-10 font-body text-xs uppercase tracking-wide border-muted">
+              <div className="flex items-center gap-1.5">
+                <span>Сортування</span>
               </div>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="featured" className="font-body">Рекомендовані</SelectItem>
-              <SelectItem value="price-low" className="font-body">Ціна: від низької</SelectItem>
-              <SelectItem value="price-high" className="font-body">Ціна: від високої</SelectItem>
-              <SelectItem value="name" className="font-body">Назва: А до Я</SelectItem>
+              <SelectItem value="featured" className="font-body text-sm">Рекомендовані</SelectItem>
+              <SelectItem value="price-low" className="font-body text-sm">Ціна: від низької</SelectItem>
+              <SelectItem value="price-high" className="font-body text-sm">Ціна: від високої</SelectItem>
+              <SelectItem value="name" className="font-body text-sm">Назва: А до Я</SelectItem>
             </SelectContent>
           </Select>
           
           <Button 
             variant="outline" 
-            className="h-11 gap-2 font-body text-sm uppercase whitespace-nowrap"
+            className="h-10 gap-1.5 font-body text-xs uppercase tracking-wide whitespace-nowrap px-3 border-muted"
             onClick={() => setFiltersOpen(true)}
           >
             <SlidersHorizontal className="h-4 w-4" />
-            ФІЛЬТРИ {activeFilterCount > 0 && `(${activeFilterCount})`}
+            Фільтри {activeFilterCount > 0 && <span className="bg-accent text-accent-foreground rounded-full h-5 w-5 text-[10px] flex items-center justify-center">{activeFilterCount}</span>}
           </Button>
         </div>
       </div>
@@ -296,7 +295,7 @@ const Index = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-0 md:gap-6 mb-12">
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-px md:gap-6 mb-12 bg-border md:bg-transparent">
                   {filteredAndSortedProducts.map(product => (
                     <ProductCard key={product.id} product={product} />
                   ))}

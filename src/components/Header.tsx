@@ -99,33 +99,33 @@ export const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       {/* Mobile Header */}
-      <div className="md:hidden flex h-14 items-center justify-between px-3 gap-2">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setMenuOpen(true)}>
+      <div className="md:hidden flex h-14 items-center justify-between px-4 gap-3">
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => setMenuOpen(true)}>
             <Menu className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => setSearchOpen(true)}>
+          <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => setSearchOpen(true)}>
             <Search className="h-5 w-5" />
           </Button>
         </div>
         
         <Link to="/" className="flex-shrink-0">
-          <img src={logo} alt="WATCHZONE" className="h-7 w-auto object-contain" />
+          <img src={logo} alt="WATCHZONE" className="h-8 w-auto object-contain" />
         </Link>
 
         <div className="flex items-center gap-1">
           {user && (
             <Link to="/favorites">
-              <Button variant="ghost" size="icon" className="h-9 w-9">
+              <Button variant="ghost" size="icon" className="h-10 w-10">
                 <Heart className="h-5 w-5" />
               </Button>
             </Link>
           )}
           <Link to="/cart">
-            <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+            <Button variant="ghost" size="icon" className="h-10 w-10 relative">
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[11px] font-bold text-accent-foreground">
                   {cartCount}
                 </span>
               )}
@@ -136,64 +136,64 @@ export const Header = () => {
 
       {/* Mobile Menu Sheet */}
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="left" className="w-[280px] p-0">
+        <SheetContent side="left" className="w-[300px] p-0">
           <SheetHeader className="border-b p-4">
             <SheetTitle className="flex items-center gap-2">
               <img src={logo} alt="WATCHZONE" className="h-6 w-auto object-contain" />
             </SheetTitle>
           </SheetHeader>
           
-          <div className="flex flex-col py-4">
+          <div className="flex flex-col py-2">
             <button
               onClick={() => handleMenuNavigate('/')}
-              className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition-colors"
+              className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20"
             >
               <Home className="h-5 w-5" />
-              <span className="font-medium">Головна</span>
+              <span className="font-medium text-base">Головна</span>
             </button>
 
             {user ? (
               <>
                 <button
                   onClick={() => handleMenuNavigate('/profile')}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition-colors"
+                  className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20"
                 >
                   <User className="h-5 w-5" />
-                  <span className="font-medium">Профіль</span>
+                  <span className="font-medium text-base">Профіль</span>
                 </button>
                 <button
                   onClick={() => handleMenuNavigate('/favorites')}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition-colors"
+                  className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20"
                 >
                   <Heart className="h-5 w-5" />
-                  <span className="font-medium">Обране</span>
+                  <span className="font-medium text-base">Обране</span>
                 </button>
                 {isAdmin && (
                   <button
                     onClick={() => handleMenuNavigate('/admin')}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition-colors text-accent"
+                    className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20 text-accent"
                   >
                     <Shield className="h-5 w-5" />
-                    <span className="font-medium">Адмін панель</span>
+                    <span className="font-medium text-base">Адмін панель</span>
                   </button>
                 )}
-                <div className="border-t mt-4 pt-4">
+                <div className="border-t mt-2 pt-2">
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition-colors text-destructive"
+                    className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20 text-destructive w-full"
                   >
                     <LogOut className="h-5 w-5" />
-                    <span className="font-medium">Вийти</span>
+                    <span className="font-medium text-base">Вийти</span>
                   </button>
                 </div>
               </>
             ) : (
               <button
                 onClick={() => handleMenuNavigate('/auth')}
-                className="flex items-center gap-3 px-4 py-3 hover:bg-accent/10 transition-colors"
+                className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20"
               >
                 <User className="h-5 w-5" />
-                <span className="font-medium">Увійти / Реєстрація</span>
+                <span className="font-medium text-base">Увійти / Реєстрація</span>
               </button>
             )}
           </div>
