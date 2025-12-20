@@ -99,26 +99,21 @@ export const ProductCard = ({
   const handleProductClick = () => {
     navigate(`/product/${product.id}`);
   };
-  return <Card className="group overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[var(--shadow-hover)] animate-fade-in md:rounded-lg rounded-none border-r border-b md:border" onClick={handleProductClick}>
-      <div className="relative aspect-[3/4] overflow-hidden bg-muted">
-        {/* Hit Badge */}
-        
-        
+  return (
+    <Card 
+      className="group overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[var(--shadow-hover)] animate-fade-in md:rounded-lg rounded-none border-0 md:border bg-card" 
+      onClick={handleProductClick}
+    >
+      <div className="relative aspect-square overflow-hidden bg-muted">
         {/* Action Icons */}
-        <div className="absolute top-2 left-2 flex flex-col gap-2 z-10">
-          <div className="flex items-center gap-1">
-            
-          </div>
-        </div>
-        
         <div className="absolute top-2 right-2 z-10 flex flex-col gap-2">
           <Button 
             variant="ghost" 
             size="icon" 
-            className={`h-8 w-8 rounded-full transition-colors ${
+            className={`h-8 w-8 md:h-9 md:w-9 rounded-full transition-colors ${
               isFavorite 
                 ? 'bg-red-500 hover:bg-red-600' 
-                : 'bg-white/90 hover:bg-white'
+                : 'bg-white/90 hover:bg-white shadow-sm'
             }`}
             onClick={handleToggleFavorite}
             disabled={isLoadingFavorite}
@@ -127,40 +122,42 @@ export const ProductCard = ({
           </Button>
         </div>
 
-        <img src={product.image} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+        <img 
+          src={product.image} 
+          alt={product.name} 
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" 
+        />
       </div>
       
-      <CardContent className="p-3 md:p-4 space-y-2">
+      <CardContent className="p-3 md:p-4 space-y-1.5 md:space-y-2">
         {/* Availability */}
-        <div className="flex items-center gap-1.5 text-xs">
-          <CheckCircle className="h-3.5 w-3.5 text-green-600" />
-          <span className="text-muted-foreground">В наявності</span>
+        <div className="flex items-center gap-1.5">
+          <CheckCircle className="h-3 w-3 md:h-3.5 md:w-3.5 text-green-600" />
+          <span className="text-[11px] md:text-xs text-muted-foreground">В наявності</span>
         </div>
         
         {/* Rating */}
         <div className="flex items-center gap-1">
-          <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-          <span className="text-sm font-medium">0</span>
-          <span className="text-xs text-muted-foreground">(0)</span>
+          <Star className="h-3 w-3 md:h-3.5 md:w-3.5 fill-yellow-400 text-yellow-400" />
+          <span className="text-xs md:text-sm font-medium">0</span>
+          <span className="text-[10px] md:text-xs text-muted-foreground">(0)</span>
         </div>
         
         {/* Product Name */}
-        <h3 className="font-body text-sm md:text-base font-semibold line-clamp-2 leading-tight">
+        <h3 className="font-body text-xs md:text-sm font-medium line-clamp-2 leading-snug min-h-[2.5em]">
           {product.name}
         </h3>
         
         {/* Product Code */}
-        <p className="text-xs text-muted-foreground uppercase">
-          {product.brand}-{product.id.substring(0, 8)}
+        <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wide">
+          {product.brand}
         </p>
         
         {/* Price */}
-        <p className="font-body text-xl md:text-2xl font-bold">
-          {product.price.toLocaleString()} грн
+        <p className="font-body text-base md:text-xl font-bold text-accent">
+          {product.price.toLocaleString()} ₴
         </p>
-        
-        {/* Credit Info */}
-        
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };

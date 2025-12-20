@@ -33,16 +33,16 @@ const Cart = () => {
   return (
     <>
       <Header />
-      <main className="container px-4 py-12 min-h-[calc(100vh-200px)]">
-        <h1 className="font-display text-4xl font-bold mb-8">Кошик покупок</h1>
+      <main className="container px-4 py-6 md:py-12 min-h-[calc(100vh-200px)]">
+        <h1 className="font-display text-2xl md:text-4xl font-bold mb-6 md:mb-8">Кошик покупок</h1>
         
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
             {cart.map(({ product, quantity }) => (
               <Card key={product.id} className="overflow-hidden">
                 <CardContent className="p-0">
-                  <div className="flex gap-4 p-4">
-                    <div className="w-24 h-24 bg-muted rounded-md overflow-hidden flex-shrink-0">
+                  <div className="flex gap-3 md:gap-4 p-3 md:p-4">
+                    <div className="w-20 h-20 md:w-24 md:h-24 bg-muted rounded-lg overflow-hidden flex-shrink-0">
                       <img
                         src={product.image}
                         alt={product.name}
@@ -51,9 +51,9 @@ const Cart = () => {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-display text-lg font-semibold mb-1">{product.name}</h3>
-                      <p className="font-body text-sm text-muted-foreground mb-2">{product.brand}</p>
-                      <p className="font-body text-lg font-bold text-accent">
+                      <h3 className="font-display text-sm md:text-lg font-semibold mb-0.5 md:mb-1 line-clamp-2">{product.name}</h3>
+                      <p className="font-body text-xs md:text-sm text-muted-foreground mb-1 md:mb-2">{product.brand}</p>
+                      <p className="font-body text-base md:text-lg font-bold text-accent">
                         {product.price.toLocaleString()} ₴
                       </p>
                     </div>
@@ -94,9 +94,9 @@ const Cart = () => {
           </div>
 
           <div className="lg:col-span-1">
-            <Card className="sticky top-20">
-              <CardContent className="p-6 space-y-4">
-                <h2 className="font-display text-2xl font-semibold">Підсумок замовлення</h2>
+            <Card className="sticky top-20 shadow-md">
+              <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
+                <h2 className="font-display text-lg md:text-2xl font-semibold">Підсумок замовлення</h2>
                 
                 <div className="space-y-2 font-body">
                   <div className="flex justify-between">
@@ -115,7 +115,7 @@ const Cart = () => {
 
                 <Button 
                   onClick={() => navigate('/checkout')}
-                  className="w-full font-body font-medium"
+                  className="w-full font-body font-medium h-12"
                   size="lg"
                 >
                   Оформити замовлення
