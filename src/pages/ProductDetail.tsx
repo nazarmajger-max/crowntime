@@ -64,7 +64,7 @@ const ProductDetail = () => {
         setProductImages(data.map((img) => img.image_url));
       }
     } catch (error) {
-      console.error('Error fetching product images:', error);
+      if (import.meta.env.DEV) console.error('Error fetching product images:', error);
     }
   };
 
@@ -82,7 +82,7 @@ const ProductDetail = () => {
         // Fetch profile names for all reviewers
         const userIds = [...new Set(data.map(r => r.user_id))];
         const { data: profiles } = await supabase
-          .from('profiles')
+          .from('public_profiles')
           .select('id, full_name')
           .in('id', userIds);
         
@@ -100,7 +100,7 @@ const ProductDetail = () => {
         setReviews([]);
       }
     } catch (error) {
-      console.error('Error fetching reviews:', error);
+      if (import.meta.env.DEV) console.error('Error fetching reviews:', error);
     }
   };
 
@@ -148,7 +148,7 @@ const ProductDetail = () => {
         setProduct(formattedProduct);
       }
     } catch (error) {
-      console.error('Помилка завантаження товару:', error);
+      if (import.meta.env.DEV) console.error('Помилка завантаження товару:', error);
       toast.error('Не вдалося завантажити товар');
     } finally {
       setLoading(false);
@@ -185,7 +185,7 @@ const ProductDetail = () => {
       if (error) throw error;
       setIsFavorite(!!data);
     } catch (error) {
-      console.error('Error checking favorite:', error);
+      if (import.meta.env.DEV) console.error('Error checking favorite:', error);
     }
   };
 
@@ -219,7 +219,7 @@ const ProductDetail = () => {
         toast.success('Додано до обраного');
       }
     } catch (error) {
-      console.error('Error toggling favorite:', error);
+      if (import.meta.env.DEV) console.error('Error toggling favorite:', error);
       toast.error('Помилка при додаванні до обраного');
     }
   };
@@ -251,7 +251,7 @@ const ProductDetail = () => {
       setReviewRating(5);
       fetchReviews(product.id);
     } catch (error) {
-      console.error('Error submitting review:', error);
+      if (import.meta.env.DEV) console.error('Error submitting review:', error);
       toast.error('Помилка при додаванні відгуку');
     } finally {
       setSubmittingReview(false);
@@ -275,7 +275,7 @@ const ProductDetail = () => {
         fetchReviews(product.id);
       }
     } catch (error) {
-      console.error('Error deleting review:', error);
+      if (import.meta.env.DEV) console.error('Error deleting review:', error);
       toast.error('Помилка при видаленні відгуку');
     }
   };

@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (error) throw error;
       setIsAdmin(!!data);
     } catch (error) {
-      console.error('Error checking admin status:', error);
+      if (import.meta.env.DEV) console.error('Error checking admin status:', error);
       setIsAdmin(false);
     }
   };

@@ -95,9 +95,29 @@ const Products = () => {
     e.target.value = '';
   };
 
+  const isValidImageUrl = (url: string): boolean => {
+    try {
+      const parsed = new URL(url);
+      // Only allow HTTPS
+      if (parsed.protocol !== 'https:') return false;
+      // Block internal/private IPs
+      if (/^(10|127|172\.(1[6-9]|2[0-9]|3[01])|192\.168|169\.254|localhost)/.test(parsed.hostname)) return false;
+      // Validate image extension
+      return /\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i.test(parsed.pathname);
+    } catch {
+      return false;
+    }
+  };
+
   const handleAddImageUrl = () => {
-    if (!newImageUrl.trim()) {
+    const trimmedUrl = newImageUrl.trim();
+    if (!trimmedUrl) {
       toast.error('Введіть URL зображення');
+      return;
+    }
+
+    if (!isValidImageUrl(trimmedUrl)) {
+      toast.error('Невірний URL. Використовуйте HTTPS посилання на зображення (jpg, png, webp, gif)');
       return;
     }
 
@@ -107,7 +127,7 @@ const Products = () => {
     }
 
     setProductImages([...productImages, {
-      image_url: newImageUrl,
+      image_url: trimmedUrl,
       sort_order: productImages.length,
     }]);
     setNewImageUrl('');
@@ -173,7 +193,7 @@ const Products = () => {
           .eq('id', editingProduct.id);
 
         if (error) {
-          console.error('Update error:', error);
+          if (import.meta.env.DEV) console.error('Update error:', error);
           toast.error('Помилка оновлення товару');
           setIsUploading(false);
           return;
@@ -194,7 +214,7 @@ const Products = () => {
           .single();
 
         if (error || !data) {
-          console.error('Insert error:', error);
+          if (import.meta.env.DEV) console.error('Insert error:', error);
           toast.error('Помилка додавання товару');
           setIsUploading(false);
           return;
@@ -227,7 +247,7 @@ const Products = () => {
             });
 
           if (imageError) {
-            console.error('Error saving image:', imageError);
+            if (import.meta.env.DEV) console.error('Error saving image:', imageError);
           }
         }
       }
@@ -237,7 +257,7 @@ const Products = () => {
       resetForm();
       fetchProducts();
     } catch (error) {
-      console.error('Error:', error);
+      if (import.meta.env.DEV) console.error('Error:', error);
       toast.error('Виникла помилка');
     } finally {
       setIsUploading(false);
