@@ -6,6 +6,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { z } from 'zod';
+import { toast } from 'sonner';
+
+const loginSchema = z.object({
+  email: z.string().trim().email('Невірний формат email').max(255, 'Email занадто довгий'),
+  password: z.string().min(1, 'Пароль обовʼязковий').max(128, 'Пароль занадто довгий'),
+});
+
+const signupSchema = z.object({
+  email: z.string().trim().email('Невірний формат email').max(255, 'Email занадто довгий'),
+  password: z.string().min(6, 'Пароль повинен містити мінімум 6 символів').max(128, 'Пароль занадто довгий'),
+  fullName: z.string().trim().min(2, 'Імʼя повинно містити мінімум 2 символи').max(100, 'Імʼя занадто довге'),
+});
+
 const Auth = () => {
   const {
     user,
@@ -23,25 +37,57 @@ const Auth = () => {
     password: '',
     fullName: ''
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   useEffect(() => {
     if (user) {
       navigate('/');
     }
   }, [user, navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    
+    const result = loginSchema.safeParse(loginData);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await signIn(loginData.email, loginData.password);
+      await signIn(result.data.email, result.data.password);
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    
+    const result = signupSchema.safeParse(signupData);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await signUp(signupData.email, signupData.password, signupData.fullName);
+      await signUp(result.data.email, result.data.password, result.data.fullName);
       setSignupData({
         email: '',
         password: '',
@@ -70,17 +116,33 @@ const Auth = () => {
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="login-email">Email</Label>
-                  <Input id="login-email" type="email" placeholder="your@email.com" value={loginData.email} onChange={e => setLoginData({
-                  ...loginData,
-                  email: e.target.value
-                })} required />
+                  <Input 
+                    id="login-email" 
+                    type="email" 
+                    placeholder="your@email.com" 
+                    value={loginData.email} 
+                    onChange={e => setLoginData({
+                      ...loginData,
+                      email: e.target.value
+                    })} 
+                    maxLength={255}
+                  />
+                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="login-password">Пароль</Label>
-                  <Input id="login-password" type="password" placeholder="••••••••" value={loginData.password} onChange={e => setLoginData({
-                  ...loginData,
-                  password: e.target.value
-                })} required />
+                  <Input 
+                    id="login-password" 
+                    type="password" 
+                    placeholder="••••••••" 
+                    value={loginData.password} 
+                    onChange={e => setLoginData({
+                      ...loginData,
+                      password: e.target.value
+                    })} 
+                    maxLength={128}
+                  />
+                  {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Завантаження...' : 'Увійти'}
@@ -92,24 +154,48 @@ const Auth = () => {
               <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-name">Повне ім'я</Label>
-                  <Input id="signup-name" type="text" placeholder="Іван Петренко" value={signupData.fullName} onChange={e => setSignupData({
-                  ...signupData,
-                  fullName: e.target.value
-                })} required />
+                  <Input 
+                    id="signup-name" 
+                    type="text" 
+                    placeholder="Іван Петренко" 
+                    value={signupData.fullName} 
+                    onChange={e => setSignupData({
+                      ...signupData,
+                      fullName: e.target.value
+                    })} 
+                    maxLength={100}
+                  />
+                  {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
-                  <Input id="signup-email" type="email" placeholder="your@email.com" value={signupData.email} onChange={e => setSignupData({
-                  ...signupData,
-                  email: e.target.value
-                })} required />
+                  <Input 
+                    id="signup-email" 
+                    type="email" 
+                    placeholder="your@email.com" 
+                    value={signupData.email} 
+                    onChange={e => setSignupData({
+                      ...signupData,
+                      email: e.target.value
+                    })} 
+                    maxLength={255}
+                  />
+                  {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="signup-password">Пароль</Label>
-                  <Input id="signup-password" type="password" placeholder="••••••••" value={signupData.password} onChange={e => setSignupData({
-                  ...signupData,
-                  password: e.target.value
-                })} required minLength={6} />
+                  <Input 
+                    id="signup-password" 
+                    type="password" 
+                    placeholder="••••••••" 
+                    value={signupData.password} 
+                    onChange={e => setSignupData({
+                      ...signupData,
+                      password: e.target.value
+                    })} 
+                    maxLength={128}
+                  />
+                  {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Завантаження...' : 'Зареєструватися'}

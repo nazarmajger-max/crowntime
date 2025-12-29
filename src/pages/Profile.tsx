@@ -11,6 +11,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Star, Package, MessageSquare, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
+
+const reviewSchema = z.object({
+  rating: z.number().min(1, 'Оцінка обовʼязкова').max(5),
+  comment: z.string().max(1000, 'Коментар занадто довгий (максимум 1000 символів)').optional(),
+});
 
 interface OrderItem {
   product_id: string;
@@ -123,6 +129,13 @@ const Profile = () => {
   const handleSubmitReview = async () => {
     if (!selectedProduct || !user) return;
 
+    const result = reviewSchema.safeParse({ rating, comment: comment.trim() || undefined });
+    if (!result.success) {
+      const firstError = result.error.errors[0];
+      toast.error(firstError?.message || 'Невірні дані');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const { error } = await supabase
@@ -130,8 +143,8 @@ const Profile = () => {
         .insert({
           user_id: user.id,
           product_id: selectedProduct.id,
-          rating,
-          comment: comment.trim() || null,
+          rating: result.data.rating,
+          comment: result.data.comment || null,
         });
 
       if (error) throw error;
@@ -143,7 +156,6 @@ const Profile = () => {
       setComment('');
       fetchReviews();
     } catch (error: any) {
-      console.error('Error submitting review:', error);
       if (error.code === '23505') {
         toast.error('Ви вже залишили відгук на цей товар');
       } else {
@@ -368,13 +380,17 @@ const Profile = () => {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Коментар (необов'язково)</label>
+              <label className="text-sm font-medium mb-2 block">
+                Коментар (необов'язково, макс. 1000 символів)
+              </label>
               <Textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Поділіться своїми враженнями про товар..."
                 rows={4}
+                maxLength={1000}
               />
+              <p className="text-xs text-muted-foreground mt-1">{comment.length}/1000</p>
             </div>
             <Button
               onClick={handleSubmitReview}

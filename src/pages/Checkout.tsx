@@ -10,6 +10,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { z } from 'zod';
+
+const checkoutSchema = z.object({
+  firstName: z.string().trim().min(1, 'Імʼя обовʼязкове').max(50, 'Імʼя занадто довге'),
+  lastName: z.string().trim().min(1, 'Прізвище обовʼязкове').max(50, 'Прізвище занадто довге'),
+  email: z.string().trim().email('Невірний формат email').max(255, 'Email занадто довгий'),
+  phone: z.string().trim().regex(/^[+]?[0-9]{10,15}$/, 'Невірний формат телефону (10-15 цифр)'),
+  address: z.string().trim().min(5, 'Адреса занадто коротка').max(200, 'Адреса занадто довга'),
+  city: z.string().trim().min(2, 'Місто обовʼязкове').max(100, 'Назва міста занадто довга'),
+  postalCode: z.string().trim().min(1, 'Індекс обовʼязковий').max(20, 'Індекс занадто довгий'),
+});
 
 const Checkout = () => {
   const { cart, cartTotal, clearCart } = useCart();
@@ -26,19 +37,34 @@ const Checkout = () => {
     postalCode: '',
     paymentMethod: 'card',
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear error when user starts typing
+    if (errors[e.target.name]) {
+      setErrors({ ...errors, [e.target.name]: '' });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
     
-    // Validate email for guest checkout
-    if (!user && !formData.email) {
-      toast.error('Будь ласка, введіть email для оформлення замовлення');
+    const result = checkoutSchema.safeParse(formData);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      toast.error('Будь ласка, виправте помилки у формі');
       return;
     }
+    
+    const validatedData = result.data;
 
     setIsSubmitting(true);
 
@@ -55,17 +81,17 @@ const Checkout = () => {
         status: string;
       } = {
         total_amount: cartTotal,
-        shipping_name: `${formData.firstName} ${formData.lastName}`,
-        shipping_phone: formData.phone,
-        shipping_address: formData.address,
-        shipping_city: formData.city,
+        shipping_name: `${validatedData.firstName} ${validatedData.lastName}`,
+        shipping_phone: validatedData.phone,
+        shipping_address: validatedData.address,
+        shipping_city: validatedData.city,
         status: 'pending',
       };
 
       if (user) {
         orderData.user_id = user.id;
       } else {
-        orderData.guest_email = formData.email;
+        orderData.guest_email = validatedData.email;
       }
 
       const { data: order, error: orderError } = await supabase
@@ -128,9 +154,10 @@ const Checkout = () => {
                         name="firstName"
                         value={formData.firstName}
                         onChange={handleInputChange}
-                        required
+                        maxLength={50}
                         className="font-body"
                       />
+                      {errors.firstName && <p className="text-sm text-destructive mt-1">{errors.firstName}</p>}
                     </div>
                     <div>
                       <Label htmlFor="lastName" className="font-body">Прізвище</Label>
@@ -139,9 +166,10 @@ const Checkout = () => {
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleInputChange}
-                        required
+                        maxLength={50}
                         className="font-body"
                       />
+                      {errors.lastName && <p className="text-sm text-destructive mt-1">{errors.lastName}</p>}
                     </div>
                   </div>
                   
@@ -153,9 +181,10 @@ const Checkout = () => {
                       type="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      required
+                      maxLength={255}
                       className="font-body"
                     />
+                    {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
                   </div>
                   
                   <div>
@@ -166,9 +195,11 @@ const Checkout = () => {
                       type="tel"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      required
+                      maxLength={15}
+                      placeholder="+380XXXXXXXXX"
                       className="font-body"
                     />
+                    {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone}</p>}
                   </div>
                   
                   <div>
@@ -178,9 +209,10 @@ const Checkout = () => {
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
-                      required
+                      maxLength={200}
                       className="font-body"
                     />
+                    {errors.address && <p className="text-sm text-destructive mt-1">{errors.address}</p>}
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-4">
@@ -191,9 +223,10 @@ const Checkout = () => {
                         name="city"
                         value={formData.city}
                         onChange={handleInputChange}
-                        required
+                        maxLength={100}
                         className="font-body"
                       />
+                      {errors.city && <p className="text-sm text-destructive mt-1">{errors.city}</p>}
                     </div>
                     <div>
                       <Label htmlFor="postalCode" className="font-body">Поштовий індекс</Label>
@@ -202,9 +235,10 @@ const Checkout = () => {
                         name="postalCode"
                         value={formData.postalCode}
                         onChange={handleInputChange}
-                        required
+                        maxLength={20}
                         className="font-body"
                       />
+                      {errors.postalCode && <p className="text-sm text-destructive mt-1">{errors.postalCode}</p>}
                     </div>
                   </div>
                 </CardContent>
