@@ -120,7 +120,7 @@ const Checkout = () => {
       clearCart();
       navigate('/order-success');
     } catch (error: any) {
-      console.error('Error creating order:', error);
+      if (import.meta.env.DEV) console.error('Error creating order:', error);
       toast.error('Помилка оформлення замовлення');
     } finally {
       setIsSubmitting(false);
