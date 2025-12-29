@@ -74,17 +74,17 @@ All colors MUST be HSL.
     --secondary: 220 30% 96%;
     --secondary-foreground: 220 50% 15%;
 
-    --muted: 220 20% 94%;
-    --muted-foreground: 220 15% 45%;
+    --muted: 220 20% 96%;
+    --muted-foreground: 220 15% 40%;
 
     --accent: 222 83% 40%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 20% 90%;
-    --input: 220 20% 90%;
+    --border: 220 20% 88%;
+    --input: 220 20% 88%;
     --ring: 222 83% 40%;
   }
 }
