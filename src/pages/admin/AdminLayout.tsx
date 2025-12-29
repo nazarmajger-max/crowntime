@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Menu, LayoutDashboard, Package, ShoppingCart, LogOut, Home } from 'lucide-react';
-import logo from '@/assets/watchzone-logo.jpg';
+import logo from '@/assets/crowntime-logo.png';
 
 const AdminLayout = () => {
   const { isAdmin, loading, signOut } = useAuth();
@@ -57,7 +57,7 @@ const AdminLayout = () => {
             <Menu className="h-5 w-5" />
           </Button>
           <Link to="/admin">
-            <img src={logo} alt="WATCHZONE Admin" className="h-6 w-auto object-contain" />
+            <img src={logo} alt="CrownTime Admin" className="h-6 w-auto object-contain" />
           </Link>
           <div className="w-9" /> {/* Spacer for alignment */}
         </header>
@@ -71,7 +71,7 @@ const AdminLayout = () => {
           <SheetContent side="left" className="w-[280px] p-0">
             <SheetHeader className="border-b p-4">
               <SheetTitle className="flex items-center gap-2">
-                <img src={logo} alt="WATCHZONE" className="h-6 w-auto object-contain" />
+                <img src={logo} alt="CrownTime" className="h-6 w-auto object-contain" />
                 <span className="text-sm text-muted-foreground">Адмін</span>
               </SheetTitle>
             </SheetHeader>
@@ -121,7 +121,7 @@ const AdminLayout = () => {
               <header className="h-16 border-b flex items-center px-6 bg-background">
                 <SidebarTrigger />
                 <div className="ml-4">
-                  <h2 className="text-xl font-display font-bold text-accent">WatchZone Admin</h2>
+                  <h2 className="text-xl font-display font-bold text-accent">CrownTime Admin</h2>
                 </div>
               </header>
               <main className="flex-1 p-6">
