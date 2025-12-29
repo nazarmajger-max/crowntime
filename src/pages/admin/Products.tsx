@@ -95,6 +95,20 @@ const Products = () => {
     e.target.value = '';
   };
 
+  // Domain whitelist for trusted image hosting services
+  const ALLOWED_IMAGE_DOMAINS = [
+    // Project's Supabase storage
+    'mgoyzvepuliloncyrvgn.supabase.co',
+    // Common trusted CDNs and image hosts
+    'images.unsplash.com',
+    'i.imgur.com',
+    'cdn.shopify.com',
+    'res.cloudinary.com',
+    'm.media-amazon.com',
+    'images.pexels.com',
+    'lh3.googleusercontent.com',
+  ];
+
   const isValidImageUrl = (url: string): boolean => {
     try {
       const parsed = new URL(url);
@@ -102,6 +116,11 @@ const Products = () => {
       if (parsed.protocol !== 'https:') return false;
       // Block internal/private IPs
       if (/^(10|127|172\.(1[6-9]|2[0-9]|3[01])|192\.168|169\.254|localhost)/.test(parsed.hostname)) return false;
+      // Validate against domain whitelist
+      const isAllowedDomain = ALLOWED_IMAGE_DOMAINS.some(domain => 
+        parsed.hostname === domain || parsed.hostname.endsWith('.' + domain)
+      );
+      if (!isAllowedDomain) return false;
       // Validate image extension
       return /\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i.test(parsed.pathname);
     } catch {
@@ -117,7 +136,7 @@ const Products = () => {
     }
 
     if (!isValidImageUrl(trimmedUrl)) {
-      toast.error('Невірний URL. Використовуйте HTTPS посилання на зображення (jpg, png, webp, gif)');
+      toast.error('Невірний URL. Дозволені лише HTTPS посилання з довірених джерел (Unsplash, Imgur, Cloudinary, Pexels тощо)');
       return;
     }
 
