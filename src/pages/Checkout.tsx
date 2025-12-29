@@ -136,7 +136,7 @@ const Checkout = () => {
     <>
       <Header />
       <main className="container px-4 py-12">
-        <h1 className="font-display text-4xl font-bold mb-8">Оформлення замовлення</h1>
+        <h1 className="font-display text-2xl md:text-4xl font-bold mb-6 md:mb-8">Оформлення замовлення</h1>
         
         <form onSubmit={handleSubmit}>
           <div className="grid lg:grid-cols-3 gap-8">

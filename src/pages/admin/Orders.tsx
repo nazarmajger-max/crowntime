@@ -99,14 +99,14 @@ const Orders = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-      pending: 'outline',
-      processing: 'secondary',
-      shipped: 'default',
-      delivered: 'default',
-      cancelled: 'destructive',
+    const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+      pending: { label: 'Не прийнято', variant: 'outline' },
+      processing: { label: 'У дорозі', variant: 'secondary' },
+      delivered: { label: 'Виконано', variant: 'default' },
+      cancelled: { label: 'Скасовано', variant: 'destructive' },
     };
-    return <Badge variant={variants[status] || 'outline'}>{status}</Badge>;
+    const statusInfo = statusMap[status] || { label: status, variant: 'outline' as const };
+    return <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>;
   };
 
   return (
@@ -150,10 +150,9 @@ const Orders = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="pending">В очікуванні</SelectItem>
-                        <SelectItem value="processing">В обробці</SelectItem>
-                        <SelectItem value="shipped">Відправлено</SelectItem>
-                        <SelectItem value="delivered">Доставлено</SelectItem>
+                        <SelectItem value="pending">Не прийнято</SelectItem>
+                        <SelectItem value="processing">У дорозі</SelectItem>
+                        <SelectItem value="delivered">Виконано</SelectItem>
                         <SelectItem value="cancelled">Скасовано</SelectItem>
                       </SelectContent>
                     </Select>
@@ -200,10 +199,9 @@ const Orders = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">В очікуванні</SelectItem>
-                  <SelectItem value="processing">В обробці</SelectItem>
-                  <SelectItem value="shipped">Відправлено</SelectItem>
-                  <SelectItem value="delivered">Доставлено</SelectItem>
+                  <SelectItem value="pending">Не прийнято</SelectItem>
+                  <SelectItem value="processing">У дорозі</SelectItem>
+                  <SelectItem value="delivered">Виконано</SelectItem>
                   <SelectItem value="cancelled">Скасовано</SelectItem>
                 </SelectContent>
               </Select>

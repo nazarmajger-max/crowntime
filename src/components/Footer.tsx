@@ -6,8 +6,8 @@ export const Footer = () => {
       <div className="container px-4 py-8 md:py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
           <div className="col-span-2 md:col-span-1">
-            <h3 className="font-display text-lg font-semibold mb-3 md:mb-4">WatchZone</h3>
-            <p className="font-body text-sm text-muted-foreground">
+            <h3 className="font-display text-lg font-semibold mb-3 md:mb-4">CrownTime</h3>
+            <p className="font-body text-xs text-muted-foreground">
               Ваш найкращий вибір годинників преміум класу від найкращих виробників світу.
             </p>
           </div>
@@ -57,8 +57,8 @@ export const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t mt-6 md:mt-8 pt-6 md:pt-8 text-center font-body text-sm text-muted-foreground">
-          © 2025 WatchZone. Всі права захищені.
+        <div className="border-t mt-6 md:mt-8 pt-6 md:pt-8 text-center font-body text-xs text-muted-foreground">
+          © 2025 CrownTime. Всі права захищені.
         </div>
       </div>
     </footer>

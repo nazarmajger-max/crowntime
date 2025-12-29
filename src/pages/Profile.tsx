@@ -206,7 +206,7 @@ const Profile = () => {
       <main className="container px-4 py-20 min-h-[calc(100vh-200px)]">
         <div className="max-w-4xl mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="font-display text-4xl font-bold">Особистий кабінет</h1>
+            <h1 className="font-display text-2xl md:text-4xl font-bold">Особистий кабінет</h1>
             <Button variant="outline" onClick={signOut}>
               Вийти
             </Button>
@@ -252,7 +252,17 @@ const Profile = () => {
                           </div>
                           <div className="text-right">
                             <div className="font-bold text-lg">{order.total_amount} грн</div>
-                            <div className="text-sm text-muted-foreground capitalize">{order.status}</div>
+                            <div className={`text-sm font-medium ${
+                              order.status === 'pending' ? 'text-muted-foreground' :
+                              order.status === 'processing' ? 'text-blue-600' :
+                              order.status === 'delivered' ? 'text-green-600' :
+                              order.status === 'cancelled' ? 'text-destructive' : 'text-muted-foreground'
+                            }`}>
+                              {order.status === 'pending' ? 'Не прийнято' :
+                               order.status === 'processing' ? 'У дорозі' :
+                               order.status === 'delivered' ? 'Виконано' :
+                               order.status === 'cancelled' ? 'Скасовано' : order.status}
+                            </div>
                           </div>
                         </div>
                       </CardHeader>
