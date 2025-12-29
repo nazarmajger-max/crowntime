@@ -19,7 +19,6 @@ const checkoutSchema = z.object({
   phone: z.string().trim().regex(/^[+]?[0-9]{10,15}$/, 'Невірний формат телефону (10-15 цифр)'),
   address: z.string().trim().min(5, 'Адреса занадто коротка').max(200, 'Адреса занадто довга'),
   city: z.string().trim().min(2, 'Місто обовʼязкове').max(100, 'Назва міста занадто довга'),
-  postalCode: z.string().trim().min(1, 'Індекс обовʼязковий').max(20, 'Індекс занадто довгий'),
 });
 
 const Checkout = () => {
@@ -34,7 +33,6 @@ const Checkout = () => {
     phone: '',
     address: '',
     city: '',
-    postalCode: '',
     paymentMethod: 'card',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -143,7 +141,7 @@ const Checkout = () => {
             <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="font-display">Інформація про доставку</CardTitle>
+                  <CardTitle className="font-display">Контактна інформація</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
@@ -215,31 +213,17 @@ const Checkout = () => {
                     {errors.address && <p className="text-sm text-destructive mt-1">{errors.address}</p>}
                   </div>
                   
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="city" className="font-body">Місто</Label>
-                      <Input
-                        id="city"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleInputChange}
-                        maxLength={100}
-                        className="font-body"
-                      />
-                      {errors.city && <p className="text-sm text-destructive mt-1">{errors.city}</p>}
-                    </div>
-                    <div>
-                      <Label htmlFor="postalCode" className="font-body">Поштовий індекс</Label>
-                      <Input
-                        id="postalCode"
-                        name="postalCode"
-                        value={formData.postalCode}
-                        onChange={handleInputChange}
-                        maxLength={20}
-                        className="font-body"
-                      />
-                      {errors.postalCode && <p className="text-sm text-destructive mt-1">{errors.postalCode}</p>}
-                    </div>
+                  <div>
+                    <Label htmlFor="city" className="font-body">Місто</Label>
+                    <Input
+                      id="city"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleInputChange}
+                      maxLength={100}
+                      className="font-body"
+                    />
+                    {errors.city && <p className="text-sm text-destructive mt-1">{errors.city}</p>}
                   </div>
                 </CardContent>
               </Card>
@@ -275,16 +259,8 @@ const Checkout = () => {
                     ))}
                   </div>
                   
-                  <div className="border-t pt-4 space-y-2 font-body">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Сума</span>
-                      <span className="font-medium">₴{cartTotal.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Доставка</span>
-                      <span className="font-medium">Безкоштовно</span>
-                    </div>
-                    <div className="border-t pt-2 flex justify-between text-lg font-semibold">
+                  <div className="border-t pt-4 font-body">
+                    <div className="flex justify-between text-lg font-semibold">
                       <span>Загалом</span>
                       <span className="text-accent">₴{cartTotal.toLocaleString()}</span>
                     </div>
