@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import logo from '@/assets/watchzone-logo.jpg';
+import logo from '@/assets/crowntime-logo.png';
 
 const menuItems = [
   { title: 'Панель', url: '/admin', icon: LayoutDashboard },
@@ -36,14 +36,14 @@ export function AdminSidebar() {
   };
 
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? 'bg-luxury-gold/10 text-luxury-gold font-medium' : 'hover:bg-muted/50';
+    isActive ? 'bg-accent/10 text-accent font-medium' : 'hover:bg-muted/50';
 
   return (
     <Sidebar collapsible="icon">
       <SidebarTrigger className="m-2 self-end" />
 
       <div className="p-4 border-b">
-        <img src={logo} alt="WATCHZONE" className="h-8 w-auto object-contain mx-auto" />
+        <img src={logo} alt="CrownTime" className="h-8 w-auto object-contain mx-auto" />
       </div>
 
       <SidebarContent>

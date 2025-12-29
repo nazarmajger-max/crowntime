@@ -97,10 +97,10 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
-  return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-luxury-navy via-luxury-charcoal to-black p-4">
-      <Card className="w-full max-w-md bg-white/95 backdrop-blur">
+  return <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl font-display text-center">WATCHZONE</CardTitle>
+          <CardTitle className="text-2xl font-display text-center">CrownTime</CardTitle>
           <CardDescription className="text-center">
             Увійдіть або створіть акаунт
           </CardDescription>
