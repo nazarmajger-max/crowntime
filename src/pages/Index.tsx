@@ -160,13 +160,13 @@ const Index = () => {
       >
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
         <div className="relative z-10 text-center text-white px-6">
-          <h1 className="font-display text-3xl md:text-6xl lg:text-7xl font-bold mb-2 md:mb-4 animate-fade-in tracking-wide">
-            WATCHZONE
+          <h1 className="font-display text-2xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-4 animate-fade-in tracking-wide">
+            CrownTime
           </h1>
-          <p className="font-body text-sm md:text-xl mb-5 md:mb-8 max-w-2xl mx-auto animate-fade-in opacity-90">
+          <p className="font-body text-xs md:text-lg mb-4 md:mb-8 max-w-2xl mx-auto animate-fade-in opacity-90">
             Найкращий вибір наручних годинників преміум класу
           </p>
-          <Button size="lg" className="font-body font-medium animate-scale-in h-12 px-8 text-base">
+          <Button size="lg" className="font-body font-medium animate-scale-in h-10 px-6 text-sm md:h-12 md:px-8 md:text-base">
             Переглянути колекцію
           </Button>
         </div>
@@ -174,7 +174,7 @@ const Index = () => {
 
       {/* Mobile: Title Section */}
       <div className="md:hidden bg-background px-4 py-4 border-b">
-        <p className="text-xs text-muted-foreground uppercase tracking-widest font-medium">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
           {products.length.toLocaleString()} моделей
         </p>
       </div>

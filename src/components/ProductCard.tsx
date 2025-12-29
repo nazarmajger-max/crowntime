@@ -129,32 +129,32 @@ export const ProductCard = ({
         />
       </div>
       
-      <CardContent className="p-3 md:p-4 space-y-1.5 md:space-y-2">
+      <CardContent className="p-2.5 md:p-4 space-y-1 md:space-y-2">
         {/* Availability */}
-        <div className="flex items-center gap-1.5">
-          <CheckCircle className="h-3 w-3 md:h-3.5 md:w-3.5 text-green-600" />
-          <span className="text-[11px] md:text-xs text-muted-foreground">В наявності</span>
+        <div className="flex items-center gap-1">
+          <CheckCircle className="h-2.5 w-2.5 md:h-3.5 md:w-3.5 text-green-600" />
+          <span className="text-[9px] md:text-xs text-muted-foreground">В наявності</span>
         </div>
         
         {/* Rating */}
         <div className="flex items-center gap-1">
-          <Star className="h-3 w-3 md:h-3.5 md:w-3.5 fill-yellow-400 text-yellow-400" />
-          <span className="text-xs md:text-sm font-medium">0</span>
-          <span className="text-[10px] md:text-xs text-muted-foreground">(0)</span>
+          <Star className="h-2.5 w-2.5 md:h-3.5 md:w-3.5 fill-yellow-400 text-yellow-400" />
+          <span className="text-[10px] md:text-sm font-medium">0</span>
+          <span className="text-[9px] md:text-xs text-muted-foreground">(0)</span>
         </div>
         
         {/* Product Name */}
-        <h3 className="font-body text-xs md:text-sm font-medium line-clamp-2 leading-snug min-h-[2.5em]">
+        <h3 className="font-body text-[11px] md:text-sm font-medium line-clamp-2 leading-tight min-h-[2.4em]">
           {product.name}
         </h3>
         
         {/* Product Code */}
-        <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-wide">
+        <p className="text-[9px] md:text-xs text-muted-foreground uppercase tracking-wide">
           {product.brand}
         </p>
         
         {/* Price */}
-        <p className="font-body text-base md:text-xl font-bold text-accent">
+        <p className="font-body text-sm md:text-xl font-bold text-primary">
           {product.price.toLocaleString()} ₴
         </p>
       </CardContent>

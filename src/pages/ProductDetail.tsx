@@ -456,7 +456,7 @@ const ProductDetail = () => {
               </p>
               
               <div className="mt-6 space-y-3">
-                <h3 className="font-display text-xl font-semibold">Купуючи в WATCHZONE Ви отримуєте:</h3>
+                <h3 className="font-display text-xl font-semibold">Купуючи в CrownTime Ви отримуєте:</h3>
                 <ul className="space-y-2">
                   <li>✓ <strong>Професійне обслуговування</strong></li>
                   <li>✓ <strong>Доступну ціну</strong></li>
