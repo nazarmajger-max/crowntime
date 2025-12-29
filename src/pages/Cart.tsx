@@ -99,15 +99,7 @@ const Cart = () => {
                 <h2 className="font-display text-lg md:text-2xl font-semibold">Підсумок замовлення</h2>
                 
                 <div className="space-y-2 font-body">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Сума</span>
-                    <span className="font-medium">{cartTotal.toLocaleString()} ₴</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Доставка</span>
-                    <span className="font-medium">Безкоштовно</span>
-                  </div>
-                  <div className="border-t pt-2 flex justify-between text-lg font-semibold">
+                  <div className="flex justify-between text-lg font-semibold">
                     <span>Загалом</span>
                     <span className="text-accent">{cartTotal.toLocaleString()} ₴</span>
                   </div>

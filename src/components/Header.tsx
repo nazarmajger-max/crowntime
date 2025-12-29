@@ -110,7 +110,7 @@ export const Header = () => {
         </div>
         
         <Link to="/" className="flex-shrink-0">
-          <img src={logo} alt="CrownTime" className="h-6 w-auto object-contain" />
+          <img src={logo} alt="CrownTime" className="h-8 w-auto object-contain" />
         </Link>
 
         <div className="flex items-center gap-1">
@@ -139,7 +139,7 @@ export const Header = () => {
         <SheetContent side="left" className="w-[300px] p-0">
           <SheetHeader className="border-b p-4">
             <SheetTitle className="flex items-center gap-2">
-              <img src={logo} alt="CrownTime" className="h-5 w-auto object-contain" />
+              <img src={logo} alt="CrownTime" className="h-8 w-auto object-contain" />
             </SheetTitle>
           </SheetHeader>
           
@@ -203,7 +203,7 @@ export const Header = () => {
       {/* Desktop Header */}
       <div className="hidden md:flex container h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-          <img src={logo} alt="CrownTime" className="h-7 w-auto object-contain" />
+          <img src={logo} alt="CrownTime" className="h-10 w-auto object-contain" />
         </Link>
 
         <nav className="flex items-center gap-8">
