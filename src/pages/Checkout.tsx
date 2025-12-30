@@ -15,7 +15,6 @@ import { z } from 'zod';
 const checkoutSchema = z.object({
   firstName: z.string().trim().min(1, 'Імʼя обовʼязкове').max(50, 'Імʼя занадто довге'),
   lastName: z.string().trim().min(1, 'Прізвище обовʼязкове').max(50, 'Прізвище занадто довге'),
-  email: z.string().trim().email('Невірний формат email').max(255, 'Email занадто довгий'),
   phone: z.string().trim().regex(/^[+]?[0-9]{10,15}$/, 'Невірний формат телефону (10-15 цифр)'),
   address: z.string().trim().min(5, 'Адреса занадто коротка').max(200, 'Адреса занадто довга'),
   city: z.string().trim().min(2, 'Місто обовʼязкове').max(100, 'Назва міста занадто довга'),
@@ -29,7 +28,6 @@ const Checkout = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    email: user?.email || '',
     phone: '',
     address: '',
     city: '',
@@ -88,8 +86,6 @@ const Checkout = () => {
 
       if (user) {
         orderData.user_id = user.id;
-      } else {
-        orderData.guest_email = validatedData.email;
       }
 
       const { data: order, error: orderError } = await supabase
@@ -169,20 +165,6 @@ const Checkout = () => {
                       />
                       {errors.lastName && <p className="text-sm text-destructive mt-1">{errors.lastName}</p>}
                     </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="email" className="font-body">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      maxLength={255}
-                      className="font-body"
-                    />
-                    {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
                   </div>
                   
                   <div>
