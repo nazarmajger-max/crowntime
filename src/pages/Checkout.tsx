@@ -15,7 +15,7 @@ import { z } from 'zod';
 const checkoutSchema = z.object({
   firstName: z.string().trim().min(1, 'Імʼя обовʼязкове').max(50, 'Імʼя занадто довге'),
   lastName: z.string().trim().min(1, 'Прізвище обовʼязкове').max(50, 'Прізвище занадто довге'),
-  phone: z.string().trim().regex(/^[+]?[0-9]{10,15}$/, 'Невірний формат телефону (10-15 цифр)'),
+  phone: z.string().trim().regex(/^\+38[0-9]{10}$/, 'Введіть 10 цифр після +38'),
   address: z.string().trim().min(5, 'Адреса занадто коротка').max(200, 'Адреса занадто довга'),
   city: z.string().trim().min(2, 'Місто обовʼязкове').max(100, 'Назва міста занадто довга'),
 });
@@ -28,7 +28,7 @@ const Checkout = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    phone: '',
+    phone: '+38',
     address: '',
     city: '',
     paymentMethod: 'card',
@@ -36,10 +36,24 @@ const Checkout = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    // Ensure phone always starts with +38 and only contains digits after
+    if (name === 'phone') {
+      // Don't allow removing the +38 prefix
+      if (!value.startsWith('+38')) {
+        return;
+      }
+      // Only allow digits after +38, max 10 digits
+      const digitsAfterPrefix = value.slice(3).replace(/\D/g, '').slice(0, 10);
+      setFormData({ ...formData, phone: '+38' + digitsAfterPrefix });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+    
     // Clear error when user starts typing
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' });
     }
   };
 
@@ -175,8 +189,8 @@ const Checkout = () => {
                       type="tel"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      maxLength={15}
-                      placeholder="+380XXXXXXXXX"
+                      maxLength={13}
+                      placeholder="+38XXXXXXXXXX"
                       className="font-body"
                     />
                     {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone}</p>}
