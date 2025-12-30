@@ -109,8 +109,8 @@ export const Header = () => {
           </Button>
         </div>
         
-        <Link to="/" className="flex-shrink-0">
-          <img src={logo} alt="CrownTime" className="h-8 w-auto object-contain" />
+        <Link to="/" className="absolute left-1/2 -translate-x-1/2">
+          <img src={logo} alt="CrownTime" className="h-6 w-auto object-contain" />
         </Link>
 
         <div className="flex items-center gap-1">
