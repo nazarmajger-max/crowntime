@@ -18,7 +18,6 @@ type CreateOrderItem = {
 
 type CreateOrderBody = {
   user_id?: string | null;
-  guest_email?: string | null;
   total_amount: number;
   shipping_name: string;
   shipping_phone: string;
@@ -71,14 +70,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // For guest checkout, orders table requires guest_email (see orders_user_or_guest_check)
-    if (!body.user_id && !body.guest_email) {
-      return new Response(JSON.stringify({ error: "Guest email is required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     if (body.items.length === 0) {
       return new Response(JSON.stringify({ error: "Cart is empty" }), {
         status: 400,
@@ -93,7 +84,6 @@ Deno.serve(async (req) => {
       .insert([
         {
           user_id: body.user_id ?? null,
-          guest_email: body.guest_email ?? null,
           total_amount: body.total_amount,
           shipping_name: body.shipping_name,
           shipping_phone: body.shipping_phone,
