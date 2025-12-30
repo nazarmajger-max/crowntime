@@ -15,7 +15,6 @@ import { z } from 'zod';
 const checkoutSchema = z.object({
   firstName: z.string().trim().min(1, 'Імʼя обовʼязкове').max(50, 'Імʼя занадто довге'),
   lastName: z.string().trim().min(1, 'Прізвище обовʼязкове').max(50, 'Прізвище занадто довге'),
-  email: z.string().trim().email('Некоректний email').optional().or(z.literal('')),
   phone: z.string().trim().regex(/^\+38[0-9]{10}$/, 'Введіть 10 цифр після +38'),
   address: z.string().trim().min(5, 'Адреса занадто коротка').max(200, 'Адреса занадто довга'),
   city: z.string().trim().min(2, 'Місто обовʼязкове').max(100, 'Назва міста занадто довга'),
@@ -29,7 +28,6 @@ const Checkout = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    email: '',
     phone: '+38',
     address: '',
     city: '',
@@ -78,19 +76,11 @@ const Checkout = () => {
     
     const validatedData = result.data;
 
-    // Guest checkout requires an email (orders_user_or_guest_check)
-    if (!user && !validatedData.email) {
-      setErrors({ email: 'Email обовʼязковий для гостя' });
-      toast.error('Будь ласка, вкажіть email');
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
       const payload = {
         user_id: user?.id ?? null,
-        guest_email: user ? null : validatedData.email,
         total_amount: cartTotal,
         shipping_name: `${validatedData.firstName} ${validatedData.lastName}`,
         shipping_phone: validatedData.phone,
@@ -167,22 +157,6 @@ const Checkout = () => {
                       {errors.lastName && <p className="text-sm text-destructive mt-1">{errors.lastName}</p>}
                     </div>
                   </div>
-
-                  {!user && (
-                    <div>
-                      <Label htmlFor="email" className="font-body">Email</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        autoComplete="email"
-                        className="font-body"
-                      />
-                      {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
-                    </div>
-                  )}
 
                   <div>
                     <Label htmlFor="phone" className="font-body">Телефон</Label>
