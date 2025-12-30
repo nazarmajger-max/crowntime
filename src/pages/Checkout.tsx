@@ -79,50 +79,27 @@ const Checkout = () => {
     setIsSubmitting(true);
 
     try {
-      // Create order - for guests, user_id is null and guest_email is set
-      const orderData: {
-        user_id?: string;
-        guest_email?: string;
-        total_amount: number;
-        shipping_name: string;
-        shipping_phone: string;
-        shipping_address: string;
-        shipping_city: string;
-        status: string;
-      } = {
+      const payload = {
+        user_id: user?.id ?? null,
         total_amount: cartTotal,
         shipping_name: `${validatedData.firstName} ${validatedData.lastName}`,
         shipping_phone: validatedData.phone,
         shipping_address: validatedData.address,
         shipping_city: validatedData.city,
         status: 'pending',
+        items: cart.map(({ product, quantity }) => ({
+          product_id: product.id,
+          quantity,
+          price: product.price,
+        })),
       };
 
-      if (user) {
-        orderData.user_id = user.id;
-      }
+      const { data, error } = await supabase.functions.invoke('create-order', {
+        body: payload,
+      });
 
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert([orderData])
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Create order items
-      const orderItems = cart.map(({ product, quantity }) => ({
-        order_id: order.id,
-        product_id: product.id,
-        quantity,
-        price: product.price,
-      }));
-
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
-
-      if (itemsError) throw itemsError;
+      if (error) throw error;
+      if (!data?.order_id) throw new Error('Missing order_id');
 
       toast.success('Замовлення успішно оформлено!');
       clearCart();
