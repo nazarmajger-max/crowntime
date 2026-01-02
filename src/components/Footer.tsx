@@ -46,8 +46,8 @@ export const Footer = () => {
                 </svg>
               </a>
               <a 
-                href="https://www.instagram.com/watchzoneua?igsh=MW9td3ZzaXd2cWlldw%3D%3D&utm_source=qr" 
-                target="_blank" 
+                href="https://www.instagram.com/crowntime.world" 
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-accent transition-colors p-2 -m-2"
               >
