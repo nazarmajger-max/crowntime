@@ -110,7 +110,7 @@ export const ProductCard = ({
           <Button 
             variant="ghost" 
             size="icon" 
-            className={`h-8 w-8 md:h-9 md:w-9 rounded-full transition-colors ${
+            className={`h-6 w-6 md:h-9 md:w-9 rounded-full transition-colors ${
               isFavorite 
                 ? 'bg-red-500 hover:bg-red-600' 
                 : 'bg-white/90 hover:bg-white shadow-sm'
@@ -118,7 +118,7 @@ export const ProductCard = ({
             onClick={handleToggleFavorite}
             disabled={isLoadingFavorite}
           >
-            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-white text-white' : ''}`} />
+            <Heart className={`h-3 w-3 md:h-4 md:w-4 ${isFavorite ? 'fill-white text-white' : ''}`} />
           </Button>
         </div>
 
