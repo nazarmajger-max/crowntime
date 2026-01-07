@@ -30,6 +30,7 @@ const Products = () => {
     name: '',
     slug: '',
     brand: '',
+    model_series: '',
     price: '',
     original_price: '',
     description: '',
@@ -189,6 +190,7 @@ const Products = () => {
         name: formData.name,
         slug,
         brand: formData.brand || null,
+        model_series: formData.model_series || null,
         price: parseFloat(formData.price),
         original_price: formData.original_price ? parseFloat(formData.original_price) : null,
         description: formData.description || null,
@@ -289,6 +291,7 @@ const Products = () => {
       name: product.name || '',
       slug: product.slug || '',
       brand: product.brand || '',
+      model_series: product.model_series || '',
       price: product.price?.toString() || '',
       original_price: product.original_price?.toString() || '',
       description: product.description || '',
@@ -347,6 +350,7 @@ const Products = () => {
       name: '',
       slug: '',
       brand: '',
+      model_series: '',
       price: '',
       original_price: '',
       description: '',
@@ -408,6 +412,16 @@ const Products = () => {
                     id="brand"
                     value={formData.brand}
                     onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                    placeholder="Casio, Tissot, Longines..."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="model_series">Серія моделей</Label>
+                  <Input
+                    id="model_series"
+                    value={formData.model_series}
+                    onChange={(e) => setFormData({ ...formData, model_series: e.target.value })}
+                    placeholder="G-Shock, Edifice, PRO TREK..."
                   />
                 </div>
                 <div className="space-y-2">

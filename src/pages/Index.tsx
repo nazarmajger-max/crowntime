@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -13,18 +14,25 @@ import { toast } from 'sonner';
 import { ChevronLeft, SlidersHorizontal, ChevronDown } from 'lucide-react';
 
 const Index = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<string>('featured');
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [filters, setFilters] = useState<Filters>({
-    brands: [],
-    priceRange: [0, 10000],
-    gender: [],
-    type: [],
-    caseMaterial: [],
-    dialColor: [],
-    modelSeries: []
+  
+  // Initialize filters from URL params
+  const [filters, setFilters] = useState<Filters>(() => {
+    const brandParam = searchParams.get('brand');
+    const modelSeriesParam = searchParams.get('modelSeries');
+    return {
+      brands: brandParam ? [brandParam] : [],
+      priceRange: [0, 10000],
+      gender: [],
+      type: [],
+      caseMaterial: [],
+      dialColor: [],
+      modelSeries: modelSeriesParam ? [modelSeriesParam] : []
+    };
   });
 
   // Extract unique values from products for filters
@@ -48,6 +56,20 @@ const Index = () => {
     const colors = products.map(p => p.dialColor).filter(Boolean);
     return Array.from(new Set(colors)).sort();
   }, [products]);
+
+  // Update filters when URL changes
+  useEffect(() => {
+    const brandParam = searchParams.get('brand');
+    const modelSeriesParam = searchParams.get('modelSeries');
+    
+    if (brandParam || modelSeriesParam) {
+      setFilters(prev => ({
+        ...prev,
+        brands: brandParam ? [brandParam] : prev.brands,
+        modelSeries: modelSeriesParam ? [modelSeriesParam] : prev.modelSeries
+      }));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetchProducts();
