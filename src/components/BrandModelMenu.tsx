@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface BrandWithImage {
@@ -44,7 +44,6 @@ export const BrandModelMenu = ({ open, onOpenChange }: BrandModelMenuProps) => {
   const fetchBrands = async () => {
     setLoading(true);
     try {
-      // Fetch all active products with their images
       const { data: productsData, error: productsError } = await supabase
         .from('products')
         .select('id, brand, created_at')
@@ -54,7 +53,6 @@ export const BrandModelMenu = ({ open, onOpenChange }: BrandModelMenuProps) => {
 
       if (productsError) throw productsError;
 
-      // Get unique brands with the first product of each brand
       const brandMap = new Map<string, { productId: string; count: number }>();
       
       productsData?.forEach(product => {
@@ -68,7 +66,6 @@ export const BrandModelMenu = ({ open, onOpenChange }: BrandModelMenuProps) => {
         }
       });
 
-      // Fetch primary images for the first products of each brand
       const productIds = Array.from(brandMap.values()).map(v => v.productId);
       const { data: imagesData } = await supabase
         .from('product_images')
@@ -95,7 +92,6 @@ export const BrandModelMenu = ({ open, onOpenChange }: BrandModelMenuProps) => {
   const fetchModelSeries = async (brand: string) => {
     setLoading(true);
     try {
-      // Fetch products for this brand with model_series
       const { data: productsData, error: productsError } = await supabase
         .from('products')
         .select('id, model_series, created_at')
@@ -105,7 +101,6 @@ export const BrandModelMenu = ({ open, onOpenChange }: BrandModelMenuProps) => {
 
       if (productsError) throw productsError;
 
-      // Group by model_series (including null as "Інші")
       const seriesMap = new Map<string, { productId: string; count: number }>();
       
       productsData?.forEach(product => {
@@ -118,7 +113,6 @@ export const BrandModelMenu = ({ open, onOpenChange }: BrandModelMenuProps) => {
         }
       });
 
-      // Fetch primary images
       const productIds = Array.from(seriesMap.values()).map(v => v.productId);
       const { data: imagesData } = await supabase
         .from('product_images')
@@ -134,7 +128,6 @@ export const BrandModelMenu = ({ open, onOpenChange }: BrandModelMenuProps) => {
         productCount: data.count
       }));
 
-      // Sort with "Інші моделі" at the end
       setModelSeries(seriesWithImages.sort((a, b) => {
         if (a.modelSeries === 'Інші моделі') return 1;
         if (b.modelSeries === 'Інші моделі') return -1;
@@ -152,20 +145,11 @@ export const BrandModelMenu = ({ open, onOpenChange }: BrandModelMenuProps) => {
   };
 
   const handleModelSeriesSelect = (series: string) => {
-    // Navigate to main page with filters
     const params = new URLSearchParams();
     params.set('brand', selectedBrand || '');
     if (series !== 'Інші моделі') {
       params.set('modelSeries', series);
     }
-    onOpenChange(false);
-    setSelectedBrand(null);
-    navigate(`/?${params.toString()}`);
-  };
-
-  const handleViewAllBrand = () => {
-    const params = new URLSearchParams();
-    params.set('brand', selectedBrand || '');
     onOpenChange(false);
     setSelectedBrand(null);
     navigate(`/?${params.toString()}`);
@@ -184,88 +168,73 @@ export const BrandModelMenu = ({ open, onOpenChange }: BrandModelMenuProps) => {
 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
-      <SheetContent side="left" className="w-full sm:w-[400px] p-0">
+      <SheetContent side="left" className="w-full sm:w-[450px] p-0">
         <SheetHeader className="border-b p-4">
-          <div className="flex items-center gap-2">
-            {selectedBrand && (
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleBack}>
-                <ChevronLeft className="h-5 w-5" />
-              </Button>
-            )}
-            <SheetTitle className="text-lg font-display">
-              {selectedBrand || 'Бренди'}
-            </SheetTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {selectedBrand && (
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleBack}>
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
+              )}
+              <SheetTitle className="text-lg font-display uppercase tracking-wide">
+                {selectedBrand || 'Бренди'}
+              </SheetTitle>
+            </div>
           </div>
         </SheetHeader>
 
-        <div className="overflow-y-auto h-[calc(100vh-80px)]">
+        <div className="overflow-y-auto h-[calc(100vh-80px)] p-4">
           {loading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent"></div>
             </div>
           ) : selectedBrand ? (
-            // Model Series List
-            <div className="divide-y">
-              {/* View All for this brand */}
-              <button
-                onClick={handleViewAllBrand}
-                className="w-full flex items-center gap-4 p-4 hover:bg-accent/10 transition-colors"
-              >
-                <div className="w-16 h-16 bg-muted rounded-lg flex items-center justify-center">
-                  <span className="text-2xl font-bold text-muted-foreground">∀</span>
-                </div>
-                <div className="flex-1 text-left">
-                  <p className="font-medium">Усі моделі {selectedBrand}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {modelSeries.reduce((acc, s) => acc + s.productCount, 0)} годинників
-                  </p>
-                </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-              </button>
-
+            // Model Series Grid
+            <div className="grid grid-cols-2 gap-3">
               {modelSeries.map((series) => (
                 <button
                   key={series.modelSeries}
                   onClick={() => handleModelSeriesSelect(series.modelSeries)}
-                  className="w-full flex items-center gap-4 p-4 hover:bg-accent/10 transition-colors"
+                  className="group flex flex-col bg-muted/30 rounded-xl overflow-hidden hover:bg-muted/50 transition-colors border border-border/50"
                 >
-                  <img
-                    src={series.image}
-                    alt={series.modelSeries}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
-                  <div className="flex-1 text-left">
-                    <p className="font-medium">{series.modelSeries}</p>
-                    <p className="text-sm text-muted-foreground">{series.productCount} годинників</p>
+                  <div className="aspect-square p-4 flex items-center justify-center bg-white">
+                    <img
+                      src={series.image}
+                      alt={series.modelSeries}
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  <div className="p-3 text-center">
+                    <p className="font-semibold text-sm uppercase tracking-wide">{series.modelSeries}</p>
+                  </div>
                 </button>
               ))}
             </div>
           ) : (
-            // Brands List
-            <div className="divide-y">
+            // Brands Grid
+            <div className="grid grid-cols-2 gap-3">
               {brands.map((brand) => (
                 <button
                   key={brand.brand}
                   onClick={() => handleBrandSelect(brand.brand)}
-                  className="w-full flex items-center gap-4 p-4 hover:bg-accent/10 transition-colors"
+                  className="group flex flex-col bg-muted/30 rounded-xl overflow-hidden hover:bg-muted/50 transition-colors border border-border/50"
                 >
-                  <img
-                    src={brand.image}
-                    alt={brand.brand}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
-                  <div className="flex-1 text-left">
-                    <p className="font-medium">{brand.brand}</p>
-                    <p className="text-sm text-muted-foreground">{brand.productCount} годинників</p>
+                  <div className="aspect-square p-4 flex items-center justify-center bg-white">
+                    <img
+                      src={brand.image}
+                      alt={brand.brand}
+                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  <div className="p-3 text-center">
+                    <p className="font-semibold text-sm uppercase tracking-wide">{brand.brand}</p>
+                  </div>
                 </button>
               ))}
 
               {brands.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
+                <div className="col-span-2 text-center py-12 text-muted-foreground">
                   Бренди не знайдено
                 </div>
               )}
