@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Menu, User, Shield, Heart, Search, X, LogOut, Home } from 'lucide-react';
+import { ShoppingCart, Menu, User, Shield, Heart, Search, X, LogOut, Home, Watch } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Product } from '@/types/product';
 import logo from '@/assets/crowntime-logo.png';
+import { BrandModelMenu } from './BrandModelMenu';
 
 export const Header = () => {
   const { cartCount } = useCart();
@@ -16,6 +17,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [brandMenuOpen, setBrandMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [searching, setSearching] = useState(false);
@@ -151,6 +153,17 @@ export const Header = () => {
               <Home className="h-5 w-5" />
               <span className="font-medium text-base">Головна</span>
             </button>
+            
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                setBrandMenuOpen(true);
+              }}
+              className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20"
+            >
+              <Watch className="h-5 w-5" />
+              <span className="font-medium text-base">Каталог брендів</span>
+            </button>
 
             {user ? (
               <>
@@ -210,9 +223,12 @@ export const Header = () => {
           <Link to="/" className="font-body text-sm font-medium transition-colors hover:text-accent">
             Головна
           </Link>
-          <Link to="/" className="font-body text-sm font-medium transition-colors hover:text-accent">
-            Магазин
-          </Link>
+          <button 
+            onClick={() => setBrandMenuOpen(true)}
+            className="font-body text-sm font-medium transition-colors hover:text-accent"
+          >
+            Каталог брендів
+          </button>
           <Link to="/" className="font-body text-sm font-medium transition-colors hover:text-accent">
             Про нас
           </Link>
@@ -323,6 +339,9 @@ export const Header = () => {
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Brand Model Menu */}
+      <BrandModelMenu open={brandMenuOpen} onOpenChange={setBrandMenuOpen} />
     </header>
   );
 };
