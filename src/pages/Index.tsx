@@ -23,7 +23,8 @@ const Index = () => {
     gender: [],
     type: [],
     caseMaterial: [],
-    dialColor: []
+    dialColor: [],
+    modelSeries: []
   });
 
   // Extract unique values from products for filters
@@ -95,7 +96,9 @@ const Index = () => {
           dialColor: p.dial_color || 'Black',
           waterResistance: p.water_resistance || '50m',
           movement: p.movement_type || 'Automatic',
-          inStock: p.stock_quantity > 0
+          inStock: p.stock_quantity > 0,
+          modelSeries: p.model_series || undefined,
+          modelSeriesImage: p.model_series_image || undefined,
         };
       });
       setProducts(formattedProducts);
@@ -129,6 +132,9 @@ const Index = () => {
     if (filters.dialColor.length > 0) {
       result = result.filter(product => filters.dialColor.includes(product.dialColor));
     }
+    if (filters.modelSeries.length > 0) {
+      result = result.filter(product => product.modelSeries && filters.modelSeries.includes(product.modelSeries));
+    }
 
     // Apply sorting
     switch (sortBy) {
@@ -147,7 +153,7 @@ const Index = () => {
     return result;
   }, [products, filters, sortBy]);
 
-  const activeFilterCount = filters.brands.length + filters.gender.length + filters.type.length + filters.caseMaterial.length + filters.dialColor.length;
+  const activeFilterCount = filters.brands.length + filters.gender.length + filters.type.length + filters.caseMaterial.length + filters.dialColor.length + filters.modelSeries.length;
 
   return (
     <>
@@ -222,6 +228,7 @@ const Index = () => {
               availableGenders={availableGenders}
               availableCaseMaterials={availableCaseMaterials}
               availableDialColors={availableDialColors}
+              products={products}
             />
           </div>
           <div className="sticky bottom-0 left-0 right-0 bg-background border-t p-4 mt-6 flex gap-3">
@@ -235,7 +242,8 @@ const Index = () => {
                   gender: [],
                   type: [],
                   caseMaterial: [],
-                  dialColor: []
+                  dialColor: [],
+                  modelSeries: []
                 });
               }}
             >
@@ -262,7 +270,8 @@ const Index = () => {
             availableTypes={availableTypes} 
             availableGenders={availableGenders} 
             availableCaseMaterials={availableCaseMaterials} 
-            availableDialColors={availableDialColors} 
+            availableDialColors={availableDialColors}
+            products={products}
           />
         </div>
         

@@ -205,6 +205,8 @@ export type Database = {
           id: string
           is_active: boolean
           is_featured: boolean
+          model_series: string | null
+          model_series_image: string | null
           movement_type: string | null
           name: string
           original_price: number | null
@@ -226,6 +228,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_featured?: boolean
+          model_series?: string | null
+          model_series_image?: string | null
           movement_type?: string | null
           name: string
           original_price?: number | null
@@ -247,6 +251,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_featured?: boolean
+          model_series?: string | null
+          model_series_image?: string | null
           movement_type?: string | null
           name?: string
           original_price?: number | null

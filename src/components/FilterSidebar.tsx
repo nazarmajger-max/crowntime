@@ -1,8 +1,17 @@
+import { useState, useMemo } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Filters } from '@/types/product';
+import { Filters, Product } from '@/types/product';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface ModelSeriesInfo {
+  name: string;
+  image: string;
+  count: number;
+}
 
 interface FilterSidebarProps {
   filters: Filters;
@@ -12,6 +21,7 @@ interface FilterSidebarProps {
   availableGenders: string[];
   availableCaseMaterials: string[];
   availableDialColors: string[];
+  products?: Product[];
 }
 
 export const FilterSidebar = ({ 
@@ -21,14 +31,64 @@ export const FilterSidebar = ({
   availableTypes,
   availableGenders,
   availableCaseMaterials,
-  availableDialColors
+  availableDialColors,
+  products = []
 }: FilterSidebarProps) => {
+  const [expandedBrand, setExpandedBrand] = useState<string | null>(null);
+
   const handleCheckboxChange = (category: keyof Omit<Filters, 'priceRange'>, value: string) => {
     const currentValues = filters[category] as string[];
     const newValues = currentValues.includes(value)
       ? currentValues.filter(v => v !== value)
       : [...currentValues, value];
     onFiltersChange({ ...filters, [category]: newValues });
+  };
+
+  // Get unique model series per brand
+  const brandsWithModels = useMemo(() => {
+    const brandMap = new Map<string, ModelSeriesInfo[]>();
+    
+    products.forEach((product) => {
+      if (!product.brand) return;
+      
+      if (!brandMap.has(product.brand)) {
+        brandMap.set(product.brand, []);
+      }
+      
+      const models = brandMap.get(product.brand)!;
+      const modelName = product.modelSeries || 'Інші';
+      const existingModel = models.find(m => m.name === modelName);
+      
+      if (existingModel) {
+        existingModel.count++;
+        if (product.modelSeriesImage && existingModel.image === '/placeholder.svg') {
+          existingModel.image = product.modelSeriesImage;
+        }
+      } else {
+        models.push({
+          name: modelName,
+          image: product.modelSeriesImage || product.image || '/placeholder.svg',
+          count: 1,
+        });
+      }
+    });
+    
+    return brandMap;
+  }, [products]);
+
+  const handleBrandClick = (brand: string) => {
+    if (expandedBrand === brand) {
+      setExpandedBrand(null);
+    } else {
+      setExpandedBrand(brand);
+    }
+    
+    // Toggle brand filter
+    handleCheckboxChange('brands', brand);
+  };
+
+  const handleModelClick = (modelSeries: string) => {
+    handleCheckboxChange('modelSeries', modelSeries);
   };
 
   return (
@@ -72,23 +132,79 @@ export const FilterSidebar = ({
             </div>
           </div>
 
-          {/* Brand */}
+          {/* Brand with Model Series */}
           {availableBrands.length > 0 && (
             <div>
-              <h3 className="font-body font-semibold mb-3">Бренд</h3>
+              <h3 className="font-body font-semibold mb-3">Виробники</h3>
               <div className="space-y-2">
-                {availableBrands.sort().map(brand => (
-                  <div key={brand} className="flex items-center gap-2">
-                    <Checkbox
-                      id={`brand-${brand}`}
-                      checked={filters.brands.includes(brand)}
-                      onCheckedChange={() => handleCheckboxChange('brands', brand)}
-                    />
-                    <Label htmlFor={`brand-${brand}`} className="font-body text-sm cursor-pointer">
-                      {brand}
-                    </Label>
-                  </div>
-                ))}
+                {availableBrands.sort().map(brand => {
+                  const models = brandsWithModels.get(brand) || [];
+                  const hasModels = models.some(m => m.name !== 'Інші');
+                  const isExpanded = expandedBrand === brand;
+                  const isSelected = filters.brands.includes(brand);
+                  
+                  return (
+                    <div key={brand} className="border rounded-lg overflow-hidden">
+                      {/* Brand Header */}
+                      <button
+                        onClick={() => handleBrandClick(brand)}
+                        className={cn(
+                          "w-full flex items-center justify-between p-2.5 transition-colors text-left",
+                          isSelected 
+                            ? "bg-primary text-primary-foreground" 
+                            : "bg-muted/50 hover:bg-muted"
+                        )}
+                      >
+                        <span className="font-body text-sm font-medium">{brand}</span>
+                        {hasModels && (
+                          isExpanded ? (
+                            <ChevronDown className="h-4 w-4 shrink-0" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 shrink-0" />
+                          )
+                        )}
+                      </button>
+                      
+                      {/* Model Series Grid */}
+                      {isExpanded && hasModels && (
+                        <div className="grid grid-cols-2 gap-1.5 p-2 bg-background">
+                          {models.filter(m => m.name !== 'Інші').map((model) => {
+                            const isModelSelected = filters.modelSeries.includes(model.name);
+                            return (
+                              <button
+                                key={model.name}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleModelClick(model.name);
+                                }}
+                                className={cn(
+                                  "flex flex-col items-center p-2 rounded-lg border transition-all",
+                                  isModelSelected
+                                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                                    : "border-border hover:border-primary/50 hover:bg-muted/50"
+                                )}
+                              >
+                                <div className="aspect-square w-full max-w-[60px] mb-1.5 overflow-hidden rounded-md bg-muted">
+                                  <img
+                                    src={model.image}
+                                    alt={model.name}
+                                    className="h-full w-full object-cover"
+                                  />
+                                </div>
+                                <span className="font-body text-[10px] font-medium text-center line-clamp-2 leading-tight">
+                                  {model.name}
+                                </span>
+                                <span className="text-[9px] text-muted-foreground">
+                                  ({model.count})
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}

@@ -13,6 +13,8 @@ export interface Product {
   waterResistance: string;
   movement: string;
   inStock: boolean;
+  modelSeries?: string;
+  modelSeriesImage?: string;
   // Extended specifications
   glassType?: string;
   diameter?: string;
@@ -41,4 +43,5 @@ export interface Filters {
   type: string[];
   caseMaterial: string[];
   dialColor: string[];
+  modelSeries: string[];
 }
