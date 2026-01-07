@@ -375,12 +375,12 @@ const ProductDetail = () => {
               <p className="text-sm text-muted-foreground font-body mb-2">
                 Бренд: <span className="text-primary font-medium">{product.brand}</span>
               </p>
-              <h1 className="font-display text-3xl lg:text-4xl font-bold mb-4">
+              <h1 className="font-display text-xl md:text-3xl lg:text-4xl font-bold mb-4">
                 {product.name}
               </h1>
             </div>
 
-            <div className="text-4xl font-bold text-accent font-display">
+            <div className="text-4xl font-bold text-foreground md:text-accent font-display">
               {product.price.toLocaleString()} ₴
             </div>
 
