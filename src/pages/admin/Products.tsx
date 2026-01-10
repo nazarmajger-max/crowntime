@@ -99,7 +99,7 @@ const Products = () => {
   // Domain whitelist for trusted image hosting services
   const ALLOWED_IMAGE_DOMAINS = [
     // Project's Supabase storage
-    'mgoyzvepuliloncyrvgn.supabase.co',
+    'smjdiqfdgbmxecfcyhps.supabase.co',
     // Common trusted CDNs and image hosts
     'images.unsplash.com',
     'i.imgur.com',
@@ -169,17 +169,39 @@ const Products = () => {
     setIsUploading(true);
 
     try {
-      // Upload files that need uploading
+      // Upload files to Supabase Storage
       const uploadedImages: ProductImage[] = [];
       for (const img of productImages) {
         if (img.file) {
-          const fileExt = img.file.name.split('.').pop();
+          const fileExt = img.file.name.split('.').pop()?.toLowerCase() || 'jpg';
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
           
-          // For now, just use the URL since storage may not be set up
-          // In production, you'd upload to Supabase Storage
-          uploadedImages.push({ ...img, image_url: img.image_url });
+          // Upload to Supabase Storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('product-images')
+            .upload(fileName, img.file, {
+              cacheControl: '3600',
+              upsert: false,
+            });
+
+          if (uploadError) {
+            console.error('Upload error:', uploadError);
+            toast.error(`Помилка завантаження зображення: ${uploadError.message}`);
+            setIsUploading(false);
+            return;
+          }
+
+          // Get public URL
+          const { data: publicUrlData } = supabase.storage
+            .from('product-images')
+            .getPublicUrl(uploadData.path);
+
+          uploadedImages.push({ 
+            ...img, 
+            image_url: publicUrlData.publicUrl 
+          });
         } else {
+          // Keep existing URL (for external URLs or already uploaded images)
           uploadedImages.push(img);
         }
       }
@@ -221,7 +243,7 @@ const Products = () => {
         }
         productId = editingProduct.id;
 
-        // Delete old images
+        // Delete old images from database
         await supabase
           .from('product_images')
           .delete()
@@ -245,24 +267,14 @@ const Products = () => {
 
       // Save images to product_images table
       if (uploadedImages.length > 0) {
-        const imageRecords = uploadedImages.map((img, idx) => ({
-          product_id: productId,
-          image_url: img.file ? URL.createObjectURL(img.file) : img.image_url,
-          sort_order: idx,
-          is_primary: idx === 0,
-        }));
-
-        // For images with files, we need to handle them differently
         for (let i = 0; i < uploadedImages.length; i++) {
           const img = uploadedImages[i];
-          let finalUrl = img.image_url;
 
-          // Insert image record
           const { error: imageError } = await supabase
             .from('product_images')
             .insert({
               product_id: productId,
-              image_url: finalUrl,
+              image_url: img.image_url,
               sort_order: i,
               is_primary: i === 0,
             });
