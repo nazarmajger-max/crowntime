@@ -225,7 +225,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Check all products are active and have sufficient stock
+    // Check all products are active (basic check - atomic stock reservation will verify availability)
     const productMap = new Map(products.map((p) => [p.id, p]));
     for (const item of validatedItems) {
       const product = productMap.get(item.product_id);
@@ -241,17 +241,52 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (product.stock_quantity < item.quantity) {
-        return new Response(JSON.stringify({ error: `Insufficient stock for product` }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
     }
 
     const status = body.status === "pending" ? "pending" : "pending"; // Only allow pending status
 
-    // Create order
+    // ATOMIC STOCK RESERVATION: Reserve stock before creating order to prevent race conditions
+    const reservedItems: { product_id: string; quantity: number }[] = [];
+    
+    for (const item of validatedItems) {
+      const { data: reserved, error: reserveError } = await admin.rpc(
+        "reserve_product_stock",
+        { p_product_id: item.product_id, p_quantity: item.quantity }
+      );
+
+      if (reserveError) {
+        console.error("Stock reservation error:", reserveError);
+        // Rollback all previously reserved items
+        for (const ri of reservedItems) {
+          await admin.rpc("rollback_stock_reservation", {
+            p_product_id: ri.product_id,
+            p_quantity: ri.quantity,
+          });
+        }
+        return new Response(JSON.stringify({ error: "Failed to reserve stock" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (!reserved) {
+        // Insufficient stock - rollback all previously reserved items
+        for (const ri of reservedItems) {
+          await admin.rpc("rollback_stock_reservation", {
+            p_product_id: ri.product_id,
+            p_quantity: ri.quantity,
+          });
+        }
+        return new Response(JSON.stringify({ error: "Insufficient stock for one or more products" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      reservedItems.push({ product_id: item.product_id, quantity: item.quantity });
+    }
+
+    // Create order (stock already reserved atomically)
     const { data: order, error: orderError } = await admin
       .from("orders")
       .insert([
@@ -270,6 +305,13 @@ Deno.serve(async (req) => {
 
     if (orderError || !order) {
       console.error("Order creation error:", orderError);
+      // Rollback stock reservations on order creation failure
+      for (const ri of reservedItems) {
+        await admin.rpc("rollback_stock_reservation", {
+          p_product_id: ri.product_id,
+          p_quantity: ri.quantity,
+        });
+      }
       return new Response(
         JSON.stringify({ error: "Failed to create order" }),
         {
@@ -291,7 +333,13 @@ Deno.serve(async (req) => {
 
     if (itemsError) {
       console.error("Order items error:", itemsError);
-      // Best-effort cleanup
+      // Rollback stock and delete order on items creation failure
+      for (const ri of reservedItems) {
+        await admin.rpc("rollback_stock_reservation", {
+          p_product_id: ri.product_id,
+          p_quantity: ri.quantity,
+        });
+      }
       await admin.from("orders").delete().eq("id", order.id);
       return new Response(
         JSON.stringify({ error: "Failed to create order items" }),
@@ -302,14 +350,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Update stock quantities
-    for (const item of validatedItems) {
-      const product = productMap.get(item.product_id)!;
-      await admin
-        .from("products")
-        .update({ stock_quantity: product.stock_quantity - item.quantity })
-        .eq("id", item.product_id);
-    }
+    // Stock already updated atomically via reserve_product_stock
 
     console.log(`Order created successfully: ${order.id}`);
     return new Response(JSON.stringify({ order_id: order.id }), {

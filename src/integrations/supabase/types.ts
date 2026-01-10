@@ -385,6 +385,14 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      reserve_product_stock: {
+        Args: { p_product_id: string; p_quantity: number }
+        Returns: boolean
+      }
+      rollback_stock_reservation: {
+        Args: { p_product_id: string; p_quantity: number }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
