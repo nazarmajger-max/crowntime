@@ -40,7 +40,7 @@ const Dashboard = () => {
       const [productsRes, ordersRes, completedOrdersRes, usersRes] = await Promise.all([
         supabase.from('products').select('*', { count: 'exact', head: true }),
         supabase.from('orders').select('id', { count: 'exact', head: true }),
-        supabase.from('orders').select('total_amount').eq('status', 'completed'),
+        supabase.from('orders').select('total_amount').eq('status', 'delivered'),
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
       ]);
 
