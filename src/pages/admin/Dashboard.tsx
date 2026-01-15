@@ -17,17 +17,18 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const [productsRes, ordersRes, usersRes] = await Promise.all([
+      const [productsRes, ordersRes, completedOrdersRes, usersRes] = await Promise.all([
         supabase.from('products').select('*', { count: 'exact', head: true }),
-        supabase.from('orders').select('total_amount'),
+        supabase.from('orders').select('id', { count: 'exact', head: true }),
+        supabase.from('orders').select('total_amount').eq('status', 'completed'),
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
       ]);
 
-      const totalRevenue = ordersRes.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
+      const totalRevenue = completedOrdersRes.data?.reduce((sum, order) => sum + Number(order.total_amount), 0) || 0;
 
       setStats({
         totalProducts: productsRes.count || 0,
-        totalOrders: ordersRes.data?.length || 0,
+        totalOrders: ordersRes.count || 0,
         totalUsers: usersRes.count || 0,
         totalRevenue,
       });
