@@ -13,6 +13,26 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchStats();
+
+    // Subscribe to order changes to update revenue in real-time
+    const channel = supabase
+      .channel('orders-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders',
+        },
+        () => {
+          fetchStats();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchStats = async () => {
