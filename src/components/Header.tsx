@@ -229,11 +229,8 @@ export const Header = () => {
           >
             Каталог брендів
           </button>
-          <Link to="/" className="font-body text-sm font-medium transition-colors hover:text-accent">
-            Про нас
-          </Link>
-          <Link to="/" className="font-body text-sm font-medium transition-colors hover:text-accent">
-            Контакти
+          <Link to="/products" className="font-body text-sm font-medium transition-colors hover:text-accent">
+            Всі товари
           </Link>
         </nav>
 

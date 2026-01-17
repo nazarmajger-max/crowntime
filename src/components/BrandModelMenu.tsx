@@ -152,7 +152,7 @@ export const BrandModelMenu = ({ open, onOpenChange }: BrandModelMenuProps) => {
     }
     onOpenChange(false);
     setSelectedBrand(null);
-    navigate(`/?${params.toString()}`);
+    navigate(`/products?${params.toString()}`);
   };
 
   const handleBack = () => {
