@@ -15,6 +15,7 @@ import Auth from "./pages/Auth";
 import AdminLayout from "./pages/admin/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
+import CatalogImages from "./pages/admin/CatalogImages";
 import Orders from "./pages/admin/Orders";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Dashboard />} />
                 <Route path="products" element={<AdminProducts />} />
+                <Route path="catalog-images" element={<CatalogImages />} />
                 <Route path="orders" element={<Orders />} />
               </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

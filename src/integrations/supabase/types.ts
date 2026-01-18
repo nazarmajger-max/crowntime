@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      brand_images: {
+        Row: {
+          brand_name: string
+          created_at: string
+          id: string
+          image_url: string
+          updated_at: string
+        }
+        Insert: {
+          brand_name: string
+          created_at?: string
+          id?: string
+          image_url: string
+          updated_at?: string
+        }
+        Update: {
+          brand_name?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -69,6 +93,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      model_series_images: {
+        Row: {
+          brand_name: string
+          created_at: string
+          id: string
+          image_url: string
+          model_series_name: string
+          updated_at: string
+        }
+        Insert: {
+          brand_name: string
+          created_at?: string
+          id?: string
+          image_url: string
+          model_series_name: string
+          updated_at?: string
+        }
+        Update: {
+          brand_name?: string
+          created_at?: string
+          id?: string
+          image_url?: string
+          model_series_name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       order_items: {
         Row: {

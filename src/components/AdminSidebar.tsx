@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, ShoppingCart, LogOut } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, LogOut, ImageIcon } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -19,6 +19,7 @@ import logo from '@/assets/crowntime-logo.png';
 const menuItems = [
   { title: 'Панель', url: '/admin', icon: LayoutDashboard },
   { title: 'Товари', url: '/admin/products', icon: Package },
+  { title: 'Зображення каталогу', url: '/admin/catalog-images', icon: ImageIcon },
   { title: 'Замовлення', url: '/admin/orders', icon: ShoppingCart },
 ];
 
