@@ -56,20 +56,36 @@ const BrandCatalog = () => {
         }
       });
 
+      // Get brand images from the dedicated table
+      const { data: brandImagesData } = await supabase
+        .from('brand_images')
+        .select('brand_name, image_url');
+
+      const brandImagesMap: { [key: string]: string } = {};
+      brandImagesData?.forEach(img => {
+        brandImagesMap[img.brand_name] = img.image_url;
+      });
+
       const brandsWithImages: BrandWithImage[] = [];
       
       for (const [brandName, data] of Object.entries(brandCounts)) {
-        const { data: imageData } = await supabase
-          .from('product_images')
-          .select('image_url')
-          .eq('is_primary', true)
-          .in('product_id', data.productIds)
-          .limit(1)
-          .single();
+        let imageUrl = brandImagesMap[brandName] || null;
+
+        // Fallback to product image if no brand image set
+        if (!imageUrl) {
+          const { data: imageData } = await supabase
+            .from('product_images')
+            .select('image_url')
+            .eq('is_primary', true)
+            .in('product_id', data.productIds)
+            .limit(1)
+            .single();
+          imageUrl = imageData?.image_url || null;
+        }
 
         brandsWithImages.push({
           name: brandName,
-          image: imageData?.image_url || null,
+          image: imageUrl,
           count: data.count
         });
       }
@@ -105,20 +121,37 @@ const BrandCatalog = () => {
         seriesCounts[series].productIds.push(product.id);
       });
 
+      // Get model series images from the dedicated table
+      const { data: seriesImagesData } = await supabase
+        .from('model_series_images')
+        .select('model_series_name, image_url')
+        .eq('brand_name', brand);
+
+      const seriesImagesMap: { [key: string]: string } = {};
+      seriesImagesData?.forEach(img => {
+        seriesImagesMap[img.model_series_name] = img.image_url;
+      });
+
       const seriesWithImages: ModelSeriesWithImage[] = [];
       
       for (const [seriesName, data] of Object.entries(seriesCounts)) {
-        const { data: imageData } = await supabase
-          .from('product_images')
-          .select('image_url')
-          .eq('is_primary', true)
-          .in('product_id', data.productIds)
-          .limit(1)
-          .single();
+        let imageUrl = seriesImagesMap[seriesName] || null;
+
+        // Fallback to product image if no series image set
+        if (!imageUrl) {
+          const { data: imageData } = await supabase
+            .from('product_images')
+            .select('image_url')
+            .eq('is_primary', true)
+            .in('product_id', data.productIds)
+            .limit(1)
+            .single();
+          imageUrl = imageData?.image_url || null;
+        }
 
         seriesWithImages.push({
           name: seriesName,
-          image: imageData?.image_url || null,
+          image: imageUrl,
           count: data.count
         });
       }
