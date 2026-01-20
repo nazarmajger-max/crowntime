@@ -219,7 +219,7 @@ export const Header = () => {
           <img src={logo} alt="CrownTime" className="h-10 w-auto object-contain" />
         </Link>
 
-        <nav className="flex items-center gap-8">
+        <nav className="flex items-center gap-6">
           <Link to="/" className="font-body text-sm font-medium transition-colors hover:text-accent">
             Головна
           </Link>
@@ -233,6 +233,72 @@ export const Header = () => {
             Всі товари
           </Link>
         </nav>
+
+        {/* Desktop Search */}
+        <div className="relative flex-1 max-w-md mx-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Пошук товарів..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-10"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                onClick={() => {
+                  setSearchQuery('');
+                  setSearchResults([]);
+                }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          
+          {/* Desktop Search Results Dropdown */}
+          {searchQuery.trim().length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-background border rounded-lg shadow-lg max-h-[400px] overflow-y-auto z-50">
+              {searching && (
+                <div className="text-center py-6">
+                  <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-accent mx-auto"></div>
+                </div>
+              )}
+              
+              {!searching && searchResults.length === 0 && (
+                <div className="text-center py-6 text-muted-foreground text-sm">
+                  Товарів не знайдено
+                </div>
+              )}
+              
+              {searchResults.length > 0 && (
+                <div className="py-2">
+                  {searchResults.map((product) => (
+                    <div
+                      key={product.id}
+                      onClick={() => handleProductClick(product.id)}
+                      className="flex gap-3 px-4 py-3 cursor-pointer hover:bg-accent/5 transition-colors"
+                    >
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-14 h-14 object-cover rounded"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm">{product.brand}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-1">{product.name}</p>
+                        <p className="font-bold text-sm">{product.price.toLocaleString('uk-UA')} ₴</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         <div className="flex items-center gap-4">
           {isAdmin && (
