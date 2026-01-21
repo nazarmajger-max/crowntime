@@ -12,6 +12,17 @@ import { Product, Filters } from '@/types/product';
 import heroBg from '@/assets/hero-bg.jpg';
 import { toast } from 'sonner';
 import { ChevronLeft, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from '@/components/ui/pagination';
+
+const PRODUCTS_PER_PAGE = 12;
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,6 +30,7 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<string>('featured');
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   
   // Initialize filters from URL params
   const [filters, setFilters] = useState<Filters>(() => {
@@ -175,6 +187,107 @@ const Index = () => {
     return result;
   }, [products, filters, sortBy]);
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredAndSortedProducts.length / PRODUCTS_PER_PAGE);
+  
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * PRODUCTS_PER_PAGE;
+    return filteredAndSortedProducts.slice(startIndex, startIndex + PRODUCTS_PER_PAGE);
+  }, [filteredAndSortedProducts, currentPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, sortBy]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const renderPaginationItems = () => {
+    const items = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        items.push(
+          <PaginationItem key={i}>
+            <PaginationLink 
+              onClick={() => handlePageChange(i)}
+              isActive={currentPage === i}
+              className="cursor-pointer"
+            >
+              {i}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      }
+    } else {
+      // Always show first page
+      items.push(
+        <PaginationItem key={1}>
+          <PaginationLink 
+            onClick={() => handlePageChange(1)}
+            isActive={currentPage === 1}
+            className="cursor-pointer"
+          >
+            1
+          </PaginationLink>
+        </PaginationItem>
+      );
+
+      if (currentPage > 3) {
+        items.push(
+          <PaginationItem key="ellipsis-start">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+
+      // Show pages around current page
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = start; i <= end; i++) {
+        items.push(
+          <PaginationItem key={i}>
+            <PaginationLink 
+              onClick={() => handlePageChange(i)}
+              isActive={currentPage === i}
+              className="cursor-pointer"
+            >
+              {i}
+            </PaginationLink>
+          </PaginationItem>
+        );
+      }
+
+      if (currentPage < totalPages - 2) {
+        items.push(
+          <PaginationItem key="ellipsis-end">
+            <PaginationEllipsis />
+          </PaginationItem>
+        );
+      }
+
+      // Always show last page
+      items.push(
+        <PaginationItem key={totalPages}>
+          <PaginationLink 
+            onClick={() => handlePageChange(totalPages)}
+            isActive={currentPage === totalPages}
+            className="cursor-pointer"
+          >
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+
+    return items;
+  };
+
   const activeFilterCount = filters.brands.length + filters.gender.length + filters.type.length + filters.caseMaterial.length + filters.dialColor.length + filters.modelSeries.length;
 
   return (
@@ -326,8 +439,8 @@ const Index = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-px md:gap-6 mb-12 bg-border md:bg-transparent">
-                  {filteredAndSortedProducts.map(product => (
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-px md:gap-6 mb-8 bg-border md:bg-transparent">
+                  {paginatedProducts.map(product => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
@@ -336,6 +449,34 @@ const Index = () => {
                   <div className="text-center py-12">
                     <p className="font-body text-muted-foreground">
                       Товарів не знайдено за вашими фільтрами.
+                    </p>
+                  </div>
+                )}
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mb-12 px-4 md:px-0">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                            className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                          />
+                        </PaginationItem>
+                        
+                        {renderPaginationItems()}
+                        
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                            className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                    <p className="text-center text-sm text-muted-foreground mt-3">
+                      Сторінка {currentPage} з {totalPages}
                     </p>
                   </div>
                 )}
