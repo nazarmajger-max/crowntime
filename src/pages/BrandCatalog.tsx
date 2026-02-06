@@ -90,7 +90,17 @@ const BrandCatalog = () => {
         });
       }
 
-      brandsWithImages.sort((a, b) => a.name.localeCompare(b.name));
+      // Custom sort: Casio first, then Tissot, then alphabetically
+      brandsWithImages.sort((a, b) => {
+        const priorityOrder = ['Casio', 'Tissot'];
+        const aIndex = priorityOrder.indexOf(a.name);
+        const bIndex = priorityOrder.indexOf(b.name);
+        
+        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+        if (aIndex !== -1) return -1;
+        if (bIndex !== -1) return 1;
+        return a.name.localeCompare(b.name);
+      });
       setBrands(brandsWithImages);
     } catch (error: any) {
       console.error('Error fetching brands:', error);
