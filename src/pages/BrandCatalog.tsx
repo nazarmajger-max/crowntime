@@ -224,7 +224,7 @@ const BrandCatalog = () => {
               </Button>
             )}
             <h1 className="font-display text-2xl md:text-3xl font-bold text-center">
-              {selectedBrand || 'Каталог брендів'}
+              {selectedBrand || 'Каталог годинників'}
             </h1>
           </div>
           
