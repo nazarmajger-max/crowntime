@@ -5,7 +5,7 @@ import { AdminSidebar } from '@/components/AdminSidebar';
 import { useAuth } from '@/contexts/AuthContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, LayoutDashboard, Package, ShoppingCart, LogOut, Home, ImageIcon } from 'lucide-react';
+import { Menu, LayoutDashboard, Package, ShoppingCart, LogOut, Home, ImageIcon, KeyRound } from 'lucide-react';
 import logo from '@/assets/crowntime-logo.png';
 
 const AdminLayout = () => {
