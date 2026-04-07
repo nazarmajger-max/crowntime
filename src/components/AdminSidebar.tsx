@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, ShoppingCart, LogOut, ImageIcon } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, LogOut, ImageIcon, KeyRound } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
