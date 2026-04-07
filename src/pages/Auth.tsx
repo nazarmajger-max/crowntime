@@ -39,6 +39,31 @@ const Auth = () => {
     fullName: ''
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [forgotMode, setForgotMode] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = forgotEmail.trim();
+    if (!trimmed) {
+      toast.error('Введіть email');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(trimmed, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      setForgotSent(true);
+      toast.success('Лист для скидання пароля відправлено на вашу пошту');
+    } catch (error: any) {
+      toast.error(error.message || 'Помилка відправки');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (user) {
