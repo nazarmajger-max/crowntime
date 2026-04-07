@@ -17,6 +17,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
 import CatalogImages from "./pages/admin/CatalogImages";
 import Orders from "./pages/admin/Orders";
+import ChangePassword from "./pages/admin/ChangePassword";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import Favorites from "./pages/Favorites";
