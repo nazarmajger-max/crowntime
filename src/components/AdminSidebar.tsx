@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, ShoppingCart, LogOut, ImageIcon } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, LogOut, ImageIcon, KeyRound } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -21,6 +21,7 @@ const menuItems = [
   { title: 'Товари', url: '/admin/products', icon: Package },
   { title: 'Зображення каталогу', url: '/admin/catalog-images', icon: ImageIcon },
   { title: 'Замовлення', url: '/admin/orders', icon: ShoppingCart },
+  { title: 'Змінити пароль', url: '/admin/change-password', icon: KeyRound },
 ];
 
 export function AdminSidebar() {

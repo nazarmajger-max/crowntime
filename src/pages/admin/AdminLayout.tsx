@@ -5,7 +5,7 @@ import { AdminSidebar } from '@/components/AdminSidebar';
 import { useAuth } from '@/contexts/AuthContext';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Menu, LayoutDashboard, Package, ShoppingCart, LogOut, Home, ImageIcon } from 'lucide-react';
+import { Menu, LayoutDashboard, Package, ShoppingCart, LogOut, Home, ImageIcon, KeyRound } from 'lucide-react';
 import logo from '@/assets/crowntime-logo.png';
 
 const AdminLayout = () => {
@@ -36,6 +36,7 @@ const AdminLayout = () => {
     { title: 'Товари', url: '/admin/products', icon: Package },
     { title: 'Зображення каталогу', url: '/admin/catalog-images', icon: ImageIcon },
     { title: 'Замовлення', url: '/admin/orders', icon: ShoppingCart },
+    { title: 'Змінити пароль', url: '/admin/change-password', icon: KeyRound },
   ];
 
   const handleMobileNavigate = (path: string) => {
