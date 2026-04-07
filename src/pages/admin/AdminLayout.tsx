@@ -36,6 +36,7 @@ const AdminLayout = () => {
     { title: 'Товари', url: '/admin/products', icon: Package },
     { title: 'Зображення каталогу', url: '/admin/catalog-images', icon: ImageIcon },
     { title: 'Замовлення', url: '/admin/orders', icon: ShoppingCart },
+    { title: 'Змінити пароль', url: '/admin/change-password', icon: KeyRound },
   ];
 
   const handleMobileNavigate = (path: string) => {
