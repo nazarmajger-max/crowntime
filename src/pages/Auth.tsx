@@ -173,6 +173,46 @@ const Auth = () => {
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Завантаження...' : 'Увійти'}
                 </Button>
+                <button
+                  type="button"
+                  onClick={() => { setForgotMode(true); setForgotSent(false); setForgotEmail(''); }}
+                  className="w-full text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Забули пароль?
+                </button>
+              </form>
+
+              {forgotMode && (
+                <div className="mt-4 pt-4 border-t space-y-3">
+                  {forgotSent ? (
+                    <p className="text-sm text-center text-muted-foreground">
+                      Перевірте вашу пошту для скидання пароля.
+                    </p>
+                  ) : (
+                    <form onSubmit={handleForgotPassword} className="space-y-3">
+                      <Label htmlFor="forgot-email">Введіть ваш email</Label>
+                      <Input
+                        id="forgot-email"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={forgotEmail}
+                        onChange={(e) => setForgotEmail(e.target.value)}
+                        maxLength={255}
+                      />
+                      <Button type="submit" variant="outline" className="w-full" disabled={isLoading}>
+                        {isLoading ? 'Відправка...' : 'Скинути пароль'}
+                      </Button>
+                    </form>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setForgotMode(false)}
+                    className="w-full text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Назад до входу
+                  </button>
+                </div>
+              )}
               </form>
             </TabsContent>
 
