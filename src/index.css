@@ -2,90 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* CrownTime — "quiet luxury" design system. All colors are HSL. */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 220 50% 15%;
+    /* Brand palette */
+    --ivory: 40 33% 95%;        /* #F7F4EE */
+    --ink: 36 14% 7%;           /* #14120F */
+    --gold: 37 35% 52%;         /* #B08D57 */
+    --gold-deep: 36 38% 38%;    /* darker gold for small text on ivory (AA) */
+    --forest: 163 50% 11%;      /* #0E2A22 */
+    --forest-foreground: 40 33% 95%;
+    --stone: 38 22% 91%;        /* neutral photo backdrop */
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 50% 15%;
+    --background: var(--ivory);
+    --foreground: var(--ink);
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 50% 15%;
+    --card: 40 33% 97%;
+    --card-foreground: var(--ink);
 
-    --primary: 222 83% 40%;
-    --primary-foreground: 0 0% 100%;
+    --popover: 40 33% 97%;
+    --popover-foreground: var(--ink);
 
-    --secondary: 220 30% 96%;
-    --secondary-foreground: 220 50% 15%;
+    --primary: var(--ink);
+    --primary-foreground: var(--ivory);
 
-    --muted: 220 20% 94%;
-    --muted-foreground: 220 15% 45%;
+    --secondary: var(--stone);
+    --secondary-foreground: var(--ink);
 
-    --accent: 222 83% 40%;
-    --accent-foreground: 0 0% 100%;
+    --muted: 38 22% 91%;
+    --muted-foreground: 36 8% 36%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --accent: var(--gold);
+    --accent-foreground: var(--ink);
 
-    --border: 220 20% 90%;
-    --input: 220 20% 90%;
-    --ring: 222 83% 40%;
+    --destructive: 0 62% 42%;
+    --destructive-foreground: 40 33% 97%;
 
-    --radius: 0.5rem;
+    --border: 36 18% 84%;
+    --input: 36 18% 80%;
+    --ring: var(--gold);
 
-    /* CrownTime blue color tokens */
-    --crown-blue: 222 83% 40%;
-    --crown-blue-light: 222 70% 55%;
-    --crown-navy: 220 50% 15%;
-    --crown-charcoal: 220 30% 20%;
-    --subtle-gray: 210 20% 98%;
-    
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(222 83% 40%) 0%, hsl(222 70% 55%) 100%);
-    --gradient-dark: linear-gradient(180deg, hsl(220 50% 15%) 0%, hsl(220 30% 20%) 100%);
-    
-    /* Shadows */
-    --shadow-elegant: 0 4px 20px -2px hsl(222 83% 40% / 0.1);
-    --shadow-luxury: 0 8px 30px -4px hsl(222 83% 40% / 0.15);
-    --shadow-hover: 0 12px 40px -6px hsl(222 83% 40% / 0.2);
-    
-    /* Transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+    --radius: 0.125rem;
 
-  .dark {
-    --background: 0 0% 100%;
-    --foreground: 220 50% 15%;
+    --shadow-elegant: none;
+    --shadow-luxury: none;
+    --shadow-hover: none;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 50% 15%;
+    --ease-lux: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --transition-smooth: all 0.7s var(--ease-lux);
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 50% 15%;
-
-    --primary: 222 83% 40%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 30% 96%;
-    --secondary-foreground: 220 50% 15%;
-
-    --muted: 220 20% 96%;
-    --muted-foreground: 220 15% 40%;
-
-    --accent: 222 83% 40%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 20% 88%;
-    --input: 220 20% 88%;
-    --ring: 222 83% 40%;
+    --sidebar-background: var(--ivory);
+    --sidebar-foreground: var(--ink);
+    --sidebar-primary: var(--ink);
+    --sidebar-primary-foreground: var(--ivory);
+    --sidebar-accent: var(--stone);
+    --sidebar-accent-foreground: var(--ink);
+    --sidebar-border: 36 18% 84%;
+    --sidebar-ring: var(--gold);
   }
 }
 
@@ -94,7 +68,47 @@ All colors MUST be HSL.
     @apply border-border;
   }
 
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body;
+  }
+
+  h1, h2, h3 {
+    @apply font-display;
+    letter-spacing: -0.01em;
+  }
+
+  :focus-visible {
+    outline: 1px solid hsl(var(--gold));
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply font-body text-[11px] uppercase tracking-[0.22em] text-muted-foreground;
+  }
+  .hairline {
+    @apply border-border;
+  }
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.6s var(--ease-lux);
+  }
+  .link-underline:hover {
+    background-size: 100% 1px;
   }
 }

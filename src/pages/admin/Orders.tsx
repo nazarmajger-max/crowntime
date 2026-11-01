@@ -277,7 +277,7 @@ const Orders = () => {
 
               <div className="flex justify-between items-center pt-4 border-t">
                 <p className="text-base md:text-lg font-bold">Загальна сума:</p>
-                <p className="text-xl md:text-2xl font-bold text-luxury-gold">₴{selectedOrder.total_amount}</p>
+                <p className="text-xl md:text-2xl font-bold text-gold-deep">₴{selectedOrder.total_amount}</p>
               </div>
             </div>
           )}

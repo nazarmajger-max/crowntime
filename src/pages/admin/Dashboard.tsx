@@ -80,7 +80,7 @@ const Dashboard = () => {
       title: 'Дохід',
       value: `₴${stats.totalRevenue.toFixed(2)}`,
       icon: DollarSign,
-      color: 'text-luxury-gold',
+      color: 'text-gold-deep',
     },
   ];
 

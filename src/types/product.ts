@@ -4,6 +4,7 @@ export interface Product {
   brand: string;
   price: number;
   image: string;
+  hoverImage?: string;
   description: string;
   category: string;
   gender: 'men' | 'women' | 'unisex';
@@ -44,4 +45,6 @@ export interface Filters {
   caseMaterial: string[];
   dialColor: string[];
   modelSeries: string[];
+  movement: string[];
+  diameter: string[];
 }
