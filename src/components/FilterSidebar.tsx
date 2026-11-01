@@ -17,10 +17,8 @@ interface FilterSidebarProps {
   filters: Filters;
   onFiltersChange: (filters: Filters) => void;
   availableBrands: string[];
-  availableTypes: string[];
-  availableGenders: string[];
-  availableCaseMaterials: string[];
-  availableDialColors: string[];
+  availableMovements: string[];
+  availableDiameters: string[];
   products?: Product[];
 }
 
@@ -28,10 +26,8 @@ export const FilterSidebar = ({
   filters, 
   onFiltersChange, 
   availableBrands,
-  availableTypes,
-  availableGenders,
-  availableCaseMaterials,
-  availableDialColors,
+  availableMovements,
+  availableDiameters,
   products = []
 }: FilterSidebarProps) => {
   const [expandedBrand, setExpandedBrand] = useState<string | null>(null);
@@ -91,25 +87,45 @@ export const FilterSidebar = ({
     handleCheckboxChange('modelSeries', modelSeries);
   };
 
+  const renderCheckGroup = (title: string, key: 'movement' | 'diameter', values: string[]) =>
+    values.length > 0 && (
+      <fieldset className="border-t pt-6">
+        <legend className="eyebrow mb-4 text-foreground">{title}</legend>
+        <div className="space-y-3">
+          {values.map((v) => (
+            <div key={v} className="flex items-center gap-3">
+              <Checkbox
+                id={`${key}-${v}`}
+                checked={filters[key].includes(v)}
+                onCheckedChange={() => handleCheckboxChange(key, v)}
+                className="rounded-none"
+              />
+              <Label htmlFor={`${key}-${v}`} className="font-body text-sm font-normal cursor-pointer">{v}</Label>
+            </div>
+          ))}
+        </div>
+      </fieldset>
+    );
+
   return (
-    <aside className="w-full md:w-64 md:border-r md:bg-muted/30 md:p-6">
-      <h2 className="font-display text-2xl font-semibold mb-6 hidden md:block">Фільтри</h2>
+    <aside className="w-full md:w-64 md:sticky md:top-24 md:self-start" aria-label="Фільтри">
+      <h2 className="font-display text-2xl mb-6 hidden md:block">Фільтри</h2>
       
-      <ScrollArea className="h-full md:h-[calc(100vh-200px)]">
-        <div className="space-y-6">
+      <ScrollArea className="h-full md:h-[calc(100vh-140px)] md:pr-4">
+        <div className="space-y-6 pb-6">
           {/* Price Range */}
           <div>
-            <h3 className="font-body font-semibold mb-4">Діапазон цін</h3>
-            <div className="space-y-2">
+            <h3 className="eyebrow mb-4 text-foreground">Ціна</h3>
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs text-muted-foreground">Від (₴)</Label>
                 <Input
                   type="number"
                   min={0}
-                  max={10000}
+                  max={1000000}
                   value={filters.priceRange[0]}
                   onChange={(e) => {
-                    const value = Math.max(0, Math.min(10000, Number(e.target.value) || 0));
+                    const value = Math.max(0, Math.min(1000000, Number(e.target.value) || 0));
                     onFiltersChange({ ...filters, priceRange: [value, filters.priceRange[1]] });
                   }}
                   className="mt-1"
@@ -120,10 +136,10 @@ export const FilterSidebar = ({
                 <Input
                   type="number"
                   min={0}
-                  max={10000}
+                  max={1000000}
                   value={filters.priceRange[1]}
                   onChange={(e) => {
-                    const value = Math.max(0, Math.min(10000, Number(e.target.value) || 10000));
+                    const value = Math.max(0, Math.min(1000000, Number(e.target.value) || 1000000));
                     onFiltersChange({ ...filters, priceRange: [filters.priceRange[0], value] });
                   }}
                   className="mt-1"
@@ -134,9 +150,9 @@ export const FilterSidebar = ({
 
           {/* Brand with Model Series */}
           {availableBrands.length > 0 && (
-            <div>
-              <h3 className="font-body font-semibold mb-3">Виробники</h3>
-              <div className="space-y-2">
+            <div className="border-t pt-6">
+              <h3 className="eyebrow mb-4 text-foreground">Бренд</h3>
+              <div className="space-y-px">
                 {availableBrands.sort().map(brand => {
                   const models = brandsWithModels.get(brand) || [];
                   const hasModels = models.some(m => m.name !== 'Інші');
@@ -144,15 +160,15 @@ export const FilterSidebar = ({
                   const isSelected = filters.brands.includes(brand);
                   
                   return (
-                    <div key={brand} className="border rounded-lg overflow-hidden">
+                    <div key={brand} className="overflow-hidden">
                       {/* Brand Header */}
                       <button
                         onClick={() => handleBrandClick(brand)}
                         className={cn(
-                          "w-full flex items-center justify-between p-2.5 transition-colors text-left",
+                          "w-full flex items-center justify-between py-2 transition-colors duration-700 text-left border-b border-transparent",
                           isSelected 
-                            ? "bg-primary text-primary-foreground" 
-                            : "bg-muted/50 hover:bg-muted"
+                            ? "text-foreground border-gold" 
+                            : "text-muted-foreground hover:text-foreground"
                         )}
                       >
                         <span className="font-body text-sm font-medium">{brand}</span>
@@ -178,17 +194,17 @@ export const FilterSidebar = ({
                                   handleModelClick(model.name);
                                 }}
                                 className={cn(
-                                  "flex flex-col items-center p-2 rounded-lg border transition-all",
+                                  "flex flex-col items-center p-2 border transition-colors duration-700",
                                   isModelSelected
-                                    ? "border-primary bg-primary/5 ring-1 ring-primary"
-                                    : "border-border hover:border-primary/50 hover:bg-muted/50"
+                                    ? "border-gold"
+                                    : "border-border hover:border-foreground/40"
                                 )}
                               >
-                                <div className="aspect-square w-full max-w-[60px] mb-1.5 overflow-hidden rounded-md bg-muted">
+                                <div className="aspect-square w-full max-w-[60px] mb-1.5 overflow-hidden bg-stone">
                                   <img
                                     src={model.image}
                                     alt={model.name}
-                                    className="h-full w-full object-cover"
+                                    className="h-full w-full object-contain mix-blend-multiply"
                                   />
                                 </div>
                                 <span className="font-body text-[10px] font-medium text-center line-clamp-2 leading-tight">
@@ -209,89 +225,8 @@ export const FilterSidebar = ({
             </div>
           )}
 
-          {/* Gender */}
-          {availableGenders.length > 0 && (
-            <div>
-              <h3 className="font-body font-semibold mb-3">Стать</h3>
-              <div className="space-y-2">
-                {availableGenders.map(gender => (
-                  <div key={gender} className="flex items-center gap-2">
-                    <Checkbox
-                      id={`gender-${gender}`}
-                      checked={filters.gender.includes(gender)}
-                      onCheckedChange={() => handleCheckboxChange('gender', gender)}
-                    />
-                    <Label htmlFor={`gender-${gender}`} className="font-body text-sm cursor-pointer capitalize">
-                      {gender === 'men' ? 'Чоловіча' : gender === 'women' ? 'Жіноча' : 'Унісекс'}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Type */}
-          {availableTypes.length > 0 && (
-            <div>
-              <h3 className="font-body font-semibold mb-3">Тип</h3>
-              <div className="space-y-2">
-                {availableTypes.map(type => (
-                  <div key={type} className="flex items-center gap-2">
-                    <Checkbox
-                      id={`type-${type}`}
-                      checked={filters.type.includes(type)}
-                      onCheckedChange={() => handleCheckboxChange('type', type)}
-                    />
-                    <Label htmlFor={`type-${type}`} className="font-body text-sm cursor-pointer capitalize">
-                      {type}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Case Material */}
-          {availableCaseMaterials.length > 0 && (
-            <div>
-              <h3 className="font-body font-semibold mb-3">Матеріал корпусу</h3>
-              <div className="space-y-2">
-                {availableCaseMaterials.map(material => (
-                  <div key={material} className="flex items-center gap-2">
-                    <Checkbox
-                      id={`material-${material}`}
-                      checked={filters.caseMaterial.includes(material)}
-                      onCheckedChange={() => handleCheckboxChange('caseMaterial', material)}
-                    />
-                    <Label htmlFor={`material-${material}`} className="font-body text-sm cursor-pointer">
-                      {material}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Dial Color */}
-          {availableDialColors.length > 0 && (
-            <div>
-              <h3 className="font-body font-semibold mb-3">Колір циферблату</h3>
-              <div className="space-y-2">
-                {availableDialColors.map(color => (
-                  <div key={color} className="flex items-center gap-2">
-                    <Checkbox
-                      id={`color-${color}`}
-                      checked={filters.dialColor.includes(color)}
-                      onCheckedChange={() => handleCheckboxChange('dialColor', color)}
-                    />
-                    <Label htmlFor={`color-${color}`} className="font-body text-sm cursor-pointer">
-                      {color}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {renderCheckGroup('Механізм', 'movement', availableMovements)}
+          {renderCheckGroup('Діаметр корпусу', 'diameter', availableDiameters)}
         </div>
       </ScrollArea>
     </aside>

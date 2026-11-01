@@ -1,62 +1,48 @@
 import { Product } from '@/types/product';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Video, Scale, CheckCircle, Star } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
 }
 
-export const ProductCard = ({
-  product
-}: ProductCardProps) => {
-  const {
-    addToCart
-  } = useCart();
+export const ProductCard = ({ product }: ProductCardProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isLoadingFavorite, setIsLoadingFavorite] = useState(false);
+
   useEffect(() => {
     const checkFavoriteStatus = async () => {
       if (!user) {
         setIsFavorite(false);
         return;
       }
-
       const { data, error } = await supabase
         .from('favorites')
         .select('id')
         .eq('user_id', user.id)
         .eq('product_id', product.id)
         .maybeSingle();
-
-      if (!error && data) {
-        setIsFavorite(true);
-      }
+      if (!error && data) setIsFavorite(true);
     };
-
     checkFavoriteStatus();
   }, [user, product.id]);
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    
     if (!user) {
       toast.error('Увійдіть, щоб додати товар до обраних');
       navigate('/auth');
       return;
     }
-
     setIsLoadingFavorite(true);
-
     try {
       if (isFavorite) {
         const { error } = await supabase
@@ -64,21 +50,14 @@ export const ProductCard = ({
           .delete()
           .eq('user_id', user.id)
           .eq('product_id', product.id);
-
         if (error) throw error;
-        
         setIsFavorite(false);
         toast.success('Видалено з обраних');
       } else {
         const { error } = await supabase
           .from('favorites')
-          .insert({
-            user_id: user.id,
-            product_id: product.id
-          });
-
+          .insert({ user_id: user.id, product_id: product.id });
         if (error) throw error;
-        
         setIsFavorite(true);
         toast.success('Додано до обраних');
       }
@@ -90,74 +69,66 @@ export const ProductCard = ({
     }
   };
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    addToCart(product);
-    toast.success(`${product.name} додано до кошика`);
-  };
-  
-  const handleProductClick = () => {
-    navigate(`/product/${product.id}`);
-  };
+  const hasHover = !!product.hoverImage && product.hoverImage !== product.image;
+
   return (
-    <Card 
-      className="group overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-[var(--shadow-hover)] animate-fade-in md:rounded-lg rounded-none border-0 md:border bg-card" 
-      onClick={handleProductClick}
-    >
-      <div className="relative aspect-square overflow-hidden bg-muted">
-        {/* Action Icons */}
-        <div className="absolute top-2 right-2 z-10 flex flex-col gap-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className={`h-8 w-8 md:h-5 md:w-5 rounded-full transition-colors ${
-              isFavorite 
-                ? 'bg-red-500 hover:bg-red-600' 
-                : 'bg-white/90 hover:bg-white shadow-sm'
-            }`}
-            onClick={handleToggleFavorite}
-            disabled={isLoadingFavorite}
-          >
-            <Heart className={`h-4 w-4 md:h-3 md:w-3 ${isFavorite ? 'fill-white text-white' : ''}`} />
-          </Button>
+    <article className="group relative animate-fade-in">
+      <a
+        href={`/product/${product.id}`}
+        onClick={(e) => {
+          e.preventDefault();
+          navigate(`/product/${product.id}`);
+        }}
+        className="block focus-visible:outline-none"
+        aria-label={`${product.brand} ${product.name}`}
+      >
+        <div className="relative aspect-[4/5] overflow-hidden bg-stone">
+          <img
+            src={product.image}
+            alt={product.name}
+            loading="lazy"
+            className={cn(
+              'absolute inset-0 h-full w-full object-contain p-6 md:p-8 mix-blend-multiply transition-all duration-1200 ease-lux',
+              hasHover ? 'group-hover:opacity-0' : 'group-hover:scale-[1.03]'
+            )}
+          />
+          {hasHover && (
+            <img
+              src={product.hoverImage}
+              alt=""
+              aria-hidden="true"
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-contain p-6 md:p-8 mix-blend-multiply opacity-0 transition-opacity duration-1200 ease-lux group-hover:opacity-100"
+            />
+          )}
+          {!product.inStock && (
+            <span className="absolute left-3 top-3 eyebrow bg-background/80 px-2 py-1">Немає в наявності</span>
+          )}
         </div>
 
-        <img 
-          src={product.image} 
-          alt={product.name} 
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" 
-        />
-      </div>
-      
-      <CardContent className="p-2.5 md:p-4 space-y-1 md:space-y-2">
-        {/* Availability */}
-        <div className="flex items-center gap-1">
-          <CheckCircle className="h-2.5 w-2.5 md:h-3.5 md:w-3.5 text-green-600" />
-          <span className="text-[9px] md:text-xs text-muted-foreground">В наявності</span>
+        <div className="pt-4 pb-2 space-y-1.5 text-center">
+          <p className="font-body text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
+            {product.brand}
+          </p>
+          <h3 className="font-display text-lg md:text-xl leading-snug line-clamp-2 min-h-[2.6em]">
+            {product.name}
+          </h3>
+          <p className="font-body text-sm tabular-nums">
+            {product.price.toLocaleString('uk-UA')} ₴
+          </p>
         </div>
-        
-        {/* Rating */}
-        <div className="flex items-center gap-1">
-          <Star className="h-2.5 w-2.5 md:h-3.5 md:w-3.5 fill-yellow-400 text-yellow-400" />
-          <span className="text-[10px] md:text-sm font-medium">0</span>
-          <span className="text-[9px] md:text-xs text-muted-foreground">(0)</span>
-        </div>
-        
-        {/* Product Name */}
-        <h3 className="font-body text-[11px] md:text-sm font-medium line-clamp-2 leading-tight min-h-[2.4em]">
-          {product.name}
-        </h3>
-        
-        {/* Product Code */}
-        <p className="text-[9px] md:text-xs text-muted-foreground uppercase tracking-wide">
-          {product.brand}
-        </p>
-        
-        {/* Price */}
-        <p className="font-body text-sm md:text-xl font-bold text-primary">
-          {product.price.toLocaleString()} ₴
-        </p>
-      </CardContent>
-    </Card>
+      </a>
+
+      <button
+        type="button"
+        onClick={handleToggleFavorite}
+        disabled={isLoadingFavorite}
+        aria-label={isFavorite ? 'Видалити з обраних' : 'Додати до обраних'}
+        aria-pressed={isFavorite}
+        className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center text-foreground/70 transition-colors duration-700 hover:text-foreground"
+      >
+        <Heart className={cn('h-4 w-4', isFavorite && 'fill-gold text-gold')} strokeWidth={1.25} />
+      </button>
+    </article>
   );
 };
