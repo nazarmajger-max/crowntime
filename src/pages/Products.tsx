@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Product, Filters } from '@/types/product';
-import heroBg from '@/assets/hero-bg.jpg';
 import { toast } from 'sonner';
 import { ChevronLeft, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import {
@@ -38,12 +37,14 @@ const Index = () => {
     const modelSeriesParam = searchParams.get('modelSeries');
     return {
       brands: brandParam ? [brandParam] : [],
-      priceRange: [0, 10000],
+      priceRange: [0, 1000000],
       gender: [],
       type: [],
       caseMaterial: [],
       dialColor: [],
-      modelSeries: modelSeriesParam ? [modelSeriesParam] : []
+      modelSeries: modelSeriesParam ? [modelSeriesParam] : [],
+      movement: [],
+      diameter: []
     };
   });
 
@@ -52,21 +53,12 @@ const Index = () => {
     const brands = products.map(p => p.brand).filter(Boolean);
     return Array.from(new Set(brands)).sort();
   }, [products]);
-  const availableTypes = useMemo(() => {
-    const types = products.map(p => p.category).filter(Boolean);
-    return Array.from(new Set(types)).sort();
+  const availableMovements = useMemo(() => {
+    return Array.from(new Set(products.map(p => p.movement).filter(Boolean))).sort();
   }, [products]);
-  const availableGenders = useMemo(() => {
-    const genders = products.map(p => p.gender).filter(Boolean);
-    return Array.from(new Set(genders)).sort();
-  }, [products]);
-  const availableCaseMaterials = useMemo(() => {
-    const materials = products.map(p => p.caseMaterial).filter(Boolean);
-    return Array.from(new Set(materials)).sort();
-  }, [products]);
-  const availableDialColors = useMemo(() => {
-    const colors = products.map(p => p.dialColor).filter(Boolean);
-    return Array.from(new Set(colors)).sort();
+  const availableDiameters = useMemo(() => {
+    return Array.from(new Set(products.map(p => p.diameter).filter(Boolean) as string[]))
+      .sort((a, b) => parseFloat(a) - parseFloat(b));
   }, [products]);
 
   // Update filters when URL changes
@@ -101,13 +93,19 @@ const Index = () => {
       // Fetch primary images for products
       const { data: imagesData, error: imagesError } = await supabase
         .from('product_images')
-        .select('product_id, image_url')
-        .eq('is_primary', true);
+        .select('product_id, image_url, is_primary, sort_order')
+        .order('sort_order', { ascending: true });
 
       if (imagesError) throw imagesError;
 
       // Create a map of product_id to image_url
-      const imageMap = new Map(imagesData?.map(img => [img.product_id, img.image_url]) || []);
+      const imageMap = new Map<string, string>();
+      const hoverMap = new Map<string, string>();
+      const sortedImages = [...(imagesData || [])].sort((x, y) => Number(y.is_primary) - Number(x.is_primary));
+      sortedImages.forEach(img => {
+        if (!imageMap.has(img.product_id)) imageMap.set(img.product_id, img.image_url);
+        else if (!hoverMap.has(img.product_id)) hoverMap.set(img.product_id, img.image_url);
+      });
 
       const formattedProducts: Product[] = (productsData || []).map(p => {
         const gender = (p.gender?.toLowerCase() || 'unisex') as 'men' | 'women' | 'unisex';
@@ -123,6 +121,8 @@ const Index = () => {
           price: Number(p.price),
           description: p.description || '',
           image: imageMap.get(p.id) || '/placeholder.svg',
+          hoverImage: hoverMap.get(p.id),
+          diameter: p.case_diameter || undefined,
           category: p.movement_type || 'Analog',
           gender: ['men', 'women', 'unisex'].includes(gender) ? gender : 'unisex',
           type: type,
@@ -148,7 +148,7 @@ const Index = () => {
     let result = [...products];
 
     // Apply filters only if they are set
-    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 10000) {
+    if (filters.priceRange[0] > 0 || filters.priceRange[1] < 1000000) {
       result = result.filter(product => product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1]);
     }
     if (filters.brands.length > 0) {
@@ -165,6 +165,12 @@ const Index = () => {
     }
     if (filters.dialColor.length > 0) {
       result = result.filter(product => filters.dialColor.includes(product.dialColor));
+    }
+    if (filters.movement.length > 0) {
+      result = result.filter(product => filters.movement.includes(product.movement));
+    }
+    if (filters.diameter.length > 0) {
+      result = result.filter(product => !!product.diameter && filters.diameter.includes(product.diameter));
     }
     if (filters.modelSeries.length > 0) {
       result = result.filter(product => product.modelSeries && filters.modelSeries.includes(product.modelSeries));
@@ -288,40 +294,29 @@ const Index = () => {
     return items;
   };
 
-  const activeFilterCount = filters.brands.length + filters.gender.length + filters.type.length + filters.caseMaterial.length + filters.dialColor.length + filters.modelSeries.length;
+  const activeFilterCount = filters.brands.length + filters.movement.length + filters.diameter.length + filters.modelSeries.length;
 
   return (
     <>
       <Header />
       
-      {/* Hero Section */}
-      <section 
-        className="relative h-[45vh] md:h-[60vh] bg-cover bg-center flex items-center justify-center" 
-        style={{ backgroundImage: `url(${heroBg})` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40" />
-        <div className="relative z-10 text-center text-white px-6">
-          <h1 className="font-display text-2xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-4 animate-fade-in tracking-wide">
-            CrownTime
-          </h1>
-          <p className="font-body text-xs md:text-lg mb-4 md:mb-8 max-w-2xl mx-auto animate-fade-in opacity-90">
-            Найкращий вибір наручних годинників преміум класу
-          </p>
-          <Button size="lg" className="font-body font-medium animate-scale-in h-10 px-6 text-sm md:h-12 md:px-8 md:text-base">
-            Переглянути колекцію
-          </Button>
-        </div>
+      {/* Page title */}
+      <section className="container px-6 pt-12 pb-8 md:pt-20 md:pb-12 text-center">
+        <p className="eyebrow">{filters.brands.length === 1 ? filters.brands[0] : 'CrownTime'}</p>
+        <h1 className="mt-3 font-display text-4xl md:text-6xl font-normal">
+          {filters.modelSeries.length === 1 ? filters.modelSeries[0] : 'Колекція'}
+        </h1>
       </section>
 
       {/* Mobile: Title Section */}
-      <div className="md:hidden bg-background px-4 py-4 border-b">
+      <div className="md:hidden bg-background px-4 pb-3">
         <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">
           {products.length.toLocaleString()} моделей
         </p>
       </div>
 
       {/* Mobile: Sort & Filter Bar */}
-      <div className="md:hidden sticky top-14 z-40 bg-background/95 backdrop-blur-sm border-b px-4 py-2.5">
+      <div className="md:hidden sticky top-14 z-40 bg-background/95 backdrop-blur-sm border-y px-4 py-2.5 mb-6">
         <div className="flex items-center gap-2">
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="flex-1 h-10 font-body text-xs uppercase tracking-wide border-muted">
@@ -359,10 +354,8 @@ const Index = () => {
               filters={filters} 
               onFiltersChange={setFilters}
               availableBrands={availableBrands}
-              availableTypes={availableTypes}
-              availableGenders={availableGenders}
-              availableCaseMaterials={availableCaseMaterials}
-              availableDialColors={availableDialColors}
+              availableMovements={availableMovements}
+              availableDiameters={availableDiameters}
               products={products}
             />
           </div>
@@ -373,12 +366,14 @@ const Index = () => {
               onClick={() => {
                 setFilters({
                   brands: [],
-                  priceRange: [0, 10000],
+                  priceRange: [0, 1000000],
                   gender: [],
                   type: [],
                   caseMaterial: [],
                   dialColor: [],
-                  modelSeries: []
+                  modelSeries: [],
+                  movement: [],
+                  diameter: []
                 });
               }}
             >
@@ -395,32 +390,30 @@ const Index = () => {
       </Sheet>
 
       {/* Main Content */}
-      <div className="flex">
+      <div className="container px-0 md:px-6 flex md:gap-10 lg:gap-14 md:border-t md:pt-10">
         {/* Desktop Sidebar */}
         <div className="hidden md:block">
           <FilterSidebar 
             filters={filters} 
             onFiltersChange={setFilters} 
             availableBrands={availableBrands} 
-            availableTypes={availableTypes} 
-            availableGenders={availableGenders} 
-            availableCaseMaterials={availableCaseMaterials} 
-            availableDialColors={availableDialColors}
+            availableMovements={availableMovements}
+            availableDiameters={availableDiameters}
             products={products}
           />
         </div>
         
-        <main className="flex-1">
-          <div className="container md:px-6 px-0 py-0 md:py-8">
+        <main className="flex-1 min-w-0">
+          <div className="px-4 md:px-0">
             {loading ? (
               <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-luxury-gold"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gold"></div>
               </div>
             ) : (
               <>
                 {/* Desktop Header */}
                 <div className="hidden md:flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                  <p className="font-body text-muted-foreground">
+                  <p className="eyebrow">
                     Показано {filteredAndSortedProducts.length} з {products.length} товарів
                   </p>
                   <div className="flex items-center gap-2">
@@ -439,7 +432,7 @@ const Index = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-px md:gap-6 mb-8 bg-border md:bg-transparent">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-14 mb-16">
                   {paginatedProducts.map(product => (
                     <ProductCard key={product.id} product={product} />
                   ))}
