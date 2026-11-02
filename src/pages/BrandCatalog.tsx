@@ -213,7 +213,7 @@ const BrandCatalog = () => {
       <main className="min-h-screen bg-background">
         {!selectedBrand && (
           <>
-            <section className="relative h-[calc(100svh-3.5rem)] md:h-[calc(100svh-4rem)] min-h-[520px] overflow-hidden">
+            <section className="relative h-[calc(100svh-3.5rem)] md:h-[calc(100svh-5rem)] min-h-[520px] overflow-hidden">
               <img src={heroWatch} alt="Наручний годинник на лляній тканині" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover object-[70%_center]" />
               <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
               <div className="relative container px-6 h-full flex flex-col justify-end md:justify-center pb-16 md:pb-0">

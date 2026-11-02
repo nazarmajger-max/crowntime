@@ -9,7 +9,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
-import { Check, X, ShoppingCart, Heart, Star, Send, Trash2 } from 'lucide-react';
+import { X, Heart, Star, Send, Trash2, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import { ProductCard } from '@/components/ProductCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { Textarea } from '@/components/ui/textarea';
 import { Product } from '@/types/product';
@@ -39,6 +40,32 @@ const ProductDetail = () => {
   const [reviewComment, setReviewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
   const { user } = useAuth();
+  const [similar, setSimilar] = useState<Product[]>([]);
+
+  useEffect(() => {
+    if (!product) return;
+    const loadSimilar = async () => {
+      let q = supabase.from('products').select('*').eq('is_active', true).neq('id', product.id).limit(4);
+      if (product.brand) q = q.eq('brand', product.brand);
+      const { data } = await q;
+      const ids = (data || []).map(p => p.id);
+      if (!ids.length) { setSimilar([]); return; }
+      const { data: imgs } = await supabase.from('product_images').select('product_id, image_url, is_primary, sort_order').in('product_id', ids).order('sort_order');
+      const main = new Map<string, string>(); const hover = new Map<string, string>();
+      [...(imgs || [])].sort((a, b) => Number(b.is_primary) - Number(a.is_primary)).forEach(i => {
+        if (!main.has(i.product_id)) main.set(i.product_id, i.image_url);
+        else if (!hover.has(i.product_id)) hover.set(i.product_id, i.image_url);
+      });
+      setSimilar((data || []).map(p => ({
+        id: p.id, name: p.name, brand: p.brand || '', price: Number(p.price), description: p.description || '',
+        image: main.get(p.id) || '/placeholder.svg', hoverImage: hover.get(p.id),
+        category: p.movement_type || '', gender: 'unisex', type: 'analog', caseMaterial: p.case_material || '',
+        dialColor: p.dial_color || '', waterResistance: p.water_resistance || '', movement: p.movement_type || '',
+        inStock: p.stock_quantity > 0,
+      })));
+    };
+    loadSimilar();
+  }, [product]);
 
   useEffect(() => {
     if (id) {
@@ -320,133 +347,100 @@ const ProductDetail = () => {
     <>
       <Header />
       
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 md:px-6 py-8 md:py-12">
         {/* Breadcrumbs */}
-        <div className="text-sm font-body text-muted-foreground mb-6">
+        <nav aria-label="Навігація" className="eyebrow mb-8">
           <span className="cursor-pointer hover:text-foreground" onClick={() => navigate('/')}>Головна</span>
           {' / '}
-          <span className="cursor-pointer hover:text-foreground">{product.category}</span>
+          <span className="cursor-pointer hover:text-foreground" onClick={() => navigate(`/products?brand=${encodeURIComponent(product.brand)}`)}>{product.brand}</span>
           {' / '}
           <span className="text-foreground">{product.name}</span>
-        </div>
+        </nav>
 
-        <div className="grid md:grid-cols-2 gap-12 mb-12">
-          {/* Product Images */}
-          <div className="space-y-4">
-            {productImages.length > 0 ? (
-              <>
-                <Carousel className="w-full">
-                  <CarouselContent>
-                    {productImages.map((image, index) => (
-                      <CarouselItem key={index}>
-                        <div className="aspect-square overflow-hidden rounded-lg bg-muted border">
-                          <img src={image} alt={`${product.name} - ${index + 1}`} className="h-full w-full object-cover" />
-                        </div>
-                      </CarouselItem>
-                    ))}
-                  </CarouselContent>
-                  <CarouselPrevious className="left-4" />
-                  <CarouselNext className="right-4" />
-                </Carousel>
-                
-                {/* Thumbnails */}
-                <div className="grid grid-cols-5 gap-2">
-                  {productImages.map((image, index) => (
-                    <button 
-                      key={index} 
-                      onClick={() => setSelectedImage(index)} 
-                      className={`aspect-square overflow-hidden rounded-lg border-2 transition-all ${selectedImage === index ? 'border-primary' : 'border-transparent hover:border-primary/50'}`}
-                    >
-                      <img src={image} alt={`${product.name} - thumbnail ${index + 1}`} className="h-full w-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="aspect-square overflow-hidden rounded-lg bg-muted border">
-                <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+        <div className="grid md:grid-cols-12 gap-10 lg:gap-16 mb-20">
+          {/* Gallery */}
+          <div className="md:col-span-7 flex flex-col-reverse md:flex-row gap-4">
+            {productImages.length > 1 && (
+              <div className="flex md:flex-col gap-3 overflow-x-auto md:w-20 shrink-0" role="tablist" aria-label="Фото товару">
+                {productImages.map((image, index) => (
+                  <button
+                    key={index}
+                    role="tab"
+                    aria-selected={selectedImage === index}
+                    aria-label={`Фото ${index + 1}`}
+                    onClick={() => setSelectedImage(index)}
+                    className={`aspect-square w-16 md:w-full shrink-0 bg-stone border transition-colors duration-700 ${selectedImage === index ? 'border-foreground' : 'border-transparent hover:border-border'}`}
+                  >
+                    <img src={image} alt="" className="h-full w-full object-contain p-1 mix-blend-multiply" />
+                  </button>
+                ))}
               </div>
             )}
+            <div className="flex-1 aspect-square bg-stone overflow-hidden">
+              <img
+                key={selectedImage}
+                src={productImages[selectedImage] || product.image}
+                alt={product.name}
+                className="h-full w-full object-contain p-8 md:p-14 mix-blend-multiply animate-fade-in"
+              />
+            </div>
           </div>
 
-          {/* Product Info */}
-          <div className="space-y-6">
+          {/* Info */}
+          <div className="md:col-span-5 md:sticky md:top-28 md:self-start space-y-8">
             <div>
-              <p className="text-sm text-muted-foreground font-body mb-2">
-                Бренд: <span className="text-primary font-medium">{product.brand}</span>
-              </p>
-              <h1 className="font-display text-xl md:text-3xl lg:text-4xl font-bold mb-4">
-                {product.name}
-              </h1>
+              <p className="eyebrow">{product.brand}</p>
+              <h1 className="mt-3 font-display text-3xl md:text-5xl font-normal leading-tight">{product.name}</h1>
+              <p className="mt-5 text-xl tabular-nums">{product.price.toLocaleString('uk-UA')} ₴</p>
             </div>
 
-            <div className="text-4xl font-bold text-foreground md:text-accent font-display">
-              {product.price.toLocaleString()} ₴
-            </div>
+            {!product.inStock && (
+              <p className="flex items-center gap-2 text-sm text-destructive"><X className="h-4 w-4" /> Немає в наявності</p>
+            )}
 
-            <div className="flex items-center gap-2 text-sm font-body">
-              {product.inStock ? (
-                <>
-                  <Check className="h-5 w-5 text-green-600" />
-                  <span className="text-green-600 font-medium">Доставка 1-2 дні по Україні</span>
-                </>
-              ) : (
-                <>
-                  <X className="h-5 w-5 text-destructive" />
-                  <span className="text-destructive">Немає в наявності</span>
-                </>
-              )}
-            </div>
-
-            {/* Quantity Selector */}
             <div className="flex items-center gap-4">
-              <div className="flex items-center border rounded-lg">
-                <Button variant="ghost" size="sm" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1}>
-                  -
-                </Button>
-                <span className="px-6 py-2 font-body">{quantity}</span>
-                <Button variant="ghost" size="sm" onClick={() => handleQuantityChange(1)} disabled={quantity >= 10}>
-                  +
-                </Button>
+              <div className="flex items-center border" aria-label="Кількість">
+                <Button variant="ghost" size="sm" className="rounded-none h-12 w-12" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1} aria-label="Менше">−</Button>
+                <span className="w-10 text-center tabular-nums" aria-live="polite">{quantity}</span>
+                <Button variant="ghost" size="sm" className="rounded-none h-12 w-12" onClick={() => handleQuantityChange(1)} disabled={quantity >= 10} aria-label="Більше">+</Button>
               </div>
+              <Button variant="outline" className="h-12 w-12 rounded-none" onClick={toggleFavorite} aria-label={isFavorite ? 'Видалити з обраного' : 'Додати до обраного'} aria-pressed={isFavorite}>
+                <Heart className={`h-4 w-4 ${isFavorite ? 'fill-gold text-gold' : ''}`} strokeWidth={1.25} />
+              </Button>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <Button onClick={handleAddToCart} disabled={!product.inStock} className="flex-1 font-body font-medium text-lg py-6" size="lg">
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                Купити
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="py-6"
-                onClick={toggleFavorite}
-              >
-                <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
-              </Button>
-            </div>
+            <Button onClick={handleAddToCart} disabled={!product.inStock} className="w-full h-14 rounded-none text-xs uppercase tracking-[0.22em] transition-colors duration-700">
+              Купити
+            </Button>
+
+            <ul className="border-t divide-y text-sm">
+              <li className="flex items-start gap-4 py-4"><ShieldCheck className="h-5 w-5 mt-0.5 text-gold-deep" strokeWidth={1.25} /><div><p>Гарантія</p><p className="text-muted-foreground text-xs mt-1">Офіційна гарантія виробника, оригінал</p></div></li>
+              <li className="flex items-start gap-4 py-4"><Truck className="h-5 w-5 mt-0.5 text-gold-deep" strokeWidth={1.25} /><div><p>Доставка по Україні</p><p className="text-muted-foreground text-xs mt-1">1–2 дні, оплата при отриманні</p></div></li>
+              <li className="flex items-start gap-4 py-4"><RotateCcw className="h-5 w-5 mt-0.5 text-gold-deep" strokeWidth={1.25} /><div><p>Повернення</p><p className="text-muted-foreground text-xs mt-1">Протягом 14 днів</p></div></li>
+            </ul>
           </div>
         </div>
 
         {/* Tabs Section */}
         <Tabs defaultValue="specifications" className="w-full">
-          <TabsList className="w-full grid grid-cols-3 mb-8 h-auto">
-            <TabsTrigger value="specifications" className="font-body text-xs sm:text-sm py-2 sm:py-2.5">Характеристики</TabsTrigger>
-            <TabsTrigger value="description" className="font-body text-xs sm:text-sm py-2 sm:py-2.5">Про товар</TabsTrigger>
-            <TabsTrigger value="reviews" className="font-body text-xs sm:text-sm py-2 sm:py-2.5">Відгуки</TabsTrigger>
+          <TabsList className="w-full grid grid-cols-3 mb-10 h-auto bg-transparent border-b rounded-none p-0">
+            <TabsTrigger value="specifications" className="rounded-none text-[11px] uppercase tracking-[0.2em] py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b data-[state=active]:border-foreground -mb-px">Характеристики</TabsTrigger>
+            <TabsTrigger value="description" className="rounded-none text-[11px] uppercase tracking-[0.2em] py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b data-[state=active]:border-foreground -mb-px">Про товар</TabsTrigger>
+            <TabsTrigger value="reviews" className="rounded-none text-[11px] uppercase tracking-[0.2em] py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b data-[state=active]:border-foreground -mb-px">Відгуки</TabsTrigger>
           </TabsList>
 
           <TabsContent value="specifications" className="space-y-4">
-            <h3 className="font-display text-2xl font-semibold mb-6">Характеристики</h3>
-            <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
-              {specifications.map((spec, index) => (
-                <div key={index} className="flex justify-between py-3 border-b font-body">
-                  <span className="text-muted-foreground">{spec.label}:</span>
-                  <span className="font-medium">{spec.value}</span>
-                </div>
-              ))}
-            </div>
+            <table className="w-full max-w-3xl text-sm">
+              <caption className="sr-only">Характеристики</caption>
+              <tbody className="divide-y border-y">
+                {specifications.map((spec, index) => (
+                  <tr key={index}>
+                    <th scope="row" className="py-4 pr-6 text-left font-normal text-muted-foreground w-1/2">{spec.label}</th>
+                    <td className="py-4">{spec.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </TabsContent>
 
           <TabsContent value="description" className="space-y-4">
@@ -472,7 +466,7 @@ const ProductDetail = () => {
               <h3 className="font-display text-2xl font-semibold">Відгуки</h3>
               {reviews.length > 0 && (
                 <div className="flex items-center gap-2">
-                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                  <Star className="h-5 w-5 fill-gold text-gold" />
                   <span className="font-bold">{averageRating}</span>
                   <span className="text-muted-foreground">({reviews.length} відгуків)</span>
                 </div>
@@ -489,7 +483,7 @@ const ProductDetail = () => {
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button key={star} onClick={() => setReviewRating(star)}>
                           <Star 
-                            className={`h-6 w-6 cursor-pointer ${star <= reviewRating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} 
+                            className={`h-6 w-6 cursor-pointer ${star <= reviewRating ? 'fill-gold text-gold' : 'text-muted-foreground'}`} 
                           />
                         </button>
                       ))}
@@ -523,7 +517,7 @@ const ProductDetail = () => {
                             {[1, 2, 3, 4, 5].map((star) => (
                               <Star 
                                 key={star} 
-                                className={`h-4 w-4 ${star <= review.rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} 
+                                className={`h-4 w-4 ${star <= review.rating ? 'fill-gold text-gold' : 'text-muted-foreground'}`} 
                               />
                             ))}
                           </div>
@@ -549,6 +543,15 @@ const ProductDetail = () => {
             )}
           </TabsContent>
         </Tabs>
+
+        {similar.length > 0 && (
+          <section className="mt-24 border-t pt-16" aria-labelledby="similar-title">
+            <h2 id="similar-title" className="font-display text-3xl md:text-4xl text-center mb-12">Схожі моделі</h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-6">
+              {similar.map(p => <ProductCard key={p.id} product={p} />)}
+            </div>
+          </section>
+        )}
       </div>
 
       <Footer />
