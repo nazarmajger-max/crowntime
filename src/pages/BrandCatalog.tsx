@@ -5,7 +5,8 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ShieldCheck, BadgeCheck, Truck, RotateCcw } from 'lucide-react';
+import heroWatch from '@/assets/hero-watch.jpg';
 
 interface BrandWithImage {
   name: string;
@@ -210,7 +211,40 @@ const BrandCatalog = () => {
       <Header />
       
       <main className="min-h-screen bg-background">
-        <div className="container px-4 py-6 md:py-10">
+        {!selectedBrandPlaceholder && (
+          <>
+            <section className="relative h-[calc(100svh-3.5rem)] md:h-[calc(100svh-4rem)] min-h-[520px] overflow-hidden">
+              <img src={heroWatch} alt="Наручний годинник на лляній тканині" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover object-[70%_center]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
+              <div className="relative container px-6 h-full flex flex-col justify-end md:justify-center pb-16 md:pb-0">
+                <p className="eyebrow animate-fade-in">CrownTime</p>
+                <h1 className="mt-4 max-w-xl font-display text-5xl md:text-7xl font-normal leading-[1.02] animate-fade-in">
+                  Час, що говорить тихо
+                </h1>
+                <a href="#catalog" className="mt-10 inline-flex w-fit items-center border border-foreground px-8 py-4 text-xs uppercase tracking-[0.22em] transition-colors duration-700 hover:bg-foreground hover:text-background animate-fade-in">
+                  Дивитися колекцію
+                </a>
+              </div>
+            </section>
+            <section aria-label="Наші гарантії" className="border-b">
+              <ul className="container px-6 grid grid-cols-2 md:grid-cols-4">
+                {[
+                  { icon: BadgeCheck, t: 'Оригінал', d: 'Лише сертифіковані годинники' },
+                  { icon: ShieldCheck, t: 'Гарантія', d: 'Офіційна гарантія виробника' },
+                  { icon: Truck, t: 'Доставка по Україні', d: '1–2 дні Новою поштою' },
+                  { icon: RotateCcw, t: 'Повернення', d: 'Протягом 14 днів' },
+                ].map(({ icon: Icon, t, d }, i) => (
+                  <li key={t} className={`py-8 md:py-10 px-2 md:px-6 flex flex-col items-center text-center gap-2 ${i % 2 ? 'border-l' : 'md:border-l md:first:border-l-0'} ${i < 2 ? 'border-b md:border-b-0' : ''}`}>
+                    <Icon className="h-5 w-5 text-gold-deep" strokeWidth={1.25} aria-hidden="true" />
+                    <p className="font-display text-lg">{t}</p>
+                    <p className="text-xs text-muted-foreground">{d}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </>
+        )}
+        <div id="catalog" className="container px-4 py-14 md:py-24 scroll-mt-16">
           {/* Header with back button */}
           <div className="flex items-center justify-center mb-6 md:mb-8 relative">
             {selectedBrand && (
@@ -223,7 +257,7 @@ const BrandCatalog = () => {
                 <ChevronLeft className="h-6 w-6" />
               </Button>
             )}
-            <h1 className="font-display text-2xl md:text-3xl font-bold text-center">
+            <h1 className="font-display text-3xl md:text-5xl font-normal text-center">
               {selectedBrand || 'Каталог годинників'}
             </h1>
           </div>
@@ -239,19 +273,19 @@ const BrandCatalog = () => {
                 <p className="text-muted-foreground">Серії моделей не знайдено</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-14">
                 {modelSeries.map((series) => (
                   <button
                     key={series.name}
                     onClick={() => handleModelSeriesClick(series.name)}
-                    className="group bg-card border border-border rounded-lg p-4 md:p-6 hover:border-accent/50 hover:shadow-md transition-all duration-200 flex flex-col items-center text-center"
+                    className="group flex flex-col items-center text-center"
                   >
-                    <div className="w-full aspect-square mb-3 md:mb-4 flex items-center justify-center overflow-hidden">
+                    <div className="w-full aspect-[4/5] mb-4 p-6 md:p-10 bg-stone flex items-center justify-center overflow-hidden">
                       {series.image ? (
                         <img
                           src={series.image}
                           alt={series.name}
-                          className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                          className="max-w-full max-h-full object-contain mix-blend-multiply group-hover:scale-[1.03] transition-transform duration-1200 ease-lux"
                         />
                       ) : (
                         <div className="w-full h-full bg-muted rounded flex items-center justify-center">
@@ -259,7 +293,7 @@ const BrandCatalog = () => {
                         </div>
                       )}
                     </div>
-                    <h2 className="font-display text-sm md:text-base font-semibold text-foreground group-hover:text-accent transition-colors uppercase">
+                    <h2 className="font-display text-lg md:text-xl text-foreground uppercase">
                       {series.name}
                     </h2>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -276,19 +310,19 @@ const BrandCatalog = () => {
                 <p className="text-muted-foreground">Бренди не знайдено</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-14">
                 {brands.map((brand) => (
                   <button
                     key={brand.name}
                     onClick={() => handleBrandClick(brand.name)}
-                    className="group bg-card border border-border rounded-lg p-4 md:p-6 hover:border-accent/50 hover:shadow-md transition-all duration-200 flex flex-col items-center text-center"
+                    className="group flex flex-col items-center text-center"
                   >
-                    <div className="w-full aspect-square mb-3 md:mb-4 flex items-center justify-center overflow-hidden">
+                    <div className="w-full aspect-[4/5] mb-4 p-6 md:p-10 bg-stone flex items-center justify-center overflow-hidden">
                       {brand.image ? (
                         <img
                           src={brand.image}
                           alt={brand.name}
-                          className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                          className="max-w-full max-h-full object-contain mix-blend-multiply group-hover:scale-[1.03] transition-transform duration-1200 ease-lux"
                         />
                       ) : (
                         <div className="w-full h-full bg-muted rounded flex items-center justify-center">
@@ -296,7 +330,7 @@ const BrandCatalog = () => {
                         </div>
                       )}
                     </div>
-                    <h2 className="font-display text-sm md:text-base font-semibold text-foreground group-hover:text-accent transition-colors">
+                    <h2 className="font-display text-lg md:text-xl text-foreground">
                       {brand.name}
                     </h2>
                     <p className="text-xs text-muted-foreground mt-1">
