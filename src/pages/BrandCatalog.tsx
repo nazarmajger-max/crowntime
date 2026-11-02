@@ -211,7 +211,7 @@ const BrandCatalog = () => {
       <Header />
       
       <main className="min-h-screen bg-background">
-        {!selectedBrandPlaceholder && (
+        {!selectedBrand && (
           <>
             <section className="relative h-[calc(100svh-3.5rem)] md:h-[calc(100svh-4rem)] min-h-[520px] overflow-hidden">
               <img src={heroWatch} alt="Наручний годинник на лляній тканині" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover object-[70%_center]" />

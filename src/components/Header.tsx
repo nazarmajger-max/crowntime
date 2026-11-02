@@ -99,7 +99,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur-md">
       {/* Mobile Header */}
       <div className="md:hidden flex h-14 items-center justify-between px-4 gap-3">
         <div className="flex items-center gap-1">
@@ -127,7 +127,7 @@ export const Header = () => {
             <Button variant="ghost" size="icon" className="h-10 w-10 relative">
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[11px] font-bold text-accent-foreground">
+                <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-accent-foreground">
                   {cartCount}
                 </span>
               )}
@@ -148,7 +148,7 @@ export const Header = () => {
           <div className="flex flex-col py-2">
             <button
               onClick={() => handleMenuNavigate('/')}
-              className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20"
+              className="flex items-center gap-4 px-5 py-4 hover:bg-secondary transition-colors duration-700"
             >
               <Home className="h-5 w-5" />
               <span className="font-medium text-base">Головна</span>
@@ -159,7 +159,7 @@ export const Header = () => {
                 setMenuOpen(false);
                 setBrandMenuOpen(true);
               }}
-              className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20"
+              className="flex items-center gap-4 px-5 py-4 hover:bg-secondary transition-colors duration-700"
             >
               <Watch className="h-5 w-5" />
               <span className="font-medium text-base">Каталог брендів</span>
@@ -169,14 +169,14 @@ export const Header = () => {
               <>
                 <button
                   onClick={() => handleMenuNavigate('/profile')}
-                  className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20"
+                  className="flex items-center gap-4 px-5 py-4 hover:bg-secondary transition-colors duration-700"
                 >
                   <User className="h-5 w-5" />
                   <span className="font-medium text-base">Профіль</span>
                 </button>
                 <button
                   onClick={() => handleMenuNavigate('/favorites')}
-                  className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20"
+                  className="flex items-center gap-4 px-5 py-4 hover:bg-secondary transition-colors duration-700"
                 >
                   <Heart className="h-5 w-5" />
                   <span className="font-medium text-base">Обране</span>
@@ -184,7 +184,7 @@ export const Header = () => {
                 {isAdmin && (
                   <button
                     onClick={() => handleMenuNavigate('/admin')}
-                    className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20 text-accent"
+                    className="flex items-center gap-4 px-5 py-4 hover:bg-secondary transition-colors duration-700 text-accent"
                   >
                     <Shield className="h-5 w-5" />
                     <span className="font-medium text-base">Адмін панель</span>
@@ -193,7 +193,7 @@ export const Header = () => {
                 <div className="border-t mt-2 pt-2">
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20 text-destructive w-full"
+                    className="flex items-center gap-4 px-5 py-4 hover:bg-secondary transition-colors duration-700 text-destructive w-full"
                   >
                     <LogOut className="h-5 w-5" />
                     <span className="font-medium text-base">Вийти</span>
@@ -203,7 +203,7 @@ export const Header = () => {
             ) : (
               <button
                 onClick={() => handleMenuNavigate('/auth')}
-                className="flex items-center gap-4 px-5 py-4 hover:bg-accent/10 transition-colors active:bg-accent/20"
+                className="flex items-center gap-4 px-5 py-4 hover:bg-secondary transition-colors duration-700"
               >
                 <User className="h-5 w-5" />
                 <span className="font-medium text-base">Увійти / Реєстрація</span>
@@ -214,22 +214,22 @@ export const Header = () => {
       </Sheet>
 
       {/* Desktop Header */}
-      <div className="hidden md:flex container h-16 items-center justify-between px-4">
+      <div className="hidden md:flex container h-20 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
           <img src={logo} alt="CrownTime" className="h-10 w-auto object-contain" />
         </Link>
 
         <nav className="flex items-center gap-6">
-          <Link to="/" className="font-body text-sm font-medium transition-colors hover:text-accent">
+          <Link to="/" className="font-body text-[11px] uppercase tracking-[0.2em] transition-colors duration-700 hover:text-gold-deep">
             Головна
           </Link>
           <button 
             onClick={() => setBrandMenuOpen(true)}
-            className="font-body text-sm font-medium transition-colors hover:text-accent"
+            className="font-body text-[11px] uppercase tracking-[0.2em] transition-colors duration-700 hover:text-gold-deep"
           >
             Каталог брендів
           </button>
-          <Link to="/products" className="font-body text-sm font-medium transition-colors hover:text-accent">
+          <Link to="/products" className="font-body text-[11px] uppercase tracking-[0.2em] transition-colors duration-700 hover:text-gold-deep">
             Всі товари
           </Link>
         </nav>
@@ -242,7 +242,7 @@ export const Header = () => {
               placeholder="Пошук товарів..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-10"
+              className="pl-10 h-10 bg-transparent rounded-none border-0 border-b focus-visible:ring-0 focus-visible:border-foreground"
             />
             {searchQuery && (
               <Button
@@ -335,7 +335,7 @@ export const Header = () => {
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
+                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-accent-foreground">
                   {cartCount}
                 </span>
               )}
