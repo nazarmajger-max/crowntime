@@ -94,7 +94,7 @@ const Cart = () => {
           </div>
 
           <div className="lg:col-span-1">
-            <Card className="sticky top-20 shadow-md">
+            <Card className="sticky top-20 rounded-none shadow-none">
               <CardContent className="p-4 md:p-6 space-y-3 md:space-y-4">
                 <h2 className="font-display text-lg md:text-2xl font-semibold">Підсумок замовлення</h2>
                 

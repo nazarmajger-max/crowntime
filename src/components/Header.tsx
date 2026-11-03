@@ -261,7 +261,7 @@ export const Header = () => {
           
           {/* Desktop Search Results Dropdown */}
           {searchQuery.trim().length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-background border rounded-lg shadow-lg max-h-[400px] overflow-y-auto z-50">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-background border rounded-none shadow-none max-h-[400px] overflow-y-auto z-50">
               {searching && (
                 <div className="text-center py-6">
                   <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-accent mx-auto"></div>

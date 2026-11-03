@@ -10,7 +10,7 @@ const OrderSuccess = () => {
       <Header />
       <main className="container px-4 py-12 md:py-20 min-h-[calc(100vh-200px)]">
         <div className="max-w-2xl mx-auto text-center">
-          <CheckCircle className="h-16 w-16 md:h-20 md:w-20 text-green-600 mx-auto mb-4 md:mb-6" />
+          <CheckCircle className="h-16 w-16 md:h-20 md:w-20 text-gold-deep mx-auto mb-4 md:mb-6" />
           <h1 className="font-display text-2xl md:text-4xl font-bold mb-3 md:mb-4">Замовлення підтверджено!</h1>
           <p className="font-body text-base md:text-lg text-muted-foreground mb-6 md:mb-8">
             Дякуємо за покупку. Ваше замовлення успішно оформлено і буде оброблено найближчим часом.

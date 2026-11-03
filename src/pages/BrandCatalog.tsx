@@ -213,17 +213,18 @@ const BrandCatalog = () => {
       <main className="min-h-screen bg-background">
         {!selectedBrand && (
           <>
-            <section className="relative h-[calc(100svh-3.5rem)] md:h-[calc(100svh-5rem)] min-h-[520px] overflow-hidden">
-              <img src={heroWatch} alt="Наручний годинник на лляній тканині" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover object-[70%_center]" />
-              <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
-              <div className="relative container px-6 h-full flex flex-col justify-end md:justify-center pb-16 md:pb-0">
+            <section className="relative flex min-h-[78svh] items-end overflow-hidden bg-forest text-forest-foreground md:min-h-[88svh]">
+              <img src={heroWatch} alt="Наручний годинник на лляній тканині" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover object-[70%_center]" fetchPriority="high" />
+              <div className="absolute inset-0 bg-gradient-to-t from-forest/85 via-forest/30 to-transparent md:bg-gradient-to-r md:from-forest/80 md:via-forest/25 md:to-transparent" aria-hidden="true" />
+              <div className="relative container px-6 pb-16 pt-32 md:pb-24">
                 <p className="eyebrow animate-fade-in">CrownTime</p>
                 <h1 className="mt-4 max-w-xl font-display text-5xl md:text-7xl font-normal leading-[1.02] animate-fade-in">
-                  Час, що говорить тихо
+                  Час, який варто носити
                 </h1>
-                <a href="#catalog" className="mt-10 inline-flex w-fit items-center border border-foreground px-8 py-4 text-xs uppercase tracking-[0.22em] transition-colors duration-700 hover:bg-foreground hover:text-background animate-fade-in">
-                  Дивитися колекцію
-                </a>
+                <p className="mt-6 max-w-md text-base leading-relaxed text-forest-foreground/85 md:text-lg">Оригінальні наручні годинники світових брендів із гарантією та доставкою по Україні.</p>
+                <Button asChild size="lg" className="mt-10 rounded-none bg-gold px-10 text-ink transition-colors duration-700 hover:bg-forest-foreground">
+                  <a href="#catalog">Дивитися колекцію</a>
+                </Button>
               </div>
             </section>
             <section aria-label="Наші гарантії" className="border-b">
@@ -252,14 +253,15 @@ const BrandCatalog = () => {
                 variant="ghost"
                 size="icon"
                 onClick={handleBack}
+                 aria-label="Назад до брендів"
                 className="absolute left-0 h-10 w-10"
               >
                 <ChevronLeft className="h-6 w-6" />
               </Button>
             )}
-            <h1 className="font-display text-3xl md:text-5xl font-normal text-center">
+            <h2 className="font-display text-3xl md:text-5xl font-normal text-center">
               {selectedBrand || 'Каталог годинників'}
-            </h1>
+            </h2>
           </div>
           
           {loading ? (
@@ -273,7 +275,7 @@ const BrandCatalog = () => {
                 <p className="text-muted-foreground">Серії моделей не знайдено</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-14">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-14">
                 {modelSeries.map((series) => (
                   <button
                     key={series.name}
@@ -293,10 +295,10 @@ const BrandCatalog = () => {
                         </div>
                       )}
                     </div>
-                    <h2 className="font-display text-lg md:text-xl text-foreground uppercase">
+                    <h3 className="font-display text-lg md:text-2xl text-foreground link-underline">
                       {series.name}
-                    </h2>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    </h3>
+                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground mt-1.5">
                       {series.count} {getCountText(series.count)}
                     </p>
                   </button>
@@ -310,7 +312,7 @@ const BrandCatalog = () => {
                 <p className="text-muted-foreground">Бренди не знайдено</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-14">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-10 md:gap-x-6 md:gap-y-14">
                 {brands.map((brand) => (
                   <button
                     key={brand.name}
@@ -330,10 +332,10 @@ const BrandCatalog = () => {
                         </div>
                       )}
                     </div>
-                    <h2 className="font-display text-lg md:text-xl text-foreground">
+                    <h3 className="font-display text-lg md:text-2xl text-foreground link-underline">
                       {brand.name}
-                    </h2>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    </h3>
+                    <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground mt-1.5">
                       {brand.count} {getCountText(brand.count)}
                     </p>
                   </button>
