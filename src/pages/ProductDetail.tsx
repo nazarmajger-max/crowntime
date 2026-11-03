@@ -6,10 +6,9 @@ import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
-import { X, Heart, Star, Send, Trash2, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
+import { Check, X, Heart, Star, Send, Trash2, ShieldCheck, Truck, RotateCcw, Minus, Plus, ShoppingCart } from 'lucide-react';
 import { ProductCard } from '@/components/ProductCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { Textarea } from '@/components/ui/textarea';
@@ -69,6 +68,8 @@ const ProductDetail = () => {
 
   useEffect(() => {
     if (id) {
+      setSelectedImage(0);
+      setProductImages([]);
       fetchProduct(id);
       fetchProductImages(id);
       fetchReviews(id);
@@ -347,36 +348,35 @@ const ProductDetail = () => {
     <>
       <Header />
       
-      <div className="container mx-auto px-4 md:px-6 py-8 md:py-12">
+      <main className="container mx-auto px-4 md:px-6 py-8 md:py-12">
         {/* Breadcrumbs */}
         <nav aria-label="Навігація" className="eyebrow mb-8">
-          <span className="cursor-pointer hover:text-foreground" onClick={() => navigate('/')}>Головна</span>
+          <Button variant="link" className="h-auto p-0 text-xs text-muted-foreground" onClick={() => navigate('/')}>Головна</Button>
           {' / '}
-          <span className="cursor-pointer hover:text-foreground" onClick={() => navigate(`/products?brand=${encodeURIComponent(product.brand)}`)}>{product.brand}</span>
+          <Button variant="link" className="h-auto p-0 text-xs text-muted-foreground" onClick={() => navigate(`/products?brand=${encodeURIComponent(product.brand)}`)}>{product.brand}</Button>
           {' / '}
           <span className="text-foreground">{product.name}</span>
         </nav>
 
-        <div className="grid md:grid-cols-12 gap-10 lg:gap-16 mb-20">
+        <div className="grid md:grid-cols-2 gap-10 md:gap-16 lg:gap-24 mb-20">
           {/* Gallery */}
-          <div className="md:col-span-7 flex flex-col-reverse md:flex-row gap-4">
+          <div className="flex flex-col-reverse gap-4">
             {productImages.length > 1 && (
-              <div className="flex md:flex-col gap-3 overflow-x-auto md:w-20 shrink-0" role="tablist" aria-label="Фото товару">
+              <div className="grid grid-cols-5 gap-3" aria-label="Фото товару">
                 {productImages.map((image, index) => (
-                  <button
+                  <Button variant="ghost"
                     key={index}
-                    role="tab"
-                    aria-selected={selectedImage === index}
+                    aria-pressed={selectedImage === index}
                     aria-label={`Фото ${index + 1}`}
                     onClick={() => setSelectedImage(index)}
-                    className={`aspect-square w-16 md:w-full shrink-0 bg-stone border transition-colors duration-700 ${selectedImage === index ? 'border-foreground' : 'border-transparent hover:border-border'}`}
+                    className={`aspect-square h-auto w-full p-0 rounded-none overflow-hidden bg-stone border transition-colors duration-700 ${selectedImage === index ? 'border-gold' : 'border-transparent hover:border-foreground/40'}`}
                   >
                     <img src={image} alt="" className="h-full w-full object-contain p-1 mix-blend-multiply" />
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}
-            <div className="flex-1 aspect-square bg-stone overflow-hidden">
+            <div className="w-full aspect-[4/5] bg-stone overflow-hidden">
               <img
                 key={selectedImage}
                 src={productImages[selectedImage] || product.image}
@@ -387,31 +387,29 @@ const ProductDetail = () => {
           </div>
 
           {/* Info */}
-          <div className="md:col-span-5 md:sticky md:top-28 md:self-start space-y-8">
+          <div className="md:pt-4 space-y-8">
             <div>
               <p className="eyebrow">{product.brand}</p>
               <h1 className="mt-3 font-display text-3xl md:text-5xl font-normal leading-tight">{product.name}</h1>
-              <p className="mt-5 text-xl tabular-nums">{product.price.toLocaleString('uk-UA')} ₴</p>
+              <p className="mt-6 font-display text-3xl text-foreground tabular-nums">{product.price.toLocaleString('uk-UA')} ₴</p>
             </div>
 
-            {!product.inStock && (
-              <p className="flex items-center gap-2 text-sm text-destructive"><X className="h-4 w-4" /> Немає в наявності</p>
-            )}
+            <p className={`flex items-center gap-2 text-sm ${product.inStock ? 'text-foreground' : 'text-destructive'}`}>
+              {product.inStock ? <Check className="h-4 w-4 text-gold-deep" aria-hidden="true" /> : <X className="h-4 w-4" aria-hidden="true" />}
+              {product.inStock ? 'В наявності' : 'Немає в наявності'}
+            </p>
 
-            <div className="flex items-center gap-4">
-              <div className="flex items-center border" aria-label="Кількість">
-                <Button variant="ghost" size="sm" className="rounded-none h-12 w-12" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1} aria-label="Менше">−</Button>
+            <div className="flex flex-wrap items-stretch gap-3">
+              <div className="flex items-center border" role="group" aria-label="Кількість">
+                <Button variant="ghost" size="icon" className="rounded-none h-12 w-12" onClick={() => handleQuantityChange(-1)} disabled={quantity <= 1} aria-label="Зменшити кількість"><Minus className="h-4 w-4" /></Button>
                 <span className="w-10 text-center tabular-nums" aria-live="polite">{quantity}</span>
-                <Button variant="ghost" size="sm" className="rounded-none h-12 w-12" onClick={() => handleQuantityChange(1)} disabled={quantity >= 10} aria-label="Більше">+</Button>
+                <Button variant="ghost" size="icon" className="rounded-none h-12 w-12" onClick={() => handleQuantityChange(1)} disabled={quantity >= 10} aria-label="Збільшити кількість"><Plus className="h-4 w-4" /></Button>
               </div>
-              <Button variant="outline" className="h-12 w-12 rounded-none" onClick={toggleFavorite} aria-label={isFavorite ? 'Видалити з обраного' : 'Додати до обраного'} aria-pressed={isFavorite}>
+              <Button onClick={handleAddToCart} disabled={!product.inStock} className="h-12 min-w-28 flex-1 rounded-none text-sm uppercase tracking-[0.15em]" size="lg"><ShoppingCart className="mr-3 h-4 w-4" />Купити</Button>
+              <Button variant="outline" size="icon" className="h-12 w-12 rounded-none" onClick={toggleFavorite} aria-label={isFavorite ? 'Видалити з обраного' : 'Додати до обраного'} aria-pressed={isFavorite}>
                 <Heart className={`h-4 w-4 ${isFavorite ? 'fill-gold text-gold' : ''}`} strokeWidth={1.25} />
               </Button>
             </div>
-
-            <Button onClick={handleAddToCart} disabled={!product.inStock} className="w-full h-14 rounded-none text-xs uppercase tracking-[0.22em] transition-colors duration-700">
-              Купити
-            </Button>
 
             <ul className="border-t divide-y text-sm">
               <li className="flex items-start gap-4 py-4"><ShieldCheck className="h-5 w-5 mt-0.5 text-gold-deep" strokeWidth={1.25} /><div><p>Гарантія</p><p className="text-muted-foreground text-xs mt-1">Офіційна гарантія виробника, оригінал</p></div></li>
@@ -421,27 +419,24 @@ const ProductDetail = () => {
           </div>
         </div>
 
+        <section aria-labelledby="specs-title" className="mb-20 max-w-3xl">
+          <h2 id="specs-title" className="mb-6 font-display text-3xl md:text-4xl">Характеристики</h2>
+          <dl className="border-t">
+            {specifications.map(spec => (
+              <div key={spec.label} className="flex justify-between gap-6 border-b py-4">
+                <dt className="text-sm text-muted-foreground">{spec.label}</dt>
+                <dd className="text-right text-sm">{spec.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
         {/* Tabs Section */}
-        <Tabs defaultValue="specifications" className="w-full">
-          <TabsList className="w-full grid grid-cols-3 mb-10 h-auto bg-transparent border-b rounded-none p-0">
-            <TabsTrigger value="specifications" className="rounded-none text-[11px] uppercase tracking-[0.2em] py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b data-[state=active]:border-foreground -mb-px">Характеристики</TabsTrigger>
+        <Tabs defaultValue="description" className="w-full">
+          <TabsList className="w-full max-w-md grid grid-cols-2 mb-10 h-auto bg-transparent border-b rounded-none p-0">
             <TabsTrigger value="description" className="rounded-none text-[11px] uppercase tracking-[0.2em] py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b data-[state=active]:border-foreground -mb-px">Про товар</TabsTrigger>
             <TabsTrigger value="reviews" className="rounded-none text-[11px] uppercase tracking-[0.2em] py-3 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b data-[state=active]:border-foreground -mb-px">Відгуки</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="specifications" className="space-y-4">
-            <table className="w-full max-w-3xl text-sm">
-              <caption className="sr-only">Характеристики</caption>
-              <tbody className="divide-y border-y">
-                {specifications.map((spec, index) => (
-                  <tr key={index}>
-                    <th scope="row" className="py-4 pr-6 text-left font-normal text-muted-foreground w-1/2">{spec.label}</th>
-                    <td className="py-4">{spec.value}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </TabsContent>
 
           <TabsContent value="description" className="space-y-4">
             <div className="prose max-w-none font-body">
@@ -452,10 +447,7 @@ const ProductDetail = () => {
               <div className="mt-6 space-y-3">
                 <h3 className="font-display text-xl font-semibold">Купуючи в CrownTime Ви отримуєте:</h3>
                 <ul className="space-y-2">
-                  <li>✓ <strong>Професійне обслуговування</strong></li>
-                  <li>✓ <strong>Доступну ціну</strong></li>
-                  <li>✓ <strong>Гарантію якості</strong></li>
-                  <li>✓ <strong>Швидку доставку по Україні</strong></li>
+                  {['Професійне обслуговування', 'Доступну ціну', 'Гарантію якості', 'Швидку доставку по Україні'].map(text => <li key={text} className="flex items-center gap-3"><Check className="h-4 w-4 text-gold-deep" aria-hidden="true" />{text}</li>)}
                 </ul>
               </div>
             </div>
@@ -475,7 +467,7 @@ const ProductDetail = () => {
 
             {/* Add Review Form */}
             {user && (
-              <Card>
+              <Card className="rounded-none shadow-none">
                 <CardContent className="pt-6">
                   <h4 className="font-semibold mb-4">Залишити відгук</h4>
                   <div className="space-y-4">
@@ -508,7 +500,7 @@ const ProductDetail = () => {
             ) : (
               <div className="space-y-4">
                 {reviews.map((review) => (
-                  <Card key={review.id}>
+                  <Card key={review.id} className="rounded-none shadow-none">
                     <CardContent className="pt-6">
                       <div className="flex justify-between items-start">
                         <div>
@@ -552,7 +544,7 @@ const ProductDetail = () => {
             </div>
           </section>
         )}
-      </div>
+      </main>
 
       <Footer />
     </>
