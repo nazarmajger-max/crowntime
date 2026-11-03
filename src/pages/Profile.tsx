@@ -336,7 +336,7 @@ const Profile = () => {
                                   key={star}
                                   className={`h-4 w-4 ${
                                     star <= review.rating
-                                      ? 'fill-yellow-400 text-yellow-400'
+                                      ? 'fill-gold text-gold'
                                       : 'text-muted-foreground'
                                   }`}
                                 />
@@ -381,8 +381,8 @@ const Profile = () => {
                     <Star
                       className={`h-8 w-8 cursor-pointer transition-colors ${
                         star <= rating
-                          ? 'fill-yellow-400 text-yellow-400'
-                          : 'text-muted-foreground hover:text-yellow-400'
+                          ? 'fill-gold text-gold'
+                          : 'text-muted-foreground hover:text-gold'
                       }`}
                     />
                   </button>

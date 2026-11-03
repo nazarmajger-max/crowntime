@@ -198,7 +198,7 @@ export const BrandModelMenu = ({ open, onOpenChange }: BrandModelMenuProps) => {
                   onClick={() => handleModelSeriesSelect(series.modelSeries)}
                   className="group flex flex-col bg-muted/30 rounded-xl overflow-hidden hover:bg-muted/50 transition-colors border border-border/50"
                 >
-                  <div className="aspect-square p-4 flex items-center justify-center bg-white">
+                  <div className="aspect-square p-4 flex items-center justify-center bg-stone">
                     <img
                       src={series.image}
                       alt={series.modelSeries}
@@ -220,7 +220,7 @@ export const BrandModelMenu = ({ open, onOpenChange }: BrandModelMenuProps) => {
                   onClick={() => handleBrandSelect(brand.brand)}
                   className="group flex flex-col bg-muted/30 rounded-xl overflow-hidden hover:bg-muted/50 transition-colors border border-border/50"
                 >
-                  <div className="aspect-square p-4 flex items-center justify-center bg-white">
+                  <div className="aspect-square p-4 flex items-center justify-center bg-stone">
                     <img
                       src={brand.image}
                       alt={brand.brand}
