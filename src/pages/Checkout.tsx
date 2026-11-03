@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -112,10 +112,11 @@ const Checkout = () => {
     }
   };
 
-  if (cart.length === 0) {
-    navigate('/cart');
-    return null;
-  }
+  useEffect(() => {
+    if (cart.length === 0) navigate('/cart');
+  }, [cart.length, navigate]);
+
+  if (cart.length === 0) return null;
 
   return (
     <>
