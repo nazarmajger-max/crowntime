@@ -214,7 +214,7 @@ const BrandCatalog = () => {
         {!selectedBrand && (
           <>
             <section className="relative flex min-h-[78svh] items-end overflow-hidden bg-forest text-forest-foreground md:min-h-[88svh]">
-              <img src={heroWatch} alt="Наручний годинник на лляній тканині" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover object-[70%_center]" fetchPriority="high" />
+              <img src={heroWatch} alt="Наручний годинник на лляній тканині" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover object-[70%_center]" />
               <div className="absolute inset-0 bg-gradient-to-t from-forest/85 via-forest/30 to-transparent md:bg-gradient-to-r md:from-forest/80 md:via-forest/25 md:to-transparent" aria-hidden="true" />
               <div className="relative container px-6 pb-16 pt-32 md:pb-24">
                 <p className="eyebrow animate-fade-in">CrownTime</p>
