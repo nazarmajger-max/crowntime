@@ -4,4 +4,4 @@
 
 # Uploaded wordmark and presentation patch
 - [x] Apply the shared wordmark to header, footer and sign-in without changing account or purchase logic.
-- [ ] Compare remaining uploaded styling against current pages and verify desktop/mobile rendering.
+- [x] Compare remaining uploaded styling against current pages and verify desktop/mobile rendering; retain newer catalog layout and keyboard focus indicators.
