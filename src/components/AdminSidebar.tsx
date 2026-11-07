@@ -14,7 +14,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import logo from '@/assets/crowntime-logo.png';
+import { Logo } from '@/components/Logo';
 
 const menuItems = [
   { title: 'Панель', url: '/admin', icon: LayoutDashboard },
@@ -45,7 +45,7 @@ export function AdminSidebar() {
       <SidebarTrigger className="m-2 self-end" />
 
       <div className="p-4 border-b">
-        <img src={logo} alt="CrownTime" className="h-8 w-auto object-contain mx-auto" />
+        <Logo className="mx-auto block text-center text-base" />
       </div>
 
       <SidebarContent>

@@ -6,41 +6,33 @@
 
 @layer base {
   :root {
-    /* Brand palette */
-    --ivory: 40 33% 95%;        /* #F7F4EE */
-    --ink: 36 14% 7%;           /* #14120F */
-    --gold: 37 35% 52%;         /* #B08D57 */
-    --gold-deep: 36 38% 38%;    /* darker gold for small text on ivory (AA) */
-    --forest: 163 50% 11%;      /* #0E2A22 */
-    --forest-foreground: 40 33% 95%;
-    --stone: 38 22% 91%;        /* neutral photo backdrop */
+    /* Brand palette: black, gray, gold, brown */
+    --ivory: 40 25% 93%;        /* #F1EEE8 light text on dark */
+    --ink: 30 8% 6%;            /* #100F0E near-black */
+    --gold: 38 42% 58%;         /* #C9A25E */
+    --gold-deep: 38 45% 64%;    /* gold for small text/icons on black (AA) */
+    --forest: 24 34% 12%;       /* #291D14 deep brown blocks (token name kept) */
+    --forest-foreground: 40 25% 93%;
+    --stone: 36 6% 84%;         /* light gray photo backdrop */
 
-    --background: var(--ivory);
-    --foreground: var(--ink);
-
-    --card: 40 33% 97%;
-    --card-foreground: var(--ink);
-
-    --popover: 40 33% 97%;
-    --popover-foreground: var(--ink);
-
-    --primary: var(--ink);
-    --primary-foreground: var(--ivory);
-
-    --secondary: var(--stone);
-    --secondary-foreground: var(--ink);
-
-    --muted: 38 22% 91%;
-    --muted-foreground: 36 8% 36%;
-
+    --background: 30 6% 7%;
+    --foreground: var(--ivory);
+    --card: 30 5% 10%;
+    --card-foreground: var(--ivory);
+    --popover: 30 5% 10%;
+    --popover-foreground: var(--ivory);
+    --primary: var(--gold);
+    --primary-foreground: var(--ink);
+    --secondary: 30 4% 15%;
+    --secondary-foreground: var(--ivory);
+    --muted: 30 4% 15%;
+    --muted-foreground: 35 6% 64%;
     --accent: var(--gold);
     --accent-foreground: var(--ink);
-
-    --destructive: 0 62% 42%;
-    --destructive-foreground: 40 33% 97%;
-
-    --border: 36 18% 84%;
-    --input: 36 18% 80%;
+    --destructive: 0 62% 55%;
+    --destructive-foreground: 40 25% 95%;
+    --border: 30 4% 21%;
+    --input: 30 4% 26%;
     --ring: var(--gold);
 
     --radius: 0.125rem;
@@ -52,13 +44,13 @@
     --ease-lux: cubic-bezier(0.22, 0.61, 0.36, 1);
     --transition-smooth: all 0.7s var(--ease-lux);
 
-    --sidebar-background: var(--ivory);
-    --sidebar-foreground: var(--ink);
-    --sidebar-primary: var(--ink);
-    --sidebar-primary-foreground: var(--ivory);
-    --sidebar-accent: var(--stone);
-    --sidebar-accent-foreground: var(--ink);
-    --sidebar-border: 36 18% 84%;
+    --sidebar-background: 30 5% 9%;
+    --sidebar-foreground: var(--ivory);
+    --sidebar-primary: var(--gold);
+    --sidebar-primary-foreground: var(--ink);
+    --sidebar-accent: 30 4% 15%;
+    --sidebar-accent-foreground: var(--ivory);
+    --sidebar-border: 30 4% 21%;
     --sidebar-ring: var(--gold);
   }
 }
