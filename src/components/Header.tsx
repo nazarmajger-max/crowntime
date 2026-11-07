@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Product } from '@/types/product';
-import logo from '@/assets/crowntime-logo.png';
+import { Logo } from '@/components/Logo';
 import { BrandModelMenu } from './BrandModelMenu';
 
 export const Header = () => {
@@ -112,7 +112,7 @@ export const Header = () => {
         </div>
         
         <Link to="/" className="absolute left-1/2 -translate-x-1/2">
-          <img src={logo} alt="CrownTime" className="h-6 w-auto object-contain" />
+          <Logo className="text-base" />
         </Link>
 
         <div className="flex items-center gap-1">
@@ -141,7 +141,7 @@ export const Header = () => {
         <SheetContent side="left" className="w-[300px] p-0">
           <SheetHeader className="border-b p-4">
             <SheetTitle className="flex items-center gap-2">
-              <img src={logo} alt="CrownTime" className="h-8 w-auto object-contain" />
+              <Logo className="text-lg" />
             </SheetTitle>
           </SheetHeader>
           
@@ -216,7 +216,7 @@ export const Header = () => {
       {/* Desktop Header */}
       <div className="hidden md:flex container h-20 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
-          <img src={logo} alt="CrownTime" className="h-10 w-auto object-contain" />
+          <Logo className="text-xl" />
         </Link>
 
         <nav className="flex items-center gap-6">
