@@ -10,6 +10,6 @@ export const Logo = ({ className }: LogoProps) => (
     aria-label="CrownTime"
     className={cn('font-wordmark font-medium uppercase leading-none tracking-[0.24em] -mr-[0.24em]', className)}
   >
-    CrownTime
+    <span className="text-[0.9em]">CrownTime</span>
   </span>
 );
