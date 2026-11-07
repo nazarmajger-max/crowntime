@@ -1,3 +1,4 @@
+import { Logo } from '@/components/Logo';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -126,7 +127,7 @@ const Auth = () => {
   return <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl font-display text-center">CrownTime</CardTitle>
+          <CardTitle className="text-center"><Logo className="text-2xl" /></CardTitle>
           <CardDescription className="text-center">
             Увійдіть або створіть акаунт
           </CardDescription>

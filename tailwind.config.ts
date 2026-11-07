@@ -15,6 +15,7 @@ export default {
     extend: {
       fontFamily: {
         'display': ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        'wordmark': ['Cinzel', '"Cormorant Garamond"', 'Georgia', 'serif'],
         'body': ['Inter', 'system-ui', 'sans-serif'],
         'sans': ['Inter', 'system-ui', 'sans-serif'],
       },

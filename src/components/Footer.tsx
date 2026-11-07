@@ -1,3 +1,4 @@
+import { Logo } from '@/components/Logo';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin } from 'lucide-react';
 
@@ -9,7 +10,7 @@ export const Footer = () => {
       <div className="container px-6 py-16 md:py-20">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-12">
           <div className="md:col-span-4">
-            <p className="font-display text-3xl">CrownTime</p>
+            <Logo className="block text-2xl" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-forest-foreground/70">
               Оригінальні наручні годинники світових брендів. Тиха впевненість у кожній деталі.
             </p>
