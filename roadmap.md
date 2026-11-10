@@ -7,4 +7,4 @@
 - [x] Compare remaining uploaded styling against current pages and verify desktop/mobile rendering; retain newer catalog layout and keyboard focus indicators.
 
 # Restore light background
-- [ ] Restore the previous light background with brown, black, gold, white and gray accents; verify desktop/mobile appearance.
+- [x] Restore the previous light background with brown, black, gold, white and gray accents; verify desktop/mobile appearance.
