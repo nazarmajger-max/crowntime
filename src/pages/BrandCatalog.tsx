@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
@@ -26,6 +26,12 @@ const BrandCatalog = () => {
   const [modelSeries, setModelSeries] = useState<ModelSeriesWithImage[]>([]);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useLayoutEffect(() => {
+    if (selectedBrand) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  }, [selectedBrand]);
 
   useEffect(() => {
     fetchBrands();

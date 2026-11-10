@@ -22,12 +22,14 @@ import ChangePassword from "./pages/admin/ChangePassword";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import Favorites from "./pages/Favorites";
+import { CatalogScrollReset } from "./components/CatalogScrollReset";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
+      <CatalogScrollReset />
       <AuthProvider>
         <CartProvider>
           <TooltipProvider>
