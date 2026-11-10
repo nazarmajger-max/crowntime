@@ -6,8 +6,7 @@ import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ChevronLeft, ShieldCheck, BadgeCheck, Truck, RotateCcw } from 'lucide-react';
-import heroAsset from '@/assets/hero-crowntime.jpg.asset.json';
-import heroMobileAsset from '@/assets/hero-crowntime-mobile.jpg.asset.json';
+import heroWatch from '@/assets/hero-watch.jpg';
 
 interface BrandWithImage {
   name: string;
@@ -215,10 +214,7 @@ const BrandCatalog = () => {
         {!selectedBrand && (
           <>
             <section className="relative flex min-h-[78svh] items-end overflow-hidden bg-forest text-forest-foreground md:min-h-[88svh]">
-              <picture>
-            <source media="(max-width: 767px)" srcSet={heroMobileAsset.url} />
-            <img src={heroAsset.url} alt="Наручний годинник CrownTime із чорним циферблатом і золотим корпусом" width={2400} height={1350} className="absolute inset-0 h-full w-full object-cover object-[68%_center]" />
-          </picture>
+              <img src={heroWatch} alt="Наручний годинник на лляній тканині" width={1920} height={1088} className="absolute inset-0 h-full w-full object-cover object-[70%_center]" />
               <div className="absolute inset-0 bg-gradient-to-t from-forest/85 via-forest/30 to-transparent md:bg-gradient-to-r md:from-forest/80 md:via-forest/25 md:to-transparent" aria-hidden="true" />
               <div className="relative container px-6 pb-16 pt-32 md:pb-24">
                 <p className="eyebrow animate-fade-in">CrownTime</p>
