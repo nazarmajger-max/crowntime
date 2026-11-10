@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { WatchImage } from '@/components/WatchImage';
 
 interface ProductCardProps {
   product: Product;
@@ -83,22 +84,19 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         aria-label={`${product.brand} ${product.name}`}
       >
         <div className="relative aspect-[4/5] overflow-hidden bg-stone">
-          <img
+          <WatchImage
             src={product.image}
             alt={product.name}
-            loading="lazy"
             className={cn(
-              'absolute inset-0 h-full w-full object-contain p-6 md:p-8 mix-blend-multiply transition-all duration-1200 ease-lux',
+              'absolute inset-0 mix-blend-multiply transition-all duration-1200 ease-lux',
               hasHover ? 'group-hover:opacity-0' : 'group-hover:scale-[1.03]'
             )}
           />
           {hasHover && (
-            <img
+            <WatchImage
               src={product.hoverImage}
               alt=""
-              aria-hidden="true"
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-contain p-6 md:p-8 mix-blend-multiply opacity-0 transition-opacity duration-1200 ease-lux group-hover:opacity-100"
+              className="absolute inset-0 mix-blend-multiply opacity-0 transition-opacity duration-1200 ease-lux group-hover:opacity-100"
             />
           )}
           {!product.inStock && (

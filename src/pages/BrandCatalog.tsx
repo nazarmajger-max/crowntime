@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ChevronLeft, ShieldCheck, BadgeCheck, Truck, RotateCcw } from 'lucide-react';
 import heroWatch from '@/assets/hero-watch.jpg';
+import { WatchImage } from '@/components/WatchImage';
 
 interface BrandWithImage {
   name: string;
@@ -288,12 +289,12 @@ const BrandCatalog = () => {
                     onClick={() => handleModelSeriesClick(series.name)}
                     className="group flex flex-col items-center text-center"
                   >
-                    <div className="w-full aspect-[4/5] mb-4 p-6 md:p-10 bg-stone flex items-center justify-center overflow-hidden">
+                    <div className="w-full aspect-[4/5] mb-4 bg-stone flex items-center justify-center overflow-hidden">
                       {series.image ? (
-                        <img
+                        <WatchImage
                           src={series.image}
                           alt={series.name}
-                          className="max-w-full max-h-full object-contain mix-blend-multiply group-hover:scale-[1.03] transition-transform duration-1200 ease-lux"
+                          className="mix-blend-multiply group-hover:scale-[1.03] transition-transform duration-1200 ease-lux"
                         />
                       ) : (
                         <div className="w-full h-full bg-muted rounded flex items-center justify-center">
@@ -325,12 +326,12 @@ const BrandCatalog = () => {
                     onClick={() => handleBrandClick(brand.name)}
                     className="group flex flex-col items-center text-center"
                   >
-                    <div className="w-full aspect-[4/5] mb-4 p-6 md:p-10 bg-stone flex items-center justify-center overflow-hidden">
+                    <div className="w-full aspect-[4/5] mb-4 bg-stone flex items-center justify-center overflow-hidden">
                       {brand.image ? (
-                        <img
+                        <WatchImage
                           src={brand.image}
                           alt={brand.name}
-                          className="max-w-full max-h-full object-contain mix-blend-multiply group-hover:scale-[1.03] transition-transform duration-1200 ease-lux"
+                          className="mix-blend-multiply group-hover:scale-[1.03] transition-transform duration-1200 ease-lux"
                         />
                       ) : (
                         <div className="w-full h-full bg-muted rounded flex items-center justify-center">
